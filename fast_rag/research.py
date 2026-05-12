@@ -23,6 +23,7 @@ def build_research_steps(query: str, query_plan: dict | None = None) -> list[Res
     plan = query_plan or {}
     intent = str(plan.get("intent") or "")
     needs_freshness = bool(plan.get("needs_freshness"))
+    is_deep = plan.get("reasoning_effort") == "max" or plan.get("search_depth") == "deep"
     base = clean_text(query)
     steps = [
         ResearchStep("official", f"{base} official source documentation", "ground the answer in primary sources"),
@@ -30,11 +31,13 @@ def build_research_steps(query: str, query_plan: dict | None = None) -> list[Res
     ]
     if needs_freshness:
         steps.append(ResearchStep("freshness", f"{base} latest 2026", "check recent or time-sensitive changes"))
-    if intent in {"comparison", "recommendation", "analysis", "api_or_code"}:
+    if is_deep or intent in {"comparison", "recommendation", "analysis", "api_or_code"}:
         steps.append(ResearchStep("countercheck", f"{base} limitations risks comparison", "find caveats and conflicting evidence"))
     if len(steps) < 3:
         steps.append(ResearchStep("context", f"{base} explained", "fill context that primary sources may omit"))
-    return steps[:4]
+    if is_deep:
+        steps.append(ResearchStep("synthesis", f"{base} expert analysis key findings", "find synthesis-oriented sources and missing angles"))
+    return steps[:5]
 
 
 async def run_deep_research(
@@ -50,10 +53,10 @@ async def run_deep_research(
         docs, meta = await retrieve_documents(
             step.query,
             "pro",
-            max(4, min(max_results, 8)),
+            max(6, min(max_results, 10)),
             cache,
             filters=filters,
-            page_limit_override=6,
+            page_limit_override=7,
         )
         return step, docs, meta
 

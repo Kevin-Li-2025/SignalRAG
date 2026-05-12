@@ -19,6 +19,7 @@ from .citations import (
     verify_claim_citations_with_judge,
 )
 from .config import settings
+from .context import pack_answer_context
 from .crag import assess_retrieval, should_correct
 from .planner import plan_query
 from .rank import rank_evidence
@@ -38,6 +39,7 @@ class SearchRequest(BaseModel):
     query: str = Field(min_length=2, max_length=500)
     mode: Literal["fast", "pro", "deep"] = "fast"
     max_results: int = Field(default=8, ge=3, le=20)
+    lens: Literal["web", "official", "academic", "forums", "news", "pdf", "finance"] = "web"
     include_domains: list[str] = Field(default_factory=list, max_length=20)
     exclude_domains: list[str] = Field(default_factory=list, max_length=20)
     recency: Literal["any", "day", "week", "month", "year"] = "any"
@@ -95,12 +97,13 @@ async def search(request: SearchRequest) -> dict:
         request.recency,
         request.country,
         request.language,
+        request.lens,
     )
     query_plan = await plan_query(request.query, request.mode)
     effective_mode = _resolve_mode(request.mode, query_plan.search_depth)
     query_plan_dict = query_plan.to_dict()
-    if effective_mode == "deep" and query_plan_dict.get("reasoning_effort") == "none":
-        query_plan_dict["reasoning_effort"] = "high"
+    if effective_mode == "deep":
+        query_plan_dict["reasoning_effort"] = "max"
     research_trace: list[dict] = []
     if effective_mode == "deep":
         docs, retrieve_meta, research_trace = await run_deep_research(
@@ -118,7 +121,7 @@ async def search(request: SearchRequest) -> dict:
             cache,
             filters=filters,
         )
-    evidence_limit = 10 if effective_mode == "deep" else 9 if effective_mode == "pro" else 7
+    evidence_limit = 16 if effective_mode == "deep" else 9 if effective_mode == "pro" else 7
     evidence = rank_evidence(request.query, docs, limit=evidence_limit)
     crag_before = assess_retrieval(request.query, docs, evidence, filters)
     crag_after = None
@@ -143,7 +146,9 @@ async def search(request: SearchRequest) -> dict:
             "correction": correction_meta,
             "documents": len(docs),
         }
-    answer_evidence = select_answer_evidence(evidence)
+    selected_evidence = select_answer_evidence(evidence)
+    packed_context = pack_answer_context(request.query, selected_evidence, effective_mode)
+    answer_evidence = packed_context.evidence
     answer, answer_mode = await generate_answer(
         request.query,
         answer_evidence,
@@ -186,7 +191,9 @@ async def search(request: SearchRequest) -> dict:
             "effective_mode": effective_mode,
             "filters": filters.to_dict(),
             "ranked_evidence": len(evidence),
+            "selected_evidence": len(selected_evidence),
             "answer_evidence": len(answer_evidence),
+            "context_packing": packed_context.meta,
             "used_citations": len(used_citations),
             "verified_claims": len(claim_citations),
             "citation_verifier": claim_citations[0].get("verifier") if claim_citations else "none",

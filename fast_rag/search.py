@@ -31,6 +31,8 @@ RECENCY_TO_BRAVE = {
     "year": "py",
 }
 VALID_RECENCY = {"any", *RECENCY_TO_DDG}
+VALID_LENSES = {"web", "official", "academic", "forums", "news", "pdf", "finance"}
+RRF_K = 60
 
 
 @dataclass(frozen=True)
@@ -40,6 +42,7 @@ class SearchFilters:
     recency: str = "any"
     country: str = ""
     language: str = ""
+    lens: str = "web"
 
     def to_dict(self) -> dict:
         data = asdict(self)
@@ -88,6 +91,7 @@ def normalize_search_filters(
     recency: str | None = None,
     country: str | None = None,
     language: str | None = None,
+    lens: str | None = None,
 ) -> SearchFilters:
     include = _dedupe_domains(include_domains or ())[:20]
     exclude = _dedupe_domains(exclude_domains or ())[:20]
@@ -97,12 +101,16 @@ def normalize_search_filters(
         clean_recency = "any"
     clean_country = re.sub(r"[^a-z]", "", (country or "").lower())[:2]
     clean_language = re.sub(r"[^a-z]", "", (language or "").lower())[:2]
+    clean_lens = (lens or "web").lower().strip()
+    if clean_lens not in VALID_LENSES:
+        clean_lens = "web"
     return SearchFilters(
         include_domains=include,
         exclude_domains=tuple(exclude),
         recency=clean_recency,
         country=clean_country,
         language=clean_language,
+        lens=clean_lens,
     )
 
 
@@ -119,6 +127,7 @@ def rewrite_queries(query: str, mode: str, filters: SearchFilters | None = None)
         )
         if mode in {"pro", "deep"}:
             queries.append(f"site:developers.openai.com {query}")
+    queries.extend(_lens_queries(query, filters.lens))
     for domain in filters.include_domains[:4]:
         queries.append(f"site:{domain} {query}")
     queries.append(query)
@@ -140,6 +149,42 @@ def rewrite_queries(query: str, mode: str, filters: SearchFilters | None = None)
     return deduped[: PROFILES.get(mode, PROFILES["fast"]).query_limit]
 
 
+def _lens_queries(query: str, lens: str) -> list[str]:
+    if lens == "official":
+        return [
+            f"{query} official source",
+            f"{query} official documentation",
+        ]
+    if lens == "academic":
+        return [
+            f"site:arxiv.org {query}",
+            f"site:.edu {query}",
+            f"{query} research paper filetype:pdf",
+        ]
+    if lens == "forums":
+        return [
+            f"site:reddit.com {query}",
+            f"site:stackoverflow.com {query}",
+            f"site:news.ycombinator.com {query}",
+        ]
+    if lens == "news":
+        return [
+            f"{query} latest news 2026",
+            f"{query} news analysis",
+        ]
+    if lens == "pdf":
+        return [
+            f"filetype:pdf {query}",
+            f"{query} white paper PDF",
+        ]
+    if lens == "finance":
+        return [
+            f"site:sec.gov {query}",
+            f"{query} investor relations financial report",
+        ]
+    return []
+
+
 def _dedupe_domains(values: list[str] | tuple[str, ...]) -> tuple[str, ...]:
     domains: list[str] = []
     seen: set[str] = set()
@@ -155,6 +200,8 @@ def _clean_domain(value: str) -> str:
     value = value.strip().lower()
     if not value:
         return ""
+    if re.fullmatch(r"\.[a-z]{2,}", value):
+        return value
     parsed = urlparse(value if "://" in value else f"https://{value}")
     host = parsed.netloc or parsed.path
     host = host.split("/", 1)[0].split(":", 1)[0]
@@ -225,6 +272,51 @@ def seed_results(query: str) -> list[SearchResult]:
                     title="Create Chat Completion | DeepSeek API Docs",
                     url="https://api-docs.deepseek.com/api/create-chat-completion",
                     snippet="DeepSeek official chat completions endpoint documentation.",
+                    provider="official",
+                    rank=0,
+                ),
+            ]
+        )
+    if "deepseek" in lowered and ("thinking" in lowered or "reasoning" in lowered):
+        seeds.extend(
+            [
+                SearchResult(
+                    title="Thinking Mode | DeepSeek API Docs",
+                    url="https://api-docs.deepseek.com/guides/thinking_mode",
+                    snippet="DeepSeek official documentation for enabling thinking mode and setting reasoning effort to high or max.",
+                    provider="official",
+                    rank=0,
+                ),
+                SearchResult(
+                    title="Models & Pricing | DeepSeek API Docs",
+                    url="https://api-docs.deepseek.com/quick_start/pricing",
+                    snippet="DeepSeek official model table with V4 Flash/Pro context length and thinking mode support.",
+                    provider="official",
+                    rank=0,
+                ),
+            ]
+        )
+    if any(term in lowered for term in ("contextual retrieval", "context compression", "context window", "llmlingua", "lost in the middle")):
+        seeds.extend(
+            [
+                SearchResult(
+                    title="Contextual Retrieval in AI Systems | Anthropic",
+                    url="https://www.anthropic.com/news/contextual-retrieval",
+                    snippet="Anthropic engineering article on contextual retrieval, contextual BM25, embeddings, reranking, and retrieval failure reduction.",
+                    provider="official",
+                    rank=0,
+                ),
+                SearchResult(
+                    title="LongLLMLingua | Microsoft Research",
+                    url="https://www.microsoft.com/en-us/research/project/llmlingua/longllmlingua/",
+                    snippet="Microsoft Research project on query-aware prompt compression and long-context reordering.",
+                    provider="official",
+                    rank=0,
+                ),
+                SearchResult(
+                    title="Lost in the Middle: How Language Models Use Long Contexts",
+                    url="https://arxiv.org/abs/2307.03172",
+                    snippet="Paper showing that relevant information is often used better when placed at the beginning or end of long contexts.",
                     provider="official",
                     rank=0,
                 ),
@@ -351,13 +443,69 @@ def dedupe_results(results: list[SearchResult]) -> list[SearchResult]:
     deduped: list[SearchResult] = []
     seen: set[str] = set()
     for result in results:
-        clean_url = result.url.split("#", 1)[0].rstrip("/")
+        clean_url = _canonical_result_url(result.url)
         if not clean_url or clean_url in seen or is_noise_url(clean_url):
             continue
         seen.add(clean_url)
         result.url = clean_url
         deduped.append(result)
     return deduped
+
+
+def fuse_results(
+    batches: list[list[SearchResult]],
+    seeds: list[SearchResult] | None = None,
+) -> list[SearchResult]:
+    scores: dict[str, float] = {}
+    first_seen: dict[str, int] = {}
+    best: dict[str, SearchResult] = {}
+    order = 0
+
+    def add_result(result: SearchResult, rank: int, weight: float) -> None:
+        nonlocal order
+        clean_url = _canonical_result_url(result.url)
+        if not clean_url or is_noise_url(clean_url):
+            return
+        order += 1
+        rank = max(1, rank)
+        scores[clean_url] = scores.get(clean_url, 0.0) + weight / (RRF_K + rank)
+        first_seen.setdefault(clean_url, order)
+
+        candidate = SearchResult(
+            title=result.title,
+            url=clean_url,
+            snippet=result.snippet,
+            provider=result.provider,
+            rank=rank,
+        )
+        existing = best.get(clean_url)
+        if not existing or _prefer_result(candidate, existing):
+            best[clean_url] = candidate
+
+    for seed_rank, seed in enumerate(seeds or [], start=1):
+        add_result(seed, seed_rank, 4.0)
+    for batch in batches:
+        for rank, result in enumerate(batch, start=1):
+            add_result(result, rank, 1.0)
+
+    fused = sorted(best.values(), key=lambda item: (-scores[item.url], first_seen[item.url]))
+    for rank, item in enumerate(fused, start=1):
+        item.rank = rank
+    return fused
+
+
+def _canonical_result_url(url: str) -> str:
+    return url.split("#", 1)[0].rstrip("/")
+
+
+def _prefer_result(candidate: SearchResult, existing: SearchResult) -> bool:
+    if candidate.provider == "official" and existing.provider != "official":
+        return True
+    if existing.provider == "official" and candidate.provider != "official":
+        return False
+    if len(candidate.snippet) > len(existing.snippet) + 80:
+        return True
+    return bool(candidate.title and not existing.title)
 
 
 def filter_results(results: list[SearchResult], filters: SearchFilters | None = None) -> list[SearchResult]:
@@ -391,6 +539,8 @@ def _domain_for_url(url: str) -> str:
 
 
 def _domain_matches(host: str, domain: str) -> bool:
+    if domain.startswith("."):
+        return host.endswith(domain)
     return host == domain or host.endswith("." + domain)
 
 
@@ -534,13 +684,16 @@ async def retrieve_documents(
             for item in queries
         ]
         search_batches = await asyncio.gather(*search_tasks, return_exceptions=True)
+        result_batches: list[list[SearchResult]] = []
         raw_results: list[SearchResult] = []
         for batch in search_batches:
             if isinstance(batch, Exception):
                 continue
+            result_batches.append(batch)
             raw_results.extend(batch)
         page_limit = min(profile.page_limit, page_limit_override or profile.page_limit)
-        results = filter_results(dedupe_results(seed_results(query) + raw_results), filters)[
+        fused_results = fuse_results(result_batches, seed_results(query))
+        results = filter_results(fused_results, filters)[
             : max(max_results, page_limit)
         ]
 
@@ -564,6 +717,8 @@ async def retrieve_documents(
         "queries": queries,
         "filters": filters.to_dict(),
         "raw_results": len(raw_results),
+        "fusion": "rrf",
+        "fused_results": len(fused_results),
         "deduped_results": len(results),
         "documents": len(documents),
         "elapsed_ms": round((perf_counter() - started) * 1000),

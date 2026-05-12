@@ -120,10 +120,18 @@ def _system_prompt(query: str, query_plan: dict[str, Any] | None = None) -> str:
 
 
 def _user_prompt(query: str, evidence: list[Evidence], mode: str) -> str:
+    deep_instruction = ""
+    if mode == "deep":
+        deep_instruction = (
+            "\nDeep Research requirements: produce a structured research-grade answer with "
+            "a direct conclusion, synthesized evidence, caveats or conflicts, and practical next steps when useful. "
+            "Use dense citations and do not cite anything not present in the evidence.\n"
+        )
     return (
         f"Question: {query}\n"
         f"Mode: {mode}\n\n"
         f"Evidence:\n{_evidence_block(evidence)}\n\n"
+        f"{deep_instruction}"
         "Write a direct answer with citations. Do not include a bibliography, source list, or 'Sources checked' section."
     )
 
@@ -135,6 +143,8 @@ async def _deepseek_answer(
     query_plan: dict[str, Any] | None = None,
 ) -> str:
     reasoning_effort = str((query_plan or {}).get("reasoning_effort") or "none").lower()
+    if mode == "deep":
+        reasoning_effort = "max"
     payload = {
         "model": os.getenv("DEEPSEEK_MODEL", settings.deepseek_model),
         "messages": [
@@ -146,11 +156,12 @@ async def _deepseek_answer(
     if reasoning_effort in {"high", "max"}:
         payload["thinking"] = {"type": "enabled"}
         payload["reasoning_effort"] = reasoning_effort
-        payload["max_tokens"] = 1400 if reasoning_effort == "high" else 2200
+        payload["max_tokens"] = 1800 if reasoning_effort == "high" else 3600
     else:
         payload["thinking"] = {"type": "disabled"}
         payload["temperature"] = 0.1
-    async with httpx.AsyncClient(timeout=35) as client:
+    timeout = 90 if reasoning_effort == "max" else 50 if reasoning_effort == "high" else 35
+    async with httpx.AsyncClient(timeout=timeout) as client:
         response = await client.post(
             f"{settings.deepseek_base_url.rstrip('/')}/chat/completions",
             headers={

@@ -89,8 +89,8 @@ resetControls.addEventListener("click", () => {
 });
 
 scope.addEventListener("change", () => {
-  if (scope.value === "official" && !includeDomains.value.trim()) {
-    includeDomains.value = "openai.com, help.openai.com, developers.openai.com, api-docs.deepseek.com";
+  if (scope.value === "news" && recency.value === "any") {
+    recency.value = "week";
   }
 });
 
@@ -125,6 +125,7 @@ form.addEventListener("submit", async (event) => {
       body: JSON.stringify({
         query,
         mode,
+        lens: scope.value,
         max_results: mode === "deep" ? 14 : mode === "pro" ? 10 : 8,
         include_domains: parseDomains(includeDomains.value),
         exclude_domains: parseDomains(excludeDomains.value),
@@ -269,15 +270,19 @@ function renderClaims(items) {
 function renderRetrieval(data) {
   const assessment = data.crag?.after || data.crag?.before;
   const metrics = assessment?.metrics || {};
+  const packing = data.meta?.context_packing || {};
   panels.retrieval.innerHTML = `
     <article class="side-card retrieval-card">
       <div class="side-card-title">Retrieval Check</div>
       <div class="retrieval-grid">
         <div><span>Query Intent</span><strong>${escapeHtml(data.query_plan.intent)}</strong></div>
+        <div><span>Lens</span><strong>${escapeHtml(lensLabel(data.meta.filters?.lens || "web"))}</strong></div>
         <div><span>Coverage</span><strong>${metricQuality(metrics.query_token_coverage || 0)}</strong></div>
         <div><span>Evidence Quality</span><strong>${metricQuality((assessment?.confidence || 0))}</strong></div>
         <div><span>Consistency</span><strong>${escapeHtml(assessment?.status || "pending")}</strong></div>
         <div><span>Confidence</span><strong>${qualityLabel(Math.round((assessment?.confidence || 0) * 100))}</strong></div>
+        <div><span>Context Pack</span><strong>${escapeHtml(packing.strategy ? `${packing.packed_evidence}/${packing.input_evidence}` : "Pending")}</strong></div>
+        <div><span>Compression</span><strong>${escapeHtml(formatRatio(packing.compression_ratio))}</strong></div>
       </div>
     </article>
   `;
@@ -441,10 +446,28 @@ function metricQuality(value) {
   return "Low";
 }
 
+function formatRatio(value) {
+  if (typeof value !== "number") return "Pending";
+  return `${Math.round(value * 100)}%`;
+}
+
 function labelMode(value) {
   if (value === "deep") return "Deep Research";
   if (value === "fast") return "Fast";
   return "Pro";
+}
+
+function lensLabel(value) {
+  const labels = {
+    web: "Web",
+    official: "Official",
+    academic: "Academic",
+    forums: "Forums",
+    news: "News",
+    pdf: "PDFs",
+    finance: "Finance",
+  };
+  return labels[value] || "Web";
 }
 
 function verifierLabel(value) {

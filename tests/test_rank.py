@@ -44,6 +44,25 @@ def test_rank_evidence_uses_phrase_match_over_loose_terms() -> None:
     assert ranked[0].url.endswith("chatgpt-search")
 
 
+def test_rank_evidence_uses_source_context_for_pronoun_passages() -> None:
+    docs = [
+        Document(
+            url="https://example.com/generic",
+            title="Generic API docs",
+            text="It supports a mode switch and an effort parameter for requests.",
+        ),
+        Document(
+            url="https://api-docs.deepseek.com/guides/thinking_mode",
+            title="DeepSeek Thinking Mode",
+            text="It supports a mode switch and an effort parameter for requests.",
+            provider="official",
+        ),
+    ]
+    ranked = rank_evidence("DeepSeek thinking mode reasoning effort", docs, limit=2)
+    assert ranked[0].url.startswith("https://api-docs.deepseek.com")
+    assert ranked[0].signals["contextual_bm25"] == 1.0
+
+
 def test_rank_evidence_penalizes_passages_missing_required_topic() -> None:
     docs = [
         Document(

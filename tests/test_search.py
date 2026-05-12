@@ -4,6 +4,7 @@ from fast_rag.search import (
     dedupe_documents,
     dedupe_results,
     filter_results,
+    fuse_results,
     normalize_search_filters,
     rewrite_queries,
     seed_results,
@@ -27,6 +28,13 @@ def test_rewrite_queries_pro_adds_official_query_for_general_topics() -> None:
     assert any(query.endswith("official source") for query in queries)
 
 
+def test_rewrite_queries_applies_lens_queries() -> None:
+    filters = SearchFilters(lens="academic")
+    queries = rewrite_queries("corrective RAG evaluation", "deep", filters)
+    assert any(query.startswith("site:arxiv.org") for query in queries)
+    assert any("filetype:pdf" in query for query in queries)
+
+
 def test_rewrite_queries_applies_domain_controls() -> None:
     filters = SearchFilters(include_domains=("docs.example.com",), exclude_domains=("medium.com",))
     queries = rewrite_queries("vector database recall", "pro", filters)
@@ -37,16 +45,18 @@ def test_rewrite_queries_applies_domain_controls() -> None:
 def test_normalize_search_filters_cleans_domains_and_recency() -> None:
     filters = normalize_search_filters(
         ["https://www.OpenAI.com/docs", "bad value"],
-        ["medium.com"],
+        ["medium.com", ".edu"],
         "week",
         "US",
         "EN",
+        "forums",
     )
     assert filters.include_domains == ("openai.com",)
-    assert filters.exclude_domains == ("medium.com",)
+    assert filters.exclude_domains == ("medium.com", ".edu")
     assert filters.recency == "week"
     assert filters.country == "us"
     assert filters.language == "en"
+    assert filters.lens == "forums"
 
 
 def test_filter_results_respects_include_and_exclude_domains() -> None:
@@ -59,6 +69,17 @@ def test_filter_results_respects_include_and_exclude_domains() -> None:
         SearchFilters(include_domains=("example.com",), exclude_domains=("blog.example.com",)),
     )
     assert [item.url for item in results] == ["https://docs.example.com/a"]
+
+
+def test_filter_results_supports_tld_lenses() -> None:
+    results = filter_results(
+        [
+            SearchResult(title="A", url="https://cs.stanford.edu/a"),
+            SearchResult(title="B", url="https://example.com/b"),
+        ],
+        SearchFilters(include_domains=(".edu",)),
+    )
+    assert [item.url for item in results] == ["https://cs.stanford.edu/a"]
 
 
 def test_seed_results_adds_chatgpt_search_official_sources() -> None:
@@ -75,6 +96,20 @@ def test_seed_results_adds_deepseek_official_sources() -> None:
     assert "https://api-docs.deepseek.com/api/create-chat-completion" in urls
 
 
+def test_seed_results_adds_deepseek_thinking_sources() -> None:
+    seeds = seed_results("DeepSeek thinking reasoning effort")
+    urls = {item.url for item in seeds}
+    assert "https://api-docs.deepseek.com/guides/thinking_mode" in urls
+    assert "https://api-docs.deepseek.com/quick_start/pricing" in urls
+
+
+def test_seed_results_adds_context_compression_sources() -> None:
+    seeds = seed_results("context window compression LongLLMLingua lost in the middle")
+    urls = {item.url for item in seeds}
+    assert "https://www.microsoft.com/en-us/research/project/llmlingua/longllmlingua/" in urls
+    assert "https://arxiv.org/abs/2307.03172" in urls
+
+
 def test_dedupe_results_drops_duckduckgo_ads() -> None:
     results = dedupe_results(
         [
@@ -86,6 +121,34 @@ def test_dedupe_results_drops_duckduckgo_ads() -> None:
         ]
     )
     assert [item.url for item in results] == ["https://example.com/page"]
+
+
+def test_fuse_results_rewards_urls_found_by_multiple_queries() -> None:
+    results = fuse_results(
+        [
+            [
+                SearchResult(title="Single", url="https://single.example.com", rank=1),
+                SearchResult(title="Repeated A", url="https://repeat.example.com", rank=2),
+            ],
+            [
+                SearchResult(title="Repeated B", url="https://repeat.example.com#section", rank=1),
+            ],
+        ]
+    )
+    assert [item.url for item in results[:2]] == [
+        "https://repeat.example.com",
+        "https://single.example.com",
+    ]
+    assert results[0].title == "Repeated A"
+
+
+def test_fuse_results_keeps_seeded_official_sources_high() -> None:
+    results = fuse_results(
+        [[SearchResult(title="Web", url="https://web.example.com", rank=1)]],
+        seeds=[SearchResult(title="Official", url="https://docs.example.com", provider="official", rank=0)],
+    )
+    assert results[0].url == "https://docs.example.com"
+    assert results[0].provider == "official"
 
 
 def test_dedupe_documents_prefers_official_redirect_result() -> None:

@@ -99,6 +99,17 @@ def source_quality(url: str) -> float:
     return 1.0
 
 
+def contextual_passage_text(title: str, url: str, snippet: str, passage: str) -> str:
+    parts = [
+        f"Source title: {title}",
+        f"Source domain: {domain_for(url)}",
+    ]
+    if snippet:
+        parts.append(f"Source snippet: {snippet}")
+    parts.append(passage)
+    return ". ".join(part for part in parts if part)
+
+
 def _bm25(query_tokens: list[str], doc_tokens: list[str], idf: dict[str, float], avg_len: float) -> float:
     if not query_tokens or not doc_tokens:
         return 0.0
@@ -124,7 +135,7 @@ def rank_evidence(query: str, docs: list[Document], limit: int = 8) -> list[Evid
 
     for doc in docs:
         for passage in split_passages(doc.text):
-            passage_tokens = tokenize(passage)
+            passage_tokens = tokenize(contextual_passage_text(doc.title, doc.url, doc.snippet, passage))
             if passage_tokens:
                 candidates.append((doc, passage, passage_tokens))
 
@@ -144,7 +155,7 @@ def rank_evidence(query: str, docs: list[Document], limit: int = 8) -> list[Evid
     scored: list[Evidence] = []
     seen_passages: set[str] = set()
     for doc, passage, tokens in candidates:
-        fingerprint = passage[:220].lower()
+        fingerprint = f"{doc.url}:{passage[:220]}".lower()
         if fingerprint in seen_passages:
             continue
         seen_passages.add(fingerprint)
@@ -181,6 +192,7 @@ def rank_evidence(query: str, docs: list[Document], limit: int = 8) -> list[Evid
                     "title": round(title_hit, 4),
                     "snippet": round(snippet_hit, 4),
                     "quality": round(quality, 4),
+                    "contextual_bm25": 1.0,
                 },
             )
         )
