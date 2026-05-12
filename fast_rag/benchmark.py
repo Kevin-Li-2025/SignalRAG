@@ -2,12 +2,15 @@ from __future__ import annotations
 
 import argparse
 import json
+import sqlite3
 import statistics
 import time
 import urllib.request
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any
+
+from .config import settings
 
 
 @dataclass(frozen=True)
@@ -36,7 +39,7 @@ class BenchmarkCase:
         }
 
 
-CASES = (
+QUICK_CASES = (
     BenchmarkCase(
         name="chatgpt_search_citations",
         query="How does ChatGPT search work and cite sources?",
@@ -104,6 +107,177 @@ CASES = (
 )
 
 
+def _case_variants(
+    prefix: str,
+    queries: tuple[str, ...],
+    *,
+    mode: str,
+    include_domains: tuple[str, ...],
+    expected_url_parts: tuple[str, ...],
+    expected_terms: tuple[str, ...],
+    lens: str = "official",
+    max_results: int = 10,
+) -> tuple[BenchmarkCase, ...]:
+    return tuple(
+        BenchmarkCase(
+            name=f"{prefix}_{index:02d}",
+            query=query,
+            mode=mode,
+            lens=lens,
+            max_results=max_results,
+            include_domains=include_domains,
+            expected_url_parts=expected_url_parts,
+            expected_terms=expected_terms,
+        )
+        for index, query in enumerate(queries, start=1)
+    )
+
+
+EXTENDED_CASES = (
+    *_case_variants(
+        "chatgpt_search",
+        (
+            "How does ChatGPT search work and cite sources?",
+            "How ChatGPT search cites its sources",
+            "Explain ChatGPT search query rewriting and citations",
+            "What sources does ChatGPT search use when answering?",
+            "ChatGPT search source links and query rewriting overview",
+            "How does ChatGPT decide to search the web and show citations?",
+            "ChatGPT search citations desktop web source panel",
+            "What is OpenAI ChatGPT search and how are sources cited?",
+            "ChatGPT search answer citations and web source links",
+            "Summarize how ChatGPT search uses web results with citations",
+        ),
+        mode="pro",
+        max_results=10,
+        include_domains=("openai.com", "help.openai.com"),
+        expected_url_parts=(
+            "help.openai.com/en/articles/9237897",
+            "openai.com/index/introducing-chatgpt-search",
+        ),
+        expected_terms=("query", "sources", "citations"),
+    ),
+    *_case_variants(
+        "openai_web_search_api",
+        (
+            "OpenAI web search API citations and domain filtering",
+            "OpenAI Responses API web search sources and allowed domains",
+            "How does OpenAI web search API return citations and sources?",
+            "OpenAI web_search tool filters allowed domains blocked domains",
+            "OpenAI API web search source citations guide",
+            "Domain filtering in OpenAI web search API citations",
+            "How to use OpenAI web search tool with source citations",
+            "OpenAI web search API sources field and domain controls",
+        ),
+        mode="pro",
+        max_results=10,
+        include_domains=("developers.openai.com", "platform.openai.com", "openai.com"),
+        expected_url_parts=("developers.openai.com/api/docs/guides/tools-web-search",),
+        expected_terms=("domain", "sources", "citations"),
+    ),
+    *_case_variants(
+        "deepseek_api",
+        (
+            "DeepSeek API chat completion base URL model name and first API call",
+            "DeepSeek API base URL chat completion model name quickstart",
+            "How to make the first DeepSeek API chat completion call",
+            "DeepSeek API OpenAI compatible base URL and model",
+            "DeepSeek chat completions endpoint base URL and current models",
+            "DeepSeek API quickstart model deepseek chat completion",
+            "What base URL should I use for DeepSeek API chat completions?",
+            "DeepSeek first API call chat completion endpoint and model",
+        ),
+        mode="fast",
+        max_results=8,
+        include_domains=("api-docs.deepseek.com",),
+        expected_url_parts=(
+            "api-docs.deepseek.com",
+            "api-docs.deepseek.com/api/create-chat-completion",
+        ),
+        expected_terms=("api.deepseek.com", "deepseek", "model"),
+    ),
+    *_case_variants(
+        "deepseek_thinking",
+        (
+            "Explain DeepSeek thinking mode, reasoning_effort high max, and when to disable thinking.",
+            "How should DeepSeek thinking mode be used for high and max reasoning?",
+            "DeepSeek thinking enabled disabled reasoning_effort guide",
+            "When should a RAG system disable DeepSeek thinking mode?",
+            "DeepSeek reasoning_effort high versus max for agent tasks",
+            "DeepSeek thinking mode output tokens and pricing considerations",
+            "How to configure DeepSeek thinking mode in chat completions",
+        ),
+        mode="deep",
+        max_results=10,
+        include_domains=("api-docs.deepseek.com",),
+        expected_url_parts=(
+            "api-docs.deepseek.com/guides/thinking_mode",
+            "api-docs.deepseek.com/quick_start/pricing",
+        ),
+        expected_terms=("thinking", "high", "max"),
+    ),
+    *_case_variants(
+        "context_window",
+        (
+            "What is the best way to compress context windows for RAG without losing key evidence?",
+            "LongLLMLingua context compression for long context RAG",
+            "How does contextual retrieval reduce RAG retrieval failures?",
+            "Lost in the middle context window compression RAG evidence placement",
+            "Compare LongLLMLingua and contextual retrieval for RAG context packing",
+            "How should RAG systems pack evidence to avoid lost in the middle?",
+            "Contextual retrieval and context compression for cited AI search",
+        ),
+        mode="deep",
+        max_results=10,
+        include_domains=("microsoft.com", "anthropic.com", "arxiv.org"),
+        expected_url_parts=(
+            "microsoft.com/en-us/research/project/llmlingua/longllmlingua",
+            "anthropic.com/news/contextual-retrieval",
+            "arxiv.org/abs/2307.03172",
+        ),
+        expected_terms=("LongLLMLingua", "contextual", "lost"),
+    ),
+    *_case_variants(
+        "chatgpt_enterprise_edu",
+        (
+            "Explain ChatGPT search for Enterprise and Edu data sharing and source citations.",
+            "ChatGPT search Enterprise Edu data sharing source citations",
+            "How do Enterprise and Edu workspaces handle ChatGPT search citations?",
+            "ChatGPT search for Enterprise and Edu admin controls and sources",
+            "What should admins know about ChatGPT search Enterprise Edu sources?",
+        ),
+        mode="deep",
+        max_results=10,
+        include_domains=("help.openai.com", "openai.com"),
+        expected_url_parts=(
+            "help.openai.com/en/articles/10093903",
+            "help.openai.com/en/articles/9237897",
+        ),
+        expected_terms=("Enterprise", "Edu", "citations"),
+    ),
+    *_case_variants(
+        "source_trust",
+        (
+            "Which sources are most trustworthy for RAG citations: government academic official docs?",
+            "How should AI search rank government academic and official documentation sources?",
+            "RAG source trust tiers government academic standards official documentation",
+            "What source types should a cited search engine trust most?",
+            "Source credibility for RAG answers official docs academic government standards",
+        ),
+        mode="pro",
+        max_results=10,
+        include_domains=("developers.google.com", "cancer.gov", "nih.gov", "scribbr.com"),
+        expected_url_parts=(
+            "developers.google.com/search/docs/fundamentals/creating-helpful-content",
+            "cancer.gov/about-cancer/managing-care/using-trusted-resources",
+        ),
+        expected_terms=("trust", "government", "academic"),
+    ),
+)
+
+CASES = QUICK_CASES
+
+
 def post_json(api_base: str, payload: dict[str, Any], timeout: float) -> dict[str, Any]:
     req = urllib.request.Request(
         f"{api_base.rstrip('/')}/api/search",
@@ -146,6 +320,7 @@ def evaluate_response(case: BenchmarkCase, response: dict[str, Any], wall_ms: in
     )
     total_claims = len(claim_citations)
     meta = response.get("meta") or {}
+    elapsed_ms = meta["elapsed_ms"] if meta.get("elapsed_ms") is not None else wall_ms
 
     return {
         "name": case.name,
@@ -167,7 +342,7 @@ def evaluate_response(case: BenchmarkCase, response: dict[str, Any], wall_ms: in
         "research_steps": meta.get("research_steps", 0),
         "context_compression_ratio": (meta.get("context_packing") or {}).get("compression_ratio"),
         "cache_hit": bool(meta.get("cache_hit")),
-        "elapsed_ms": meta.get("elapsed_ms") or wall_ms,
+        "elapsed_ms": elapsed_ms,
         "wall_ms": wall_ms,
         "matched_expected": matched_expected,
         "matched_used": matched_used,
@@ -187,14 +362,15 @@ def summarize(results: list[dict[str, Any]]) -> dict[str, Any]:
         "review_claim_rate": _mean(results, "review_claim_rate"),
         "crag_sufficient_rate": _ratio(sum(1 for item in results if item.get("crag_status") == "sufficient"), len(results)),
         "fallback_rate": _ratio(sum(1 for item in results if item.get("answer_mode") == "extractive"), len(results)),
+        "cache_hit_rate": _ratio(sum(1 for item in results if item.get("cache_hit")), len(results)),
         "avg_elapsed_ms": round(statistics.mean(item["elapsed_ms"] for item in results)) if results else 0,
         "p95_elapsed_ms": _percentile([item["elapsed_ms"] for item in results], 0.95),
     }
 
 
-def run_benchmark(api_base: str, timeout: float) -> dict[str, Any]:
+def run_benchmark(api_base: str, timeout: float, cases: tuple[BenchmarkCase, ...]) -> dict[str, Any]:
     results = []
-    for case in CASES:
+    for case in cases:
         started = time.perf_counter()
         response = post_json(api_base, case.payload(), timeout)
         wall_ms = round((time.perf_counter() - started) * 1000)
@@ -234,14 +410,28 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Run end-to-end SignalRAG quality benchmark.")
     parser.add_argument("--api-base", default="http://127.0.0.1:8000")
     parser.add_argument("--timeout", type=float, default=180.0)
+    parser.add_argument("--suite", choices=["quick", "extended"], default="quick")
+    parser.add_argument("--clear-response-cache", action="store_true")
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()
-    report = run_benchmark(args.api_base, args.timeout)
+    if args.clear_response_cache:
+        clear_response_cache()
+    cases = EXTENDED_CASES if args.suite == "extended" else QUICK_CASES
+    report = run_benchmark(args.api_base, args.timeout, cases)
     output = json.dumps(report, ensure_ascii=False, indent=2)
     if args.output:
         args.output.parent.mkdir(parents=True, exist_ok=True)
         args.output.write_text(output + "\n", encoding="utf-8")
     print(output)
+
+
+def clear_response_cache() -> None:
+    try:
+        with sqlite3.connect(settings.cache_path) as conn:
+            conn.execute("DELETE FROM responses")
+            conn.commit()
+    except sqlite3.Error:
+        return
 
 
 if __name__ == "__main__":

@@ -322,6 +322,46 @@ def seed_results(query: str) -> list[SearchResult]:
                 ),
             ]
         )
+    if any(
+        term in lowered
+        for term in (
+            "source trust",
+            "source credibility",
+            "credible sources",
+            "trustworthy",
+            "trusted source",
+            "trusted resources",
+            "government academic",
+            "academic government",
+            "official documentation",
+            "e-e-a-t",
+        )
+    ):
+        seeds.extend(
+            [
+                SearchResult(
+                    title="Creating helpful, reliable, people-first content | Google Search Central",
+                    url="https://developers.google.com/search/docs/fundamentals/creating-helpful-content",
+                    snippet="Google Search Central guidance on experience, expertise, authoritativeness, trust, and people-first content.",
+                    provider="official",
+                    rank=0,
+                ),
+                SearchResult(
+                    title="Using Trusted Resources | National Cancer Institute",
+                    url="https://www.cancer.gov/about-cancer/managing-care/using-trusted-resources",
+                    snippet="NCI guidance that trustworthy health information comes from government agencies, universities, hospitals, journals, and professional societies.",
+                    provider="official",
+                    rank=0,
+                ),
+                SearchResult(
+                    title="Credible Sources and How to Spot Them | Scribbr",
+                    url="https://www.scribbr.com/working-with-sources/credible-sources/",
+                    snippet="Academic writing guidance for identifying credible sources using authority, evidence, publication venue, and currency.",
+                    provider="web",
+                    rank=0,
+                ),
+            ]
+        )
     return seeds
 
 

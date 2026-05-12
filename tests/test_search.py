@@ -110,6 +110,13 @@ def test_seed_results_adds_context_compression_sources() -> None:
     assert "https://arxiv.org/abs/2307.03172" in urls
 
 
+def test_seed_results_adds_source_trust_sources() -> None:
+    seeds = seed_results("source trust tiers government academic official documentation")
+    urls = {item.url for item in seeds}
+    assert "https://developers.google.com/search/docs/fundamentals/creating-helpful-content" in urls
+    assert "https://www.cancer.gov/about-cancer/managing-care/using-trusted-resources" in urls
+
+
 def test_dedupe_results_drops_duckduckgo_ads() -> None:
     results = dedupe_results(
         [

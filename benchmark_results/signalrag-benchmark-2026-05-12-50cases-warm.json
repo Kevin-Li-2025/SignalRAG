@@ -1,0 +1,1734 @@
+{
+  "api_base": "http://127.0.0.1:8000",
+  "summary": {
+    "cases": 50,
+    "expected_source_recall": 0.9067,
+    "used_source_recall": 0.7567,
+    "answer_term_coverage": 0.7533,
+    "citation_coverage": 0.8139,
+    "supported_claim_rate": 0.7906,
+    "weak_claim_rate": 0.0052,
+    "review_claim_rate": 0.2042,
+    "crag_sufficient_rate": 0.96,
+    "fallback_rate": 0.04,
+    "cache_hit_rate": 1.0,
+    "avg_elapsed_ms": 0,
+    "p95_elapsed_ms": 0
+  },
+  "results": [
+    {
+      "name": "chatgpt_search_01",
+      "mode": "pro",
+      "answer_mode": "deepseek",
+      "reasoning_effort": "none",
+      "expected_source_recall": 1.0,
+      "used_source_recall": 0.5,
+      "answer_term_coverage": 0.6667,
+      "citation_coverage": 1.0,
+      "supported_claim_rate": 1.0,
+      "weak_claim_rate": 0.0,
+      "review_claim_rate": 0.0,
+      "contradicted_claims": 0,
+      "used_citations": 4,
+      "claims": 4,
+      "crag_status": "sufficient",
+      "crag_corrected": false,
+      "research_steps": 0,
+      "context_compression_ratio": 1.0,
+      "cache_hit": true,
+      "elapsed_ms": 0,
+      "wall_ms": 43,
+      "matched_expected": [
+        "help.openai.com/en/articles/9237897",
+        "openai.com/index/introducing-chatgpt-search"
+      ],
+      "matched_used": [
+        "help.openai.com/en/articles/9237897"
+      ],
+      "term_hits": [
+        "query",
+        "sources"
+      ]
+    },
+    {
+      "name": "chatgpt_search_02",
+      "mode": "pro",
+      "answer_mode": "deepseek",
+      "reasoning_effort": "none",
+      "expected_source_recall": 1.0,
+      "used_source_recall": 0.5,
+      "answer_term_coverage": 0.3333,
+      "citation_coverage": 1.0,
+      "supported_claim_rate": 1.0,
+      "weak_claim_rate": 0.0,
+      "review_claim_rate": 0.0,
+      "contradicted_claims": 0,
+      "used_citations": 2,
+      "claims": 3,
+      "crag_status": "sufficient",
+      "crag_corrected": false,
+      "research_steps": 0,
+      "context_compression_ratio": 1.0,
+      "cache_hit": true,
+      "elapsed_ms": 0,
+      "wall_ms": 3,
+      "matched_expected": [
+        "help.openai.com/en/articles/9237897",
+        "openai.com/index/introducing-chatgpt-search"
+      ],
+      "matched_used": [
+        "help.openai.com/en/articles/9237897"
+      ],
+      "term_hits": [
+        "sources"
+      ]
+    },
+    {
+      "name": "chatgpt_search_03",
+      "mode": "pro",
+      "answer_mode": "deepseek",
+      "reasoning_effort": "none",
+      "expected_source_recall": 1.0,
+      "used_source_recall": 0.5,
+      "answer_term_coverage": 1.0,
+      "citation_coverage": 1.0,
+      "supported_claim_rate": 1.0,
+      "weak_claim_rate": 0.0,
+      "review_claim_rate": 0.0,
+      "contradicted_claims": 0,
+      "used_citations": 2,
+      "claims": 6,
+      "crag_status": "sufficient",
+      "crag_corrected": false,
+      "research_steps": 0,
+      "context_compression_ratio": 0.9841,
+      "cache_hit": true,
+      "elapsed_ms": 0,
+      "wall_ms": 2,
+      "matched_expected": [
+        "help.openai.com/en/articles/9237897",
+        "openai.com/index/introducing-chatgpt-search"
+      ],
+      "matched_used": [
+        "help.openai.com/en/articles/9237897"
+      ],
+      "term_hits": [
+        "query",
+        "sources",
+        "citations"
+      ]
+    },
+    {
+      "name": "chatgpt_search_04",
+      "mode": "pro",
+      "answer_mode": "deepseek",
+      "reasoning_effort": "none",
+      "expected_source_recall": 1.0,
+      "used_source_recall": 0.5,
+      "answer_term_coverage": 0.3333,
+      "citation_coverage": 1.0,
+      "supported_claim_rate": 1.0,
+      "weak_claim_rate": 0.0,
+      "review_claim_rate": 0.0,
+      "contradicted_claims": 0,
+      "used_citations": 2,
+      "claims": 3,
+      "crag_status": "sufficient",
+      "crag_corrected": false,
+      "research_steps": 0,
+      "context_compression_ratio": 0.9406,
+      "cache_hit": true,
+      "elapsed_ms": 0,
+      "wall_ms": 2,
+      "matched_expected": [
+        "help.openai.com/en/articles/9237897",
+        "openai.com/index/introducing-chatgpt-search"
+      ],
+      "matched_used": [
+        "help.openai.com/en/articles/9237897"
+      ],
+      "term_hits": [
+        "sources"
+      ]
+    },
+    {
+      "name": "chatgpt_search_05",
+      "mode": "pro",
+      "answer_mode": "deepseek",
+      "reasoning_effort": "high",
+      "expected_source_recall": 1.0,
+      "used_source_recall": 0.5,
+      "answer_term_coverage": 0.6667,
+      "citation_coverage": 1.0,
+      "supported_claim_rate": 1.0,
+      "weak_claim_rate": 0.0,
+      "review_claim_rate": 0.0,
+      "contradicted_claims": 0,
+      "used_citations": 2,
+      "claims": 3,
+      "crag_status": "sufficient",
+      "crag_corrected": false,
+      "research_steps": 0,
+      "context_compression_ratio": 0.9761,
+      "cache_hit": true,
+      "elapsed_ms": 0,
+      "wall_ms": 2,
+      "matched_expected": [
+        "help.openai.com/en/articles/9237897",
+        "openai.com/index/introducing-chatgpt-search"
+      ],
+      "matched_used": [
+        "help.openai.com/en/articles/9237897"
+      ],
+      "term_hits": [
+        "query",
+        "sources"
+      ]
+    },
+    {
+      "name": "chatgpt_search_06",
+      "mode": "pro",
+      "answer_mode": "deepseek",
+      "reasoning_effort": "high",
+      "expected_source_recall": 1.0,
+      "used_source_recall": 0.5,
+      "answer_term_coverage": 0.6667,
+      "citation_coverage": 1.0,
+      "supported_claim_rate": 1.0,
+      "weak_claim_rate": 0.0,
+      "review_claim_rate": 0.0,
+      "contradicted_claims": 0,
+      "used_citations": 2,
+      "claims": 2,
+      "crag_status": "sufficient",
+      "crag_corrected": false,
+      "research_steps": 0,
+      "context_compression_ratio": 1.0,
+      "cache_hit": true,
+      "elapsed_ms": 0,
+      "wall_ms": 2,
+      "matched_expected": [
+        "help.openai.com/en/articles/9237897",
+        "openai.com/index/introducing-chatgpt-search"
+      ],
+      "matched_used": [
+        "help.openai.com/en/articles/9237897"
+      ],
+      "term_hits": [
+        "sources",
+        "citations"
+      ]
+    },
+    {
+      "name": "chatgpt_search_07",
+      "mode": "pro",
+      "answer_mode": "deepseek",
+      "reasoning_effort": "none",
+      "expected_source_recall": 1.0,
+      "used_source_recall": 0.5,
+      "answer_term_coverage": 0.6667,
+      "citation_coverage": 1.0,
+      "supported_claim_rate": 1.0,
+      "weak_claim_rate": 0.0,
+      "review_claim_rate": 0.0,
+      "contradicted_claims": 0,
+      "used_citations": 1,
+      "claims": 3,
+      "crag_status": "sufficient",
+      "crag_corrected": false,
+      "research_steps": 0,
+      "context_compression_ratio": 0.9664,
+      "cache_hit": true,
+      "elapsed_ms": 0,
+      "wall_ms": 2,
+      "matched_expected": [
+        "help.openai.com/en/articles/9237897",
+        "openai.com/index/introducing-chatgpt-search"
+      ],
+      "matched_used": [
+        "help.openai.com/en/articles/9237897"
+      ],
+      "term_hits": [
+        "sources",
+        "citations"
+      ]
+    },
+    {
+      "name": "chatgpt_search_08",
+      "mode": "pro",
+      "answer_mode": "deepseek",
+      "reasoning_effort": "none",
+      "expected_source_recall": 1.0,
+      "used_source_recall": 0.5,
+      "answer_term_coverage": 0.6667,
+      "citation_coverage": 1.0,
+      "supported_claim_rate": 1.0,
+      "weak_claim_rate": 0.0,
+      "review_claim_rate": 0.0,
+      "contradicted_claims": 0,
+      "used_citations": 1,
+      "claims": 5,
+      "crag_status": "sufficient",
+      "crag_corrected": false,
+      "research_steps": 0,
+      "context_compression_ratio": 0.9818,
+      "cache_hit": true,
+      "elapsed_ms": 0,
+      "wall_ms": 2,
+      "matched_expected": [
+        "help.openai.com/en/articles/9237897",
+        "openai.com/index/introducing-chatgpt-search"
+      ],
+      "matched_used": [
+        "help.openai.com/en/articles/9237897"
+      ],
+      "term_hits": [
+        "sources",
+        "citations"
+      ]
+    },
+    {
+      "name": "chatgpt_search_09",
+      "mode": "pro",
+      "answer_mode": "deepseek",
+      "reasoning_effort": "none",
+      "expected_source_recall": 1.0,
+      "used_source_recall": 0.5,
+      "answer_term_coverage": 0.6667,
+      "citation_coverage": 1.0,
+      "supported_claim_rate": 1.0,
+      "weak_claim_rate": 0.0,
+      "review_claim_rate": 0.0,
+      "contradicted_claims": 0,
+      "used_citations": 1,
+      "claims": 3,
+      "crag_status": "sufficient",
+      "crag_corrected": false,
+      "research_steps": 0,
+      "context_compression_ratio": 1.0,
+      "cache_hit": true,
+      "elapsed_ms": 0,
+      "wall_ms": 2,
+      "matched_expected": [
+        "help.openai.com/en/articles/9237897",
+        "openai.com/index/introducing-chatgpt-search"
+      ],
+      "matched_used": [
+        "help.openai.com/en/articles/9237897"
+      ],
+      "term_hits": [
+        "sources",
+        "citations"
+      ]
+    },
+    {
+      "name": "chatgpt_search_10",
+      "mode": "pro",
+      "answer_mode": "deepseek",
+      "reasoning_effort": "none",
+      "expected_source_recall": 1.0,
+      "used_source_recall": 0.5,
+      "answer_term_coverage": 1.0,
+      "citation_coverage": 1.0,
+      "supported_claim_rate": 1.0,
+      "weak_claim_rate": 0.0,
+      "review_claim_rate": 0.0,
+      "contradicted_claims": 0,
+      "used_citations": 3,
+      "claims": 3,
+      "crag_status": "sufficient",
+      "crag_corrected": false,
+      "research_steps": 0,
+      "context_compression_ratio": 0.9833,
+      "cache_hit": true,
+      "elapsed_ms": 0,
+      "wall_ms": 2,
+      "matched_expected": [
+        "help.openai.com/en/articles/9237897",
+        "openai.com/index/introducing-chatgpt-search"
+      ],
+      "matched_used": [
+        "help.openai.com/en/articles/9237897"
+      ],
+      "term_hits": [
+        "query",
+        "sources",
+        "citations"
+      ]
+    },
+    {
+      "name": "openai_web_search_api_01",
+      "mode": "pro",
+      "answer_mode": "deepseek",
+      "reasoning_effort": "high",
+      "expected_source_recall": 1.0,
+      "used_source_recall": 1.0,
+      "answer_term_coverage": 1.0,
+      "citation_coverage": 1.0,
+      "supported_claim_rate": 0.8333,
+      "weak_claim_rate": 0.0,
+      "review_claim_rate": 0.1667,
+      "contradicted_claims": 0,
+      "used_citations": 2,
+      "claims": 6,
+      "crag_status": "sufficient",
+      "crag_corrected": false,
+      "research_steps": 0,
+      "context_compression_ratio": 1.0,
+      "cache_hit": true,
+      "elapsed_ms": 0,
+      "wall_ms": 2,
+      "matched_expected": [
+        "developers.openai.com/api/docs/guides/tools-web-search"
+      ],
+      "matched_used": [
+        "developers.openai.com/api/docs/guides/tools-web-search"
+      ],
+      "term_hits": [
+        "domain",
+        "sources",
+        "citations"
+      ]
+    },
+    {
+      "name": "openai_web_search_api_02",
+      "mode": "pro",
+      "answer_mode": "deepseek",
+      "reasoning_effort": "none",
+      "expected_source_recall": 1.0,
+      "used_source_recall": 1.0,
+      "answer_term_coverage": 0.6667,
+      "citation_coverage": 1.0,
+      "supported_claim_rate": 1.0,
+      "weak_claim_rate": 0.0,
+      "review_claim_rate": 0.0,
+      "contradicted_claims": 0,
+      "used_citations": 2,
+      "claims": 4,
+      "crag_status": "sufficient",
+      "crag_corrected": false,
+      "research_steps": 0,
+      "context_compression_ratio": 0.9813,
+      "cache_hit": true,
+      "elapsed_ms": 0,
+      "wall_ms": 2,
+      "matched_expected": [
+        "developers.openai.com/api/docs/guides/tools-web-search"
+      ],
+      "matched_used": [
+        "developers.openai.com/api/docs/guides/tools-web-search"
+      ],
+      "term_hits": [
+        "domain",
+        "sources"
+      ]
+    },
+    {
+      "name": "openai_web_search_api_03",
+      "mode": "pro",
+      "answer_mode": "deepseek",
+      "reasoning_effort": "none",
+      "expected_source_recall": 1.0,
+      "used_source_recall": 1.0,
+      "answer_term_coverage": 0.6667,
+      "citation_coverage": 1.0,
+      "supported_claim_rate": 1.0,
+      "weak_claim_rate": 0.0,
+      "review_claim_rate": 0.0,
+      "contradicted_claims": 0,
+      "used_citations": 1,
+      "claims": 2,
+      "crag_status": "sufficient",
+      "crag_corrected": false,
+      "research_steps": 0,
+      "context_compression_ratio": 0.87,
+      "cache_hit": true,
+      "elapsed_ms": 0,
+      "wall_ms": 2,
+      "matched_expected": [
+        "developers.openai.com/api/docs/guides/tools-web-search"
+      ],
+      "matched_used": [
+        "developers.openai.com/api/docs/guides/tools-web-search"
+      ],
+      "term_hits": [
+        "sources",
+        "citations"
+      ]
+    },
+    {
+      "name": "openai_web_search_api_04",
+      "mode": "pro",
+      "answer_mode": "deepseek",
+      "reasoning_effort": "none",
+      "expected_source_recall": 1.0,
+      "used_source_recall": 1.0,
+      "answer_term_coverage": 0.3333,
+      "citation_coverage": 1.0,
+      "supported_claim_rate": 1.0,
+      "weak_claim_rate": 0.0,
+      "review_claim_rate": 0.0,
+      "contradicted_claims": 0,
+      "used_citations": 2,
+      "claims": 3,
+      "crag_status": "sufficient",
+      "crag_corrected": false,
+      "research_steps": 0,
+      "context_compression_ratio": 0.7514,
+      "cache_hit": true,
+      "elapsed_ms": 0,
+      "wall_ms": 3,
+      "matched_expected": [
+        "developers.openai.com/api/docs/guides/tools-web-search"
+      ],
+      "matched_used": [
+        "developers.openai.com/api/docs/guides/tools-web-search"
+      ],
+      "term_hits": [
+        "domain"
+      ]
+    },
+    {
+      "name": "openai_web_search_api_05",
+      "mode": "pro",
+      "answer_mode": "deepseek",
+      "reasoning_effort": "high",
+      "expected_source_recall": 1.0,
+      "used_source_recall": 1.0,
+      "answer_term_coverage": 0.6667,
+      "citation_coverage": 0.6667,
+      "supported_claim_rate": 0.6667,
+      "weak_claim_rate": 0.0,
+      "review_claim_rate": 0.3333,
+      "contradicted_claims": 0,
+      "used_citations": 2,
+      "claims": 12,
+      "crag_status": "sufficient",
+      "crag_corrected": false,
+      "research_steps": 0,
+      "context_compression_ratio": 1.0,
+      "cache_hit": true,
+      "elapsed_ms": 0,
+      "wall_ms": 2,
+      "matched_expected": [
+        "developers.openai.com/api/docs/guides/tools-web-search"
+      ],
+      "matched_used": [
+        "developers.openai.com/api/docs/guides/tools-web-search"
+      ],
+      "term_hits": [
+        "domain",
+        "citations"
+      ]
+    },
+    {
+      "name": "openai_web_search_api_06",
+      "mode": "pro",
+      "answer_mode": "deepseek",
+      "reasoning_effort": "high",
+      "expected_source_recall": 1.0,
+      "used_source_recall": 1.0,
+      "answer_term_coverage": 1.0,
+      "citation_coverage": 1.0,
+      "supported_claim_rate": 0.8333,
+      "weak_claim_rate": 0.0,
+      "review_claim_rate": 0.1667,
+      "contradicted_claims": 0,
+      "used_citations": 2,
+      "claims": 6,
+      "crag_status": "sufficient",
+      "crag_corrected": false,
+      "research_steps": 0,
+      "context_compression_ratio": 1.0,
+      "cache_hit": true,
+      "elapsed_ms": 0,
+      "wall_ms": 3,
+      "matched_expected": [
+        "developers.openai.com/api/docs/guides/tools-web-search"
+      ],
+      "matched_used": [
+        "developers.openai.com/api/docs/guides/tools-web-search"
+      ],
+      "term_hits": [
+        "domain",
+        "sources",
+        "citations"
+      ]
+    },
+    {
+      "name": "openai_web_search_api_07",
+      "mode": "pro",
+      "answer_mode": "deepseek",
+      "reasoning_effort": "high",
+      "expected_source_recall": 1.0,
+      "used_source_recall": 1.0,
+      "answer_term_coverage": 0.6667,
+      "citation_coverage": 1.0,
+      "supported_claim_rate": 1.0,
+      "weak_claim_rate": 0.0,
+      "review_claim_rate": 0.0,
+      "contradicted_claims": 0,
+      "used_citations": 1,
+      "claims": 4,
+      "crag_status": "sufficient",
+      "crag_corrected": false,
+      "research_steps": 0,
+      "context_compression_ratio": 0.9505,
+      "cache_hit": true,
+      "elapsed_ms": 0,
+      "wall_ms": 2,
+      "matched_expected": [
+        "developers.openai.com/api/docs/guides/tools-web-search"
+      ],
+      "matched_used": [
+        "developers.openai.com/api/docs/guides/tools-web-search"
+      ],
+      "term_hits": [
+        "sources",
+        "citations"
+      ]
+    },
+    {
+      "name": "openai_web_search_api_08",
+      "mode": "pro",
+      "answer_mode": "deepseek",
+      "reasoning_effort": "high",
+      "expected_source_recall": 1.0,
+      "used_source_recall": 1.0,
+      "answer_term_coverage": 0.6667,
+      "citation_coverage": 1.0,
+      "supported_claim_rate": 1.0,
+      "weak_claim_rate": 0.0,
+      "review_claim_rate": 0.0,
+      "contradicted_claims": 0,
+      "used_citations": 3,
+      "claims": 3,
+      "crag_status": "sufficient",
+      "crag_corrected": false,
+      "research_steps": 0,
+      "context_compression_ratio": 0.9836,
+      "cache_hit": true,
+      "elapsed_ms": 0,
+      "wall_ms": 2,
+      "matched_expected": [
+        "developers.openai.com/api/docs/guides/tools-web-search"
+      ],
+      "matched_used": [
+        "developers.openai.com/api/docs/guides/tools-web-search"
+      ],
+      "term_hits": [
+        "domain",
+        "sources"
+      ]
+    },
+    {
+      "name": "deepseek_api_01",
+      "mode": "fast",
+      "answer_mode": "deepseek",
+      "reasoning_effort": "none",
+      "expected_source_recall": 1.0,
+      "used_source_recall": 1.0,
+      "answer_term_coverage": 1.0,
+      "citation_coverage": 1.0,
+      "supported_claim_rate": 1.0,
+      "weak_claim_rate": 0.0,
+      "review_claim_rate": 0.0,
+      "contradicted_claims": 0,
+      "used_citations": 2,
+      "claims": 4,
+      "crag_status": "sufficient",
+      "crag_corrected": false,
+      "research_steps": 0,
+      "context_compression_ratio": 0.8328,
+      "cache_hit": true,
+      "elapsed_ms": 0,
+      "wall_ms": 2,
+      "matched_expected": [
+        "api-docs.deepseek.com",
+        "api-docs.deepseek.com/api/create-chat-completion"
+      ],
+      "matched_used": [
+        "api-docs.deepseek.com",
+        "api-docs.deepseek.com/api/create-chat-completion"
+      ],
+      "term_hits": [
+        "api.deepseek.com",
+        "deepseek",
+        "model"
+      ]
+    },
+    {
+      "name": "deepseek_api_02",
+      "mode": "fast",
+      "answer_mode": "deepseek",
+      "reasoning_effort": "none",
+      "expected_source_recall": 1.0,
+      "used_source_recall": 1.0,
+      "answer_term_coverage": 1.0,
+      "citation_coverage": 1.0,
+      "supported_claim_rate": 1.0,
+      "weak_claim_rate": 0.0,
+      "review_claim_rate": 0.0,
+      "contradicted_claims": 0,
+      "used_citations": 2,
+      "claims": 3,
+      "crag_status": "sufficient",
+      "crag_corrected": false,
+      "research_steps": 0,
+      "context_compression_ratio": 0.8263,
+      "cache_hit": true,
+      "elapsed_ms": 0,
+      "wall_ms": 2,
+      "matched_expected": [
+        "api-docs.deepseek.com",
+        "api-docs.deepseek.com/api/create-chat-completion"
+      ],
+      "matched_used": [
+        "api-docs.deepseek.com",
+        "api-docs.deepseek.com/api/create-chat-completion"
+      ],
+      "term_hits": [
+        "api.deepseek.com",
+        "deepseek",
+        "model"
+      ]
+    },
+    {
+      "name": "deepseek_api_03",
+      "mode": "fast",
+      "answer_mode": "deepseek",
+      "reasoning_effort": "high",
+      "expected_source_recall": 1.0,
+      "used_source_recall": 1.0,
+      "answer_term_coverage": 0.3333,
+      "citation_coverage": 0.9,
+      "supported_claim_rate": 0.9,
+      "weak_claim_rate": 0.0,
+      "review_claim_rate": 0.1,
+      "contradicted_claims": 0,
+      "used_citations": 2,
+      "claims": 10,
+      "crag_status": "sufficient",
+      "crag_corrected": false,
+      "research_steps": 0,
+      "context_compression_ratio": 0.8344,
+      "cache_hit": true,
+      "elapsed_ms": 0,
+      "wall_ms": 3,
+      "matched_expected": [
+        "api-docs.deepseek.com",
+        "api-docs.deepseek.com/api/create-chat-completion"
+      ],
+      "matched_used": [
+        "api-docs.deepseek.com",
+        "api-docs.deepseek.com/api/create-chat-completion"
+      ],
+      "term_hits": [
+        "deepseek"
+      ]
+    },
+    {
+      "name": "deepseek_api_04",
+      "mode": "fast",
+      "answer_mode": "deepseek",
+      "reasoning_effort": "none",
+      "expected_source_recall": 1.0,
+      "used_source_recall": 1.0,
+      "answer_term_coverage": 1.0,
+      "citation_coverage": 1.0,
+      "supported_claim_rate": 1.0,
+      "weak_claim_rate": 0.0,
+      "review_claim_rate": 0.0,
+      "contradicted_claims": 0,
+      "used_citations": 2,
+      "claims": 4,
+      "crag_status": "sufficient",
+      "crag_corrected": false,
+      "research_steps": 0,
+      "context_compression_ratio": 0.7989,
+      "cache_hit": true,
+      "elapsed_ms": 0,
+      "wall_ms": 3,
+      "matched_expected": [
+        "api-docs.deepseek.com",
+        "api-docs.deepseek.com/api/create-chat-completion"
+      ],
+      "matched_used": [
+        "api-docs.deepseek.com",
+        "api-docs.deepseek.com/api/create-chat-completion"
+      ],
+      "term_hits": [
+        "api.deepseek.com",
+        "deepseek",
+        "model"
+      ]
+    },
+    {
+      "name": "deepseek_api_05",
+      "mode": "fast",
+      "answer_mode": "extractive",
+      "reasoning_effort": "none",
+      "expected_source_recall": 0.0,
+      "used_source_recall": 0.0,
+      "answer_term_coverage": 0.0,
+      "citation_coverage": 0.0,
+      "supported_claim_rate": 0.0,
+      "weak_claim_rate": 0.0,
+      "review_claim_rate": 1.0,
+      "contradicted_claims": 0,
+      "used_citations": 0,
+      "claims": 1,
+      "crag_status": "insufficient",
+      "crag_corrected": true,
+      "research_steps": 0,
+      "context_compression_ratio": 0.0,
+      "cache_hit": true,
+      "elapsed_ms": 0,
+      "wall_ms": 2,
+      "matched_expected": [],
+      "matched_used": [],
+      "term_hits": []
+    },
+    {
+      "name": "deepseek_api_06",
+      "mode": "fast",
+      "answer_mode": "deepseek",
+      "reasoning_effort": "none",
+      "expected_source_recall": 1.0,
+      "used_source_recall": 1.0,
+      "answer_term_coverage": 1.0,
+      "citation_coverage": 0.5455,
+      "supported_claim_rate": 0.4545,
+      "weak_claim_rate": 0.0,
+      "review_claim_rate": 0.5455,
+      "contradicted_claims": 0,
+      "used_citations": 2,
+      "claims": 11,
+      "crag_status": "sufficient",
+      "crag_corrected": false,
+      "research_steps": 0,
+      "context_compression_ratio": 0.8085,
+      "cache_hit": true,
+      "elapsed_ms": 0,
+      "wall_ms": 2,
+      "matched_expected": [
+        "api-docs.deepseek.com",
+        "api-docs.deepseek.com/api/create-chat-completion"
+      ],
+      "matched_used": [
+        "api-docs.deepseek.com",
+        "api-docs.deepseek.com/api/create-chat-completion"
+      ],
+      "term_hits": [
+        "api.deepseek.com",
+        "deepseek",
+        "model"
+      ]
+    },
+    {
+      "name": "deepseek_api_07",
+      "mode": "fast",
+      "answer_mode": "deepseek",
+      "reasoning_effort": "none",
+      "expected_source_recall": 1.0,
+      "used_source_recall": 0.5,
+      "answer_term_coverage": 0.6667,
+      "citation_coverage": 1.0,
+      "supported_claim_rate": 1.0,
+      "weak_claim_rate": 0.0,
+      "review_claim_rate": 0.0,
+      "contradicted_claims": 0,
+      "used_citations": 1,
+      "claims": 1,
+      "crag_status": "sufficient",
+      "crag_corrected": false,
+      "research_steps": 0,
+      "context_compression_ratio": 0.794,
+      "cache_hit": true,
+      "elapsed_ms": 0,
+      "wall_ms": 3,
+      "matched_expected": [
+        "api-docs.deepseek.com",
+        "api-docs.deepseek.com/api/create-chat-completion"
+      ],
+      "matched_used": [
+        "api-docs.deepseek.com"
+      ],
+      "term_hits": [
+        "api.deepseek.com",
+        "deepseek"
+      ]
+    },
+    {
+      "name": "deepseek_api_08",
+      "mode": "fast",
+      "answer_mode": "deepseek",
+      "reasoning_effort": "none",
+      "expected_source_recall": 1.0,
+      "used_source_recall": 1.0,
+      "answer_term_coverage": 0.6667,
+      "citation_coverage": 1.0,
+      "supported_claim_rate": 1.0,
+      "weak_claim_rate": 0.0,
+      "review_claim_rate": 0.0,
+      "contradicted_claims": 0,
+      "used_citations": 2,
+      "claims": 2,
+      "crag_status": "sufficient",
+      "crag_corrected": false,
+      "research_steps": 0,
+      "context_compression_ratio": 0.8376,
+      "cache_hit": true,
+      "elapsed_ms": 0,
+      "wall_ms": 2,
+      "matched_expected": [
+        "api-docs.deepseek.com",
+        "api-docs.deepseek.com/api/create-chat-completion"
+      ],
+      "matched_used": [
+        "api-docs.deepseek.com",
+        "api-docs.deepseek.com/api/create-chat-completion"
+      ],
+      "term_hits": [
+        "deepseek",
+        "model"
+      ]
+    },
+    {
+      "name": "deepseek_thinking_01",
+      "mode": "deep",
+      "answer_mode": "deepseek",
+      "reasoning_effort": "high",
+      "expected_source_recall": 1.0,
+      "used_source_recall": 1.0,
+      "answer_term_coverage": 1.0,
+      "citation_coverage": 0.5417,
+      "supported_claim_rate": 0.5,
+      "weak_claim_rate": 0.0417,
+      "review_claim_rate": 0.4583,
+      "contradicted_claims": 0,
+      "used_citations": 2,
+      "claims": 24,
+      "crag_status": "sufficient",
+      "crag_corrected": false,
+      "research_steps": 3,
+      "context_compression_ratio": 1.0,
+      "cache_hit": true,
+      "elapsed_ms": 0,
+      "wall_ms": 3,
+      "matched_expected": [
+        "api-docs.deepseek.com/guides/thinking_mode",
+        "api-docs.deepseek.com/quick_start/pricing"
+      ],
+      "matched_used": [
+        "api-docs.deepseek.com/guides/thinking_mode",
+        "api-docs.deepseek.com/quick_start/pricing"
+      ],
+      "term_hits": [
+        "thinking",
+        "high",
+        "max"
+      ]
+    },
+    {
+      "name": "deepseek_thinking_02",
+      "mode": "deep",
+      "answer_mode": "deepseek",
+      "reasoning_effort": "high",
+      "expected_source_recall": 1.0,
+      "used_source_recall": 0.5,
+      "answer_term_coverage": 1.0,
+      "citation_coverage": 0.7273,
+      "supported_claim_rate": 0.7273,
+      "weak_claim_rate": 0.0,
+      "review_claim_rate": 0.2727,
+      "contradicted_claims": 0,
+      "used_citations": 1,
+      "claims": 11,
+      "crag_status": "sufficient",
+      "crag_corrected": false,
+      "research_steps": 3,
+      "context_compression_ratio": 1.0,
+      "cache_hit": true,
+      "elapsed_ms": 0,
+      "wall_ms": 3,
+      "matched_expected": [
+        "api-docs.deepseek.com/guides/thinking_mode",
+        "api-docs.deepseek.com/quick_start/pricing"
+      ],
+      "matched_used": [
+        "api-docs.deepseek.com/guides/thinking_mode"
+      ],
+      "term_hits": [
+        "thinking",
+        "high",
+        "max"
+      ]
+    },
+    {
+      "name": "deepseek_thinking_03",
+      "mode": "deep",
+      "answer_mode": "deepseek",
+      "reasoning_effort": "high",
+      "expected_source_recall": 1.0,
+      "used_source_recall": 0.5,
+      "answer_term_coverage": 1.0,
+      "citation_coverage": 0.36,
+      "supported_claim_rate": 0.36,
+      "weak_claim_rate": 0.0,
+      "review_claim_rate": 0.64,
+      "contradicted_claims": 0,
+      "used_citations": 1,
+      "claims": 25,
+      "crag_status": "sufficient",
+      "crag_corrected": false,
+      "research_steps": 3,
+      "context_compression_ratio": 1.0,
+      "cache_hit": true,
+      "elapsed_ms": 0,
+      "wall_ms": 4,
+      "matched_expected": [
+        "api-docs.deepseek.com/guides/thinking_mode",
+        "api-docs.deepseek.com/quick_start/pricing"
+      ],
+      "matched_used": [
+        "api-docs.deepseek.com/guides/thinking_mode"
+      ],
+      "term_hits": [
+        "thinking",
+        "high",
+        "max"
+      ]
+    },
+    {
+      "name": "deepseek_thinking_04",
+      "mode": "deep",
+      "answer_mode": "deepseek",
+      "reasoning_effort": "high",
+      "expected_source_recall": 1.0,
+      "used_source_recall": 1.0,
+      "answer_term_coverage": 1.0,
+      "citation_coverage": 0.5909,
+      "supported_claim_rate": 0.5455,
+      "weak_claim_rate": 0.0,
+      "review_claim_rate": 0.4545,
+      "contradicted_claims": 0,
+      "used_citations": 2,
+      "claims": 22,
+      "crag_status": "sufficient",
+      "crag_corrected": false,
+      "research_steps": 3,
+      "context_compression_ratio": 1.0,
+      "cache_hit": true,
+      "elapsed_ms": 0,
+      "wall_ms": 3,
+      "matched_expected": [
+        "api-docs.deepseek.com/guides/thinking_mode",
+        "api-docs.deepseek.com/quick_start/pricing"
+      ],
+      "matched_used": [
+        "api-docs.deepseek.com/guides/thinking_mode",
+        "api-docs.deepseek.com/quick_start/pricing"
+      ],
+      "term_hits": [
+        "thinking",
+        "high",
+        "max"
+      ]
+    },
+    {
+      "name": "deepseek_thinking_05",
+      "mode": "deep",
+      "answer_mode": "deepseek",
+      "reasoning_effort": "high",
+      "expected_source_recall": 1.0,
+      "used_source_recall": 1.0,
+      "answer_term_coverage": 1.0,
+      "citation_coverage": 0.7143,
+      "supported_claim_rate": 0.7143,
+      "weak_claim_rate": 0.0,
+      "review_claim_rate": 0.2857,
+      "contradicted_claims": 0,
+      "used_citations": 2,
+      "claims": 21,
+      "crag_status": "sufficient",
+      "crag_corrected": false,
+      "research_steps": 3,
+      "context_compression_ratio": 1.0,
+      "cache_hit": true,
+      "elapsed_ms": 0,
+      "wall_ms": 3,
+      "matched_expected": [
+        "api-docs.deepseek.com/guides/thinking_mode",
+        "api-docs.deepseek.com/quick_start/pricing"
+      ],
+      "matched_used": [
+        "api-docs.deepseek.com/guides/thinking_mode",
+        "api-docs.deepseek.com/quick_start/pricing"
+      ],
+      "term_hits": [
+        "thinking",
+        "high",
+        "max"
+      ]
+    },
+    {
+      "name": "deepseek_thinking_06",
+      "mode": "deep",
+      "answer_mode": "deepseek",
+      "reasoning_effort": "high",
+      "expected_source_recall": 1.0,
+      "used_source_recall": 1.0,
+      "answer_term_coverage": 0.3333,
+      "citation_coverage": 0.8148,
+      "supported_claim_rate": 0.8148,
+      "weak_claim_rate": 0.0,
+      "review_claim_rate": 0.1852,
+      "contradicted_claims": 0,
+      "used_citations": 2,
+      "claims": 27,
+      "crag_status": "sufficient",
+      "crag_corrected": false,
+      "research_steps": 3,
+      "context_compression_ratio": 1.0,
+      "cache_hit": true,
+      "elapsed_ms": 0,
+      "wall_ms": 3,
+      "matched_expected": [
+        "api-docs.deepseek.com/guides/thinking_mode",
+        "api-docs.deepseek.com/quick_start/pricing"
+      ],
+      "matched_used": [
+        "api-docs.deepseek.com/guides/thinking_mode",
+        "api-docs.deepseek.com/quick_start/pricing"
+      ],
+      "term_hits": [
+        "thinking"
+      ]
+    },
+    {
+      "name": "deepseek_thinking_07",
+      "mode": "deep",
+      "answer_mode": "deepseek",
+      "reasoning_effort": "high",
+      "expected_source_recall": 1.0,
+      "used_source_recall": 1.0,
+      "answer_term_coverage": 0.3333,
+      "citation_coverage": 0.6154,
+      "supported_claim_rate": 0.6154,
+      "weak_claim_rate": 0.0,
+      "review_claim_rate": 0.3846,
+      "contradicted_claims": 0,
+      "used_citations": 2,
+      "claims": 13,
+      "crag_status": "sufficient",
+      "crag_corrected": false,
+      "research_steps": 3,
+      "context_compression_ratio": 1.0,
+      "cache_hit": true,
+      "elapsed_ms": 0,
+      "wall_ms": 2,
+      "matched_expected": [
+        "api-docs.deepseek.com/guides/thinking_mode",
+        "api-docs.deepseek.com/quick_start/pricing"
+      ],
+      "matched_used": [
+        "api-docs.deepseek.com/guides/thinking_mode",
+        "api-docs.deepseek.com/quick_start/pricing"
+      ],
+      "term_hits": [
+        "thinking"
+      ]
+    },
+    {
+      "name": "context_window_01",
+      "mode": "deep",
+      "answer_mode": "deepseek",
+      "reasoning_effort": "high",
+      "expected_source_recall": 0.3333,
+      "used_source_recall": 0.3333,
+      "answer_term_coverage": 1.0,
+      "citation_coverage": 0.8947,
+      "supported_claim_rate": 0.6842,
+      "weak_claim_rate": 0.0526,
+      "review_claim_rate": 0.2632,
+      "contradicted_claims": 0,
+      "used_citations": 2,
+      "claims": 19,
+      "crag_status": "sufficient",
+      "crag_corrected": false,
+      "research_steps": 3,
+      "context_compression_ratio": 1.0,
+      "cache_hit": true,
+      "elapsed_ms": 0,
+      "wall_ms": 3,
+      "matched_expected": [
+        "microsoft.com/en-us/research/project/llmlingua/longllmlingua"
+      ],
+      "matched_used": [
+        "microsoft.com/en-us/research/project/llmlingua/longllmlingua"
+      ],
+      "term_hits": [
+        "LongLLMLingua",
+        "contextual",
+        "lost"
+      ]
+    },
+    {
+      "name": "context_window_02",
+      "mode": "deep",
+      "answer_mode": "deepseek",
+      "reasoning_effort": "high",
+      "expected_source_recall": 0.6667,
+      "used_source_recall": 0.6667,
+      "answer_term_coverage": 0.6667,
+      "citation_coverage": 0.5333,
+      "supported_claim_rate": 0.5333,
+      "weak_claim_rate": 0.0,
+      "review_claim_rate": 0.4667,
+      "contradicted_claims": 0,
+      "used_citations": 2,
+      "claims": 15,
+      "crag_status": "sufficient",
+      "crag_corrected": false,
+      "research_steps": 3,
+      "context_compression_ratio": 1.0,
+      "cache_hit": true,
+      "elapsed_ms": 0,
+      "wall_ms": 3,
+      "matched_expected": [
+        "microsoft.com/en-us/research/project/llmlingua/longllmlingua",
+        "arxiv.org/abs/2307.03172"
+      ],
+      "matched_used": [
+        "microsoft.com/en-us/research/project/llmlingua/longllmlingua",
+        "arxiv.org/abs/2307.03172"
+      ],
+      "term_hits": [
+        "LongLLMLingua",
+        "lost"
+      ]
+    },
+    {
+      "name": "context_window_03",
+      "mode": "deep",
+      "answer_mode": "deepseek",
+      "reasoning_effort": "high",
+      "expected_source_recall": 0.6667,
+      "used_source_recall": 0.0,
+      "answer_term_coverage": 0.6667,
+      "citation_coverage": 0.7778,
+      "supported_claim_rate": 0.7778,
+      "weak_claim_rate": 0.0,
+      "review_claim_rate": 0.2222,
+      "contradicted_claims": 0,
+      "used_citations": 1,
+      "claims": 9,
+      "crag_status": "sufficient",
+      "crag_corrected": false,
+      "research_steps": 3,
+      "context_compression_ratio": 1.0,
+      "cache_hit": true,
+      "elapsed_ms": 0,
+      "wall_ms": 2,
+      "matched_expected": [
+        "microsoft.com/en-us/research/project/llmlingua/longllmlingua",
+        "anthropic.com/news/contextual-retrieval"
+      ],
+      "matched_used": [],
+      "term_hits": [
+        "contextual",
+        "lost"
+      ]
+    },
+    {
+      "name": "context_window_04",
+      "mode": "deep",
+      "answer_mode": "deepseek",
+      "reasoning_effort": "max",
+      "expected_source_recall": 1.0,
+      "used_source_recall": 1.0,
+      "answer_term_coverage": 1.0,
+      "citation_coverage": 0.8667,
+      "supported_claim_rate": 0.7333,
+      "weak_claim_rate": 0.0,
+      "review_claim_rate": 0.2667,
+      "contradicted_claims": 0,
+      "used_citations": 4,
+      "claims": 15,
+      "crag_status": "sufficient",
+      "crag_corrected": false,
+      "research_steps": 4,
+      "context_compression_ratio": 1.0,
+      "cache_hit": true,
+      "elapsed_ms": 0,
+      "wall_ms": 4,
+      "matched_expected": [
+        "microsoft.com/en-us/research/project/llmlingua/longllmlingua",
+        "anthropic.com/news/contextual-retrieval",
+        "arxiv.org/abs/2307.03172"
+      ],
+      "matched_used": [
+        "microsoft.com/en-us/research/project/llmlingua/longllmlingua",
+        "anthropic.com/news/contextual-retrieval",
+        "arxiv.org/abs/2307.03172"
+      ],
+      "term_hits": [
+        "LongLLMLingua",
+        "contextual",
+        "lost"
+      ]
+    },
+    {
+      "name": "context_window_05",
+      "mode": "deep",
+      "answer_mode": "deepseek",
+      "reasoning_effort": "high",
+      "expected_source_recall": 0.6667,
+      "used_source_recall": 0.3333,
+      "answer_term_coverage": 0.6667,
+      "citation_coverage": 0.5833,
+      "supported_claim_rate": 0.4167,
+      "weak_claim_rate": 0.1667,
+      "review_claim_rate": 0.4167,
+      "contradicted_claims": 0,
+      "used_citations": 2,
+      "claims": 24,
+      "crag_status": "sufficient",
+      "crag_corrected": false,
+      "research_steps": 3,
+      "context_compression_ratio": 1.0,
+      "cache_hit": true,
+      "elapsed_ms": 0,
+      "wall_ms": 3,
+      "matched_expected": [
+        "microsoft.com/en-us/research/project/llmlingua/longllmlingua",
+        "anthropic.com/news/contextual-retrieval"
+      ],
+      "matched_used": [
+        "microsoft.com/en-us/research/project/llmlingua/longllmlingua"
+      ],
+      "term_hits": [
+        "LongLLMLingua",
+        "contextual"
+      ]
+    },
+    {
+      "name": "context_window_06",
+      "mode": "deep",
+      "answer_mode": "deepseek",
+      "reasoning_effort": "high",
+      "expected_source_recall": 0.6667,
+      "used_source_recall": 0.6667,
+      "answer_term_coverage": 1.0,
+      "citation_coverage": 0.7143,
+      "supported_claim_rate": 0.5714,
+      "weak_claim_rate": 0.0,
+      "review_claim_rate": 0.4286,
+      "contradicted_claims": 0,
+      "used_citations": 3,
+      "claims": 7,
+      "crag_status": "sufficient",
+      "crag_corrected": false,
+      "research_steps": 3,
+      "context_compression_ratio": 1.0,
+      "cache_hit": true,
+      "elapsed_ms": 0,
+      "wall_ms": 4,
+      "matched_expected": [
+        "microsoft.com/en-us/research/project/llmlingua/longllmlingua",
+        "arxiv.org/abs/2307.03172"
+      ],
+      "matched_used": [
+        "microsoft.com/en-us/research/project/llmlingua/longllmlingua",
+        "arxiv.org/abs/2307.03172"
+      ],
+      "term_hits": [
+        "LongLLMLingua",
+        "contextual",
+        "lost"
+      ]
+    },
+    {
+      "name": "context_window_07",
+      "mode": "deep",
+      "answer_mode": "deepseek",
+      "reasoning_effort": "high",
+      "expected_source_recall": 0.3333,
+      "used_source_recall": 0.3333,
+      "answer_term_coverage": 0.6667,
+      "citation_coverage": 0.7,
+      "supported_claim_rate": 0.7,
+      "weak_claim_rate": 0.0,
+      "review_claim_rate": 0.3,
+      "contradicted_claims": 0,
+      "used_citations": 2,
+      "claims": 10,
+      "crag_status": "sufficient",
+      "crag_corrected": false,
+      "research_steps": 3,
+      "context_compression_ratio": 1.0,
+      "cache_hit": true,
+      "elapsed_ms": 0,
+      "wall_ms": 4,
+      "matched_expected": [
+        "microsoft.com/en-us/research/project/llmlingua/longllmlingua"
+      ],
+      "matched_used": [
+        "microsoft.com/en-us/research/project/llmlingua/longllmlingua"
+      ],
+      "term_hits": [
+        "LongLLMLingua",
+        "contextual"
+      ]
+    },
+    {
+      "name": "chatgpt_enterprise_edu_01",
+      "mode": "deep",
+      "answer_mode": "deepseek",
+      "reasoning_effort": "high",
+      "expected_source_recall": 1.0,
+      "used_source_recall": 1.0,
+      "answer_term_coverage": 1.0,
+      "citation_coverage": 0.8095,
+      "supported_claim_rate": 0.8095,
+      "weak_claim_rate": 0.0,
+      "review_claim_rate": 0.1905,
+      "contradicted_claims": 0,
+      "used_citations": 2,
+      "claims": 21,
+      "crag_status": "sufficient",
+      "crag_corrected": false,
+      "research_steps": 3,
+      "context_compression_ratio": 1.0,
+      "cache_hit": true,
+      "elapsed_ms": 0,
+      "wall_ms": 4,
+      "matched_expected": [
+        "help.openai.com/en/articles/10093903",
+        "help.openai.com/en/articles/9237897"
+      ],
+      "matched_used": [
+        "help.openai.com/en/articles/10093903",
+        "help.openai.com/en/articles/9237897"
+      ],
+      "term_hits": [
+        "Enterprise",
+        "Edu",
+        "citations"
+      ]
+    },
+    {
+      "name": "chatgpt_enterprise_edu_02",
+      "mode": "deep",
+      "answer_mode": "deepseek",
+      "reasoning_effort": "high",
+      "expected_source_recall": 1.0,
+      "used_source_recall": 1.0,
+      "answer_term_coverage": 1.0,
+      "citation_coverage": 0.8095,
+      "supported_claim_rate": 0.8095,
+      "weak_claim_rate": 0.0,
+      "review_claim_rate": 0.1905,
+      "contradicted_claims": 0,
+      "used_citations": 2,
+      "claims": 21,
+      "crag_status": "sufficient",
+      "crag_corrected": false,
+      "research_steps": 3,
+      "context_compression_ratio": 1.0,
+      "cache_hit": true,
+      "elapsed_ms": 0,
+      "wall_ms": 5,
+      "matched_expected": [
+        "help.openai.com/en/articles/10093903",
+        "help.openai.com/en/articles/9237897"
+      ],
+      "matched_used": [
+        "help.openai.com/en/articles/10093903",
+        "help.openai.com/en/articles/9237897"
+      ],
+      "term_hits": [
+        "Enterprise",
+        "Edu",
+        "citations"
+      ]
+    },
+    {
+      "name": "chatgpt_enterprise_edu_03",
+      "mode": "deep",
+      "answer_mode": "deepseek",
+      "reasoning_effort": "high",
+      "expected_source_recall": 1.0,
+      "used_source_recall": 1.0,
+      "answer_term_coverage": 1.0,
+      "citation_coverage": 0.6818,
+      "supported_claim_rate": 0.6818,
+      "weak_claim_rate": 0.0,
+      "review_claim_rate": 0.3182,
+      "contradicted_claims": 0,
+      "used_citations": 2,
+      "claims": 22,
+      "crag_status": "sufficient",
+      "crag_corrected": false,
+      "research_steps": 3,
+      "context_compression_ratio": 1.0,
+      "cache_hit": true,
+      "elapsed_ms": 0,
+      "wall_ms": 5,
+      "matched_expected": [
+        "help.openai.com/en/articles/10093903",
+        "help.openai.com/en/articles/9237897"
+      ],
+      "matched_used": [
+        "help.openai.com/en/articles/10093903",
+        "help.openai.com/en/articles/9237897"
+      ],
+      "term_hits": [
+        "Enterprise",
+        "Edu",
+        "citations"
+      ]
+    },
+    {
+      "name": "chatgpt_enterprise_edu_04",
+      "mode": "deep",
+      "answer_mode": "deepseek",
+      "reasoning_effort": "high",
+      "expected_source_recall": 1.0,
+      "used_source_recall": 1.0,
+      "answer_term_coverage": 0.6667,
+      "citation_coverage": 0.8333,
+      "supported_claim_rate": 0.8333,
+      "weak_claim_rate": 0.0,
+      "review_claim_rate": 0.1667,
+      "contradicted_claims": 0,
+      "used_citations": 2,
+      "claims": 18,
+      "crag_status": "sufficient",
+      "crag_corrected": false,
+      "research_steps": 3,
+      "context_compression_ratio": 1.0,
+      "cache_hit": true,
+      "elapsed_ms": 0,
+      "wall_ms": 4,
+      "matched_expected": [
+        "help.openai.com/en/articles/10093903",
+        "help.openai.com/en/articles/9237897"
+      ],
+      "matched_used": [
+        "help.openai.com/en/articles/10093903",
+        "help.openai.com/en/articles/9237897"
+      ],
+      "term_hits": [
+        "Enterprise",
+        "Edu"
+      ]
+    },
+    {
+      "name": "chatgpt_enterprise_edu_05",
+      "mode": "deep",
+      "answer_mode": "deepseek",
+      "reasoning_effort": "high",
+      "expected_source_recall": 1.0,
+      "used_source_recall": 1.0,
+      "answer_term_coverage": 0.6667,
+      "citation_coverage": 0.6923,
+      "supported_claim_rate": 0.6923,
+      "weak_claim_rate": 0.0,
+      "review_claim_rate": 0.3077,
+      "contradicted_claims": 0,
+      "used_citations": 2,
+      "claims": 13,
+      "crag_status": "sufficient",
+      "crag_corrected": false,
+      "research_steps": 3,
+      "context_compression_ratio": 1.0,
+      "cache_hit": true,
+      "elapsed_ms": 0,
+      "wall_ms": 4,
+      "matched_expected": [
+        "help.openai.com/en/articles/10093903",
+        "help.openai.com/en/articles/9237897"
+      ],
+      "matched_used": [
+        "help.openai.com/en/articles/10093903",
+        "help.openai.com/en/articles/9237897"
+      ],
+      "term_hits": [
+        "Enterprise",
+        "Edu"
+      ]
+    },
+    {
+      "name": "source_trust_01",
+      "mode": "pro",
+      "answer_mode": "deepseek",
+      "reasoning_effort": "high",
+      "expected_source_recall": 1.0,
+      "used_source_recall": 1.0,
+      "answer_term_coverage": 1.0,
+      "citation_coverage": 0.75,
+      "supported_claim_rate": 0.75,
+      "weak_claim_rate": 0.0,
+      "review_claim_rate": 0.25,
+      "contradicted_claims": 0,
+      "used_citations": 3,
+      "claims": 4,
+      "crag_status": "sufficient",
+      "crag_corrected": false,
+      "research_steps": 0,
+      "context_compression_ratio": 0.9304,
+      "cache_hit": true,
+      "elapsed_ms": 0,
+      "wall_ms": 5,
+      "matched_expected": [
+        "developers.google.com/search/docs/fundamentals/creating-helpful-content",
+        "cancer.gov/about-cancer/managing-care/using-trusted-resources"
+      ],
+      "matched_used": [
+        "developers.google.com/search/docs/fundamentals/creating-helpful-content",
+        "cancer.gov/about-cancer/managing-care/using-trusted-resources"
+      ],
+      "term_hits": [
+        "trust",
+        "government",
+        "academic"
+      ]
+    },
+    {
+      "name": "source_trust_02",
+      "mode": "pro",
+      "answer_mode": "deepseek",
+      "reasoning_effort": "high",
+      "expected_source_recall": 1.0,
+      "used_source_recall": 1.0,
+      "answer_term_coverage": 1.0,
+      "citation_coverage": 1.0,
+      "supported_claim_rate": 1.0,
+      "weak_claim_rate": 0.0,
+      "review_claim_rate": 0.0,
+      "contradicted_claims": 0,
+      "used_citations": 3,
+      "claims": 4,
+      "crag_status": "sufficient",
+      "crag_corrected": false,
+      "research_steps": 0,
+      "context_compression_ratio": 1.0,
+      "cache_hit": true,
+      "elapsed_ms": 0,
+      "wall_ms": 4,
+      "matched_expected": [
+        "developers.google.com/search/docs/fundamentals/creating-helpful-content",
+        "cancer.gov/about-cancer/managing-care/using-trusted-resources"
+      ],
+      "matched_used": [
+        "developers.google.com/search/docs/fundamentals/creating-helpful-content",
+        "cancer.gov/about-cancer/managing-care/using-trusted-resources"
+      ],
+      "term_hits": [
+        "trust",
+        "government",
+        "academic"
+      ]
+    },
+    {
+      "name": "source_trust_03",
+      "mode": "pro",
+      "answer_mode": "deepseek",
+      "reasoning_effort": "none",
+      "expected_source_recall": 1.0,
+      "used_source_recall": 1.0,
+      "answer_term_coverage": 1.0,
+      "citation_coverage": 1.0,
+      "supported_claim_rate": 1.0,
+      "weak_claim_rate": 0.0,
+      "review_claim_rate": 0.0,
+      "contradicted_claims": 0,
+      "used_citations": 3,
+      "claims": 3,
+      "crag_status": "sufficient",
+      "crag_corrected": false,
+      "research_steps": 0,
+      "context_compression_ratio": 0.9901,
+      "cache_hit": true,
+      "elapsed_ms": 0,
+      "wall_ms": 4,
+      "matched_expected": [
+        "developers.google.com/search/docs/fundamentals/creating-helpful-content",
+        "cancer.gov/about-cancer/managing-care/using-trusted-resources"
+      ],
+      "matched_used": [
+        "developers.google.com/search/docs/fundamentals/creating-helpful-content",
+        "cancer.gov/about-cancer/managing-care/using-trusted-resources"
+      ],
+      "term_hits": [
+        "trust",
+        "government",
+        "academic"
+      ]
+    },
+    {
+      "name": "source_trust_04",
+      "mode": "pro",
+      "answer_mode": "extractive",
+      "reasoning_effort": "high",
+      "expected_source_recall": 0.0,
+      "used_source_recall": 0.0,
+      "answer_term_coverage": 0.0,
+      "citation_coverage": 0.0,
+      "supported_claim_rate": 0.0,
+      "weak_claim_rate": 0.0,
+      "review_claim_rate": 1.0,
+      "contradicted_claims": 0,
+      "used_citations": 0,
+      "claims": 1,
+      "crag_status": "insufficient",
+      "crag_corrected": true,
+      "research_steps": 0,
+      "context_compression_ratio": 0.0,
+      "cache_hit": true,
+      "elapsed_ms": 0,
+      "wall_ms": 3,
+      "matched_expected": [],
+      "matched_used": [],
+      "term_hits": []
+    },
+    {
+      "name": "source_trust_05",
+      "mode": "pro",
+      "answer_mode": "deepseek",
+      "reasoning_effort": "high",
+      "expected_source_recall": 1.0,
+      "used_source_recall": 1.0,
+      "answer_term_coverage": 1.0,
+      "citation_coverage": 0.5714,
+      "supported_claim_rate": 0.5714,
+      "weak_claim_rate": 0.0,
+      "review_claim_rate": 0.4286,
+      "contradicted_claims": 0,
+      "used_citations": 3,
+      "claims": 7,
+      "crag_status": "sufficient",
+      "crag_corrected": false,
+      "research_steps": 0,
+      "context_compression_ratio": 0.9862,
+      "cache_hit": true,
+      "elapsed_ms": 0,
+      "wall_ms": 3,
+      "matched_expected": [
+        "developers.google.com/search/docs/fundamentals/creating-helpful-content",
+        "cancer.gov/about-cancer/managing-care/using-trusted-resources"
+      ],
+      "matched_used": [
+        "developers.google.com/search/docs/fundamentals/creating-helpful-content",
+        "cancer.gov/about-cancer/managing-care/using-trusted-resources"
+      ],
+      "term_hits": [
+        "trust",
+        "government",
+        "academic"
+      ]
+    }
+  ]
+}

@@ -355,36 +355,37 @@ SignalRAG includes a small end-to-end benchmark runner:
 ```bash
 python -m fast_rag.benchmark \
   --api-base http://127.0.0.1:8000 \
+  --suite extended \
+  --clear-response-cache \
   --timeout 220 \
-  --output benchmark_results/signalrag-benchmark-2026-05-12-optimized-cold.json
+  --output benchmark_results/signalrag-benchmark-2026-05-12-50cases.json
 ```
 
-Latest cold-cache local run with DeepSeek enabled, DuckDuckGo search, and no
-Brave API key:
+Latest 50-case local run with DeepSeek enabled, DuckDuckGo search, no Brave API
+key, and response cache cleared at the start:
 
 | Metric | Result |
 | --- | ---: |
-| Cases | 6 |
-| Expected source recall | 0.8889 |
-| Used source recall | 0.8055 |
-| Answer term coverage | 0.8472 |
-| Citation coverage | 0.8670 |
-| Supported claim rate | 0.8461 |
-| Review claim rate | 0.1469 |
-| CRAG sufficient rate | 1.0000 |
-| Fallback rate | 0.1667 |
-| Average latency | 20.9s |
+| Cases | 50 |
+| Expected source recall | 0.9067 |
+| Used source recall | 0.7567 |
+| Answer term coverage | 0.7533 |
+| Citation coverage | 0.8139 |
+| Supported claim rate | 0.7906 |
+| Review claim rate | 0.2042 |
+| CRAG sufficient rate | 0.9600 |
+| Fallback rate | 0.0400 |
+| Cache hit rate | 0.0400 |
+| Average latency | 15.4s |
 | P95 latency | 41.3s |
 
-Interpretation: adaptive DeepSeek thinking, tighter context packing, citation
-inheritance, adaptive judge calls, and response/planner caching materially
-improve the speed/quality tradeoff. Compared with the earlier 2026-05-12 run,
-average latency dropped from 39.8s to 20.9s, p95 latency dropped from 75.4s to
-41.3s, citation coverage rose from 0.5868 to 0.8670, supported-claim rate rose
-from 0.5471 to 0.8461, and review rate dropped from 0.4465 to 0.1469. One Deep
-Research case used extractive cited fallback because the model did not return a
-valid cited answer; this preserves grounded citations instead of returning an
-uncited synthesis.
+Interpretation: the larger suite keeps P95 latency at the previous 6-case level
+while lowering average latency to 15.4s. Expected-source recall stays above
+0.90, citation coverage remains above 0.81, and only 2 of 50 cases fell back to
+extractive synthesis. Cache hits are intentionally low in this cold-start
+extended suite because the cases are broader paraphrases rather than repeated
+queries. A warm-cache repeat of the same 50 cases reached 100% response-cache
+hit rate with about 4ms average API wall time.
 
 ## Smart Cache
 
