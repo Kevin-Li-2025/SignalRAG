@@ -386,6 +386,30 @@ Research case used extractive cited fallback because the model did not return a
 valid cited answer; this preserves grounded citations instead of returning an
 uncited synthesis.
 
+## Smart Cache
+
+SignalRAG uses three cache layers:
+
+- Page cache: fetched web pages are persisted in SQLite for reuse during
+  retrieval and reranking.
+- Planner cache: query plans are cached by normalized query and mode, so repeat
+  requests do not call the lightweight planner model again.
+- Response cache: final API responses are persisted in SQLite and reused for
+  exact or safe fuzzy matches.
+
+The response cache is intentionally conservative but high-hit:
+
+- Canonical exact hits ignore case, punctuation, whitespace, and domain-list
+  ordering.
+- Safe fuzzy hits allow light rewording such as singular/plural variants and
+  reordered wording, but only when mode, lens, filters, locale, verifier, intent
+  tags, and numeric tokens still match.
+- Fresh queries, day/week recency, and queries containing current/latest/today
+  wording do not use fuzzy cache matches.
+- Cached responses return `meta.cache_hit`, `meta.cache_strategy`,
+  `meta.cache_similarity`, `meta.cache_age_seconds`, and
+  `meta.cache_source_query`.
+
 ## Design Notes
 
-Accuracy comes from grounding every answer in retrieved passages, checking retrieval quality before generation, fusing multi-query search results with RRF, ranking with contextual BM25 signals, packing answer context with query-aware compression, inheriting paragraph-level citations during claim checks, and returning only used citations by default. Speed comes from short timeouts, request concurrency, page caching, response/planner caching, adaptive citation judging, early reranking, compression before generation, and the planner choosing the cheapest mode that fits the query. For production, use a paid search API such as Brave or Tavily, add an embedding or cross-encoder reranker, and persist traces for evaluation.
+Accuracy comes from grounding every answer in retrieved passages, checking retrieval quality before generation, fusing multi-query search results with RRF, ranking with contextual BM25 signals, packing answer context with query-aware compression, inheriting paragraph-level citations during claim checks, and returning only used citations by default. Speed comes from short timeouts, request concurrency, page caching, persistent smart response caching, planner caching, adaptive citation judging, early reranking, compression before generation, and the planner choosing the cheapest mode that fits the query. For production, use a paid search API such as Brave or Tavily, add an embedding or cross-encoder reranker, and persist traces for evaluation.

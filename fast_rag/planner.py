@@ -10,6 +10,7 @@ from typing import Literal
 
 import httpx
 
+from .cache import normalize_query
 from .config import settings
 
 
@@ -172,7 +173,7 @@ async def plan_query(query: str, requested_mode: str = "fast") -> QueryPlan:
 
 
 def _plan_cache_key(query: str, requested_mode: str) -> tuple[str, str, bool]:
-    return (query.strip().lower(), requested_mode, bool(settings.deepseek_api_key))
+    return (normalize_query(query), requested_mode, bool(settings.deepseek_api_key))
 
 
 def _get_cached_plan(key: tuple[str, str, bool]) -> QueryPlan | None:
