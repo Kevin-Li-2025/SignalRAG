@@ -113,6 +113,103 @@ The response includes:
   uses a judge model for supported/weak/contradicted/insufficient decisions;
   otherwise it falls back to the fast lexical verifier.
 
+## Example Runs
+
+These examples were run locally on 2026-05-12 with DeepSeek enabled,
+DuckDuckGo search, and no Brave API key. They are the best demo cases because
+they use official sources, produce inline citations, and exercise different
+parts of the retrieval stack.
+
+| Use case | Query | Mode | Observed result |
+| --- | --- | --- | --- |
+| Fast official API lookup | `DeepSeek API chat completion base URL model name and first API call` | `fast` | 2 official DeepSeek citations, 3 supported claims, ~4.0s |
+| Product search explanation | `How does ChatGPT search work and how does it cite sources?` | `pro` | 2 official OpenAI citations, 3 supported claims, ~9.2s |
+| API docs with source controls | `OpenAI web search API citations and domain filtering` | `pro` | OpenAI developer citation, planner chose `high` reasoning, ~12.6s |
+| Deep Research trace | `Explain ChatGPT search for Enterprise and Edu data sharing and source citations.` | `deep` | 2 official OpenAI citations, 3 research steps, 5 supported claims, ~19.2s |
+
+### Fast official API lookup
+
+```bash
+curl -X POST http://127.0.0.1:8000/api/search \
+  -H "Content-Type: application/json" \
+  -d '{
+    "query":"DeepSeek API chat completion base URL model name and first API call",
+    "mode":"fast",
+    "max_results":8,
+    "include_domains":["api-docs.deepseek.com"],
+    "recency":"year",
+    "country":"us",
+    "language":"en",
+    "citation_verifier":"auto"
+  }'
+```
+
+Why this is a strong demo: it shows the lightweight planner choosing
+`reasoning_effort: none`, keeps latency low, and returns only official
+DeepSeek API documentation as citations.
+
+### ChatGPT Search citation behavior
+
+```bash
+curl -X POST http://127.0.0.1:8000/api/search \
+  -H "Content-Type: application/json" \
+  -d '{
+    "query":"How does ChatGPT search work and how does it cite sources?",
+    "mode":"pro",
+    "max_results":10,
+    "include_domains":["openai.com","help.openai.com"],
+    "recency":"year",
+    "country":"us",
+    "language":"en",
+    "citation_verifier":"auto"
+  }'
+```
+
+Why this is a strong demo: it exercises official-source prioritization,
+answer citations, and claim-level verification against OpenAI Help Center and
+OpenAI announcement pages.
+
+### API docs with source controls
+
+```bash
+curl -X POST http://127.0.0.1:8000/api/search \
+  -H "Content-Type: application/json" \
+  -d '{
+    "query":"OpenAI web search API citations and domain filtering",
+    "mode":"pro",
+    "max_results":10,
+    "include_domains":["developers.openai.com","platform.openai.com","openai.com"],
+    "recency":"year",
+    "country":"us",
+    "language":"en",
+    "citation_verifier":"auto"
+  }'
+```
+
+Why this is a strong demo: it shows include-domain controls, freshness-aware
+planning for API documentation, and citation grounding from developer docs.
+
+### Deep Research trace
+
+```bash
+curl -X POST http://127.0.0.1:8000/api/search \
+  -H "Content-Type: application/json" \
+  -d '{
+    "query":"Explain ChatGPT search for Enterprise and Edu data sharing and source citations.",
+    "mode":"deep",
+    "max_results":12,
+    "include_domains":["help.openai.com","openai.com"],
+    "recency":"year",
+    "country":"us",
+    "language":"en",
+    "citation_verifier":"auto"
+  }'
+```
+
+Why this is a strong demo: it runs Deep Research mode, returns a multi-step
+`research_trace`, and verifies claims across workspace policy and citation
+behavior sources.
+
 ## Recall Evaluation
 
 ```bash
