@@ -103,8 +103,9 @@ def normalize_answer_citations(answer: str, evidence: list[Evidence]) -> tuple[s
 def verify_claim_citations(answer: str, evidence: list[Evidence]) -> list[dict]:
     evidence_by_id = {item.id: item for item in evidence}
     verified: list[dict] = []
-    for raw_claim in _split_claims(answer):
-        citation_ids = _citation_ids(raw_claim)
+    for raw_claim, inherited_ids in _split_claims_with_inherited_citations(answer):
+        own_ids = _citation_ids(raw_claim)
+        citation_ids = own_ids or inherited_ids
         claim = _clean_claim(raw_claim)
         if not _keep_claim(claim, citation_ids):
             continue
@@ -134,7 +135,11 @@ async def verify_claim_citations_with_judge(
 ) -> list[dict]:
     if not claims or not evidence or not settings.deepseek_api_key:
         return claims
-    judgeable = [claim for claim in claims if claim.get("citation_ids")]
+    judgeable = [
+        {**claim, "_original_index": index}
+        for index, claim in enumerate(claims)
+        if claim.get("citation_ids") and _needs_judge(claim)
+    ]
     if not judgeable:
         return claims
     payload = {
@@ -157,7 +162,7 @@ async def verify_claim_citations_with_judge(
         "response_format": {"type": "json_object"},
         "thinking": {"type": "disabled"},
         "temperature": 0,
-        "max_tokens": 900,
+        "max_tokens": 700,
     }
     try:
         async with httpx.AsyncClient(timeout=20) as client:
@@ -171,19 +176,38 @@ async def verify_claim_citations_with_judge(
             )
             response.raise_for_status()
             content = response.json()["choices"][0]["message"]["content"]
-        return _merge_judgements(claims, json.loads(content))
+        return _merge_judgements(
+            claims,
+            json.loads(content),
+            [int(claim["_original_index"]) for claim in judgeable],
+        )
     except Exception:
         return claims
 
 
 def _split_claims(answer: str) -> list[str]:
-    claims: list[str] = []
+    return [claim for claim, _ in _split_claims_with_inherited_citations(answer)]
+
+
+def _split_claims_with_inherited_citations(answer: str) -> list[tuple[str, list[int]]]:
+    inherited: list[tuple[str, list[int]]] = []
     for line in answer.splitlines():
         stripped = LIST_MARKER_RE.sub("", line.strip())
         if not stripped:
             continue
-        claims.extend(part.strip() for part in CLAIM_SPLIT_RE.split(stripped) if part.strip())
-    return claims
+        line_ids = _citation_ids(stripped)
+        for part in CLAIM_SPLIT_RE.split(stripped):
+            part = part.strip()
+            if not part:
+                continue
+            inherited.append((part, line_ids if not _citation_ids(part) else []))
+    return inherited
+
+
+def _needs_judge(claim: dict) -> bool:
+    status = claim.get("status")
+    score = float(claim.get("support_score") or 0.0)
+    return status != "supported" or score < 0.34
 
 
 def _citation_ids(text: str) -> list[int]:
@@ -269,7 +293,7 @@ def _judge_prompt(query: str, claims: list[dict], evidence: list[Evidence]) -> s
     evidence_blocks = []
     for citation_id in sorted(cited_ids):
         item = evidence_by_id[citation_id]
-        evidence_blocks.append(f"[{item.id}] {item.title}\nURL: {item.url}\nPASSAGE: {item.passage[:850]}")
+        evidence_blocks.append(f"[{item.id}] {item.title}\nURL: {item.url}\nPASSAGE: {item.passage[:650]}")
     claim_blocks = []
     for index, claim in enumerate(claims):
         cited = [citation_id for citation_id in claim.get("citation_ids", []) if citation_id in evidence_by_id]
@@ -286,7 +310,11 @@ def _judge_prompt(query: str, claims: list[dict], evidence: list[Evidence]) -> s
     )
 
 
-def _merge_judgements(claims: list[dict], raw: dict | list) -> list[dict]:
+def _merge_judgements(
+    claims: list[dict],
+    raw: dict | list,
+    original_indexes: list[int] | None = None,
+) -> list[dict]:
     updates = raw.get("claims", []) if isinstance(raw, dict) else raw if isinstance(raw, list) else []
     if not isinstance(updates, list):
         return claims
@@ -299,16 +327,15 @@ def _merge_judgements(claims: list[dict], raw: dict | list) -> list[dict]:
             index = int(item.get("index"))
         except (TypeError, ValueError):
             continue
+        if original_indexes is not None:
+            if index < 0 or index >= len(original_indexes):
+                continue
+            index = original_indexes[index]
         by_index[index] = item
 
     merged: list[dict] = []
-    judge_index = 0
-    for claim in claims:
-        if not claim.get("citation_ids"):
-            merged.append(claim)
-            continue
-        item = by_index.get(judge_index)
-        judge_index += 1
+    for claim_index, claim in enumerate(claims):
+        item = by_index.get(claim_index)
         if not item:
             merged.append(claim)
             continue

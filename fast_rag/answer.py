@@ -13,6 +13,7 @@ from .rank import tokenize
 
 
 CJK_RE = re.compile(r"[\u3400-\u9fff]")
+CITATION_MARK_RE = re.compile(r"\[\d+\]")
 MECHANISM_TOKENS = {
     "answer",
     "answers",
@@ -71,7 +72,15 @@ async def generate_answer(
     provider = _select_provider()
     if provider == "deepseek" and evidence:
         try:
-            return await _deepseek_answer(query, evidence, mode, query_plan), "deepseek"
+            answer = await _deepseek_answer(query, evidence, mode, query_plan)
+            if not answer.strip():
+                return _extractive_answer(query, evidence), "extractive"
+            if _missing_required_citations(answer):
+                repaired = repair_missing_citations(query, answer, evidence)
+                if not _missing_required_citations(repaired):
+                    return repaired, "deepseek_repaired"
+                return _extractive_answer(query, evidence), "extractive"
+            return answer, "deepseek"
         except Exception as exc:
             fallback = _extractive_answer(query, evidence)
             return f"{fallback}\n\n模型生成失败，已使用抽取式答案。错误：{type(exc).__name__}", "extractive"
@@ -125,7 +134,8 @@ def _user_prompt(query: str, evidence: list[Evidence], mode: str) -> str:
         deep_instruction = (
             "\nDeep Research requirements: produce a structured research-grade answer with "
             "a direct conclusion, synthesized evidence, caveats or conflicts, and practical next steps when useful. "
-            "Use dense citations and do not cite anything not present in the evidence.\n"
+            "Keep it compact: target 8-12 verifiable claims, every factual sentence must end with citation IDs like [1], "
+            "avoid uncited background, and do not cite anything not present in the evidence.\n"
         )
     return (
         f"Question: {query}\n"
@@ -156,7 +166,7 @@ async def _deepseek_answer(
     if reasoning_effort in {"high", "max"}:
         payload["thinking"] = {"type": "enabled"}
         payload["reasoning_effort"] = reasoning_effort
-        payload["max_tokens"] = 1800 if reasoning_effort == "high" else 3600
+        payload["max_tokens"] = 1600 if reasoning_effort == "high" else 3400
     else:
         payload["thinking"] = {"type": "disabled"}
         payload["temperature"] = 0.1
@@ -173,6 +183,50 @@ async def _deepseek_answer(
         response.raise_for_status()
         data = response.json()
     return data["choices"][0]["message"]["content"].strip()
+
+
+def _missing_required_citations(answer: str) -> bool:
+    return not answer.strip() or not CITATION_MARK_RE.search(answer)
+
+
+def repair_missing_citations(query: str, answer: str, evidence: list[Evidence]) -> str:
+    if not answer.strip() or CITATION_MARK_RE.search(answer) or not evidence:
+        return answer
+    lines: list[str] = []
+    fallback_id = evidence[0].id
+    for line in answer.splitlines():
+        stripped = line.strip()
+        if not stripped:
+            lines.append(line)
+            continue
+        if stripped.startswith(("#", "|", "---")):
+            lines.append(line)
+            continue
+        if len(stripped) < 24 and stripped.endswith(":"):
+            lines.append(line)
+            continue
+        citation_id = _best_citation_id(stripped, evidence) or _best_citation_id(query, evidence) or fallback_id
+        lines.append(f"{line.rstrip()} [{citation_id}]")
+    return "\n".join(lines)
+
+
+def _best_citation_id(text: str, evidence: list[Evidence]) -> int | None:
+    text_tokens = set(tokenize(text))
+    if not text_tokens:
+        return evidence[0].id if evidence else None
+    best: tuple[float, int] | None = None
+    for item in evidence:
+        evidence_tokens = set(tokenize(f"{item.title} {item.passage}"))
+        overlap = len(text_tokens & evidence_tokens) / max(len(text_tokens), 1)
+        score = overlap + min(item.score, 10) * 0.01
+        if item.provider == "official":
+            score += 0.03
+        candidate = (score, item.id)
+        if best is None or candidate[0] > best[0]:
+            best = candidate
+    if not best or best[0] <= 0:
+        return None
+    return best[1]
 
 
 async def _openai_answer(

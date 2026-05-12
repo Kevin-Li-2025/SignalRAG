@@ -299,6 +299,50 @@ python -m fast_rag.eval --mode deep --top-k 10
 
 The evaluator reports recall@k, hit rate, MRR, and latency over a small set of known-answer web-search cases.
 
+## End-to-End Benchmark
+
+For RAG systems, do not rely on a single benchmark number. A useful eval suite
+should cover both retrieval and generation:
+
+- Retrieval: recall@k, hit rate, MRR/nDCG, source diversity, latency.
+- Generation: answer relevance, faithfulness/groundedness, citation coverage,
+  supported-claim rate, contradiction rate, fallback rate, and cost/latency.
+- Dataset size: use 20-50 golden queries for early development, 100-300 for a
+  release gate, and 500+ mixed production traces once real usage exists. Keep
+  separate slices for factual lookup, API docs, fresh/news, comparison,
+  multi-hop, Deep Research, and adversarial/no-answer cases.
+
+SignalRAG includes a small end-to-end benchmark runner:
+
+```bash
+python -m fast_rag.benchmark \
+  --api-base http://127.0.0.1:8000 \
+  --timeout 220 \
+  --output benchmark_results/signalrag-benchmark-2026-05-12.json
+```
+
+Latest local run with DeepSeek enabled, DuckDuckGo search, and no Brave API key:
+
+| Metric | Result |
+| --- | ---: |
+| Cases | 6 |
+| Expected source recall | 0.8889 |
+| Used source recall | 0.7222 |
+| Answer term coverage | 0.9028 |
+| Citation coverage | 0.5868 |
+| Supported claim rate | 0.5471 |
+| Review claim rate | 0.4465 |
+| CRAG sufficient rate | 1.0000 |
+| Fallback rate | 0.0000 |
+| Average latency | 39.8s |
+| P95 latency | 75.4s |
+
+Interpretation: retrieval is already strong for official-source and API-doc
+queries, and Deep Research now completes without extractive fallback. The main
+quality gap is citation verifier strictness: many claims are marked for review
+even when the answer has useful citations. The main latency gap is Deep Research
+max-reasoning, which currently dominates p95 latency.
+
 ## Design Notes
 
 Accuracy comes from grounding every answer in retrieved passages, checking retrieval quality before generation, fusing multi-query search results with RRF, ranking with contextual BM25 signals, packing answer context with query-aware compression, and returning only used citations by default. Speed comes from short timeouts, request concurrency, page caching, early reranking, compression before generation, and the planner choosing the cheapest mode that fits the query. For production, use a paid search API such as Brave or Tavily, add an embedding or cross-encoder reranker, and persist traces for evaluation.

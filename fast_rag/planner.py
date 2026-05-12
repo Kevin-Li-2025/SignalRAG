@@ -3,8 +3,9 @@ from __future__ import annotations
 import json
 import os
 import re
+from collections import OrderedDict
 from dataclasses import asdict, dataclass
-from time import perf_counter
+from time import perf_counter, time
 from typing import Literal
 
 import httpx
@@ -49,6 +50,9 @@ MAX_RE = re.compile(
 API_RE = re.compile(r"\b(api|sdk|endpoint|json|curl|python|javascript|typescript)\b|接口|代码|报错|实现", re.IGNORECASE)
 RECOMMEND_RE = re.compile(r"\b(best|recommend|choose|which|should I)\b|推荐|选择|哪个好|应该", re.IGNORECASE)
 COMPARE_RE = re.compile(r"\b(compare|versus|vs\.?|difference|trade[- ]?off)\b|比较|区别|权衡", re.IGNORECASE)
+PLAN_CACHE_TTL_SECONDS = 600
+PLAN_CACHE_MAX_ITEMS = 256
+_PLAN_CACHE: OrderedDict[tuple[str, str, bool], tuple[float, QueryPlan]] = OrderedDict()
 
 
 def heuristic_query_plan(query: str, requested_mode: str = "fast") -> QueryPlan:
@@ -102,7 +106,12 @@ def heuristic_query_plan(query: str, requested_mode: str = "fast") -> QueryPlan:
 async def plan_query(query: str, requested_mode: str = "fast") -> QueryPlan:
     started = perf_counter()
     fallback = heuristic_query_plan(query, requested_mode)
+    cache_key = _plan_cache_key(query, requested_mode)
+    cached = _get_cached_plan(cache_key)
+    if cached:
+        return cached
     if not settings.deepseek_api_key:
+        _store_plan(cache_key, fallback)
         return fallback
 
     payload = {
@@ -149,13 +158,41 @@ async def plan_query(query: str, requested_mode: str = "fast") -> QueryPlan:
             response.raise_for_status()
             content = response.json()["choices"][0]["message"]["content"]
         plan = _coerce_plan(json.loads(content), fallback)
-        return QueryPlan(
+        planned = QueryPlan(
             **{**plan.to_dict(), "planner": "deepseek", "elapsed_ms": round((perf_counter() - started) * 1000)}
         )
+        _store_plan(cache_key, planned)
+        return planned
     except Exception:
-        return QueryPlan(
+        planned = QueryPlan(
             **{**fallback.to_dict(), "planner": "heuristic_fallback", "elapsed_ms": round((perf_counter() - started) * 1000)}
         )
+        _store_plan(cache_key, planned)
+        return planned
+
+
+def _plan_cache_key(query: str, requested_mode: str) -> tuple[str, str, bool]:
+    return (query.strip().lower(), requested_mode, bool(settings.deepseek_api_key))
+
+
+def _get_cached_plan(key: tuple[str, str, bool]) -> QueryPlan | None:
+    cached = _PLAN_CACHE.get(key)
+    if not cached:
+        return None
+    stored_at, plan = cached
+    if time() - stored_at > PLAN_CACHE_TTL_SECONDS:
+        _PLAN_CACHE.pop(key, None)
+        return None
+    _PLAN_CACHE.move_to_end(key)
+    planner = plan.planner if plan.planner.endswith("_cache") else f"{plan.planner}_cache"
+    return QueryPlan(**{**plan.to_dict(), "planner": planner, "elapsed_ms": 0})
+
+
+def _store_plan(key: tuple[str, str, bool], plan: QueryPlan) -> None:
+    _PLAN_CACHE[key] = (time(), plan)
+    _PLAN_CACHE.move_to_end(key)
+    while len(_PLAN_CACHE) > PLAN_CACHE_MAX_ITEMS:
+        _PLAN_CACHE.popitem(last=False)
 
 
 def _coerce_plan(raw: dict, fallback: QueryPlan) -> QueryPlan:

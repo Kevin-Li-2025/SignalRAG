@@ -1,7 +1,10 @@
 from __future__ import annotations
 
+import copy
+import json
+from collections import OrderedDict
 from pathlib import Path
-from time import perf_counter
+from time import perf_counter, time
 from typing import Literal
 
 from fastapi import FastAPI
@@ -33,6 +36,9 @@ STATIC_DIR = BASE_DIR / "static"
 app = FastAPI(title=settings.app_name)
 cache = PageCache(settings.cache_path)
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+RESPONSE_CACHE_TTL_SECONDS = 600
+RESPONSE_CACHE_MAX_ITEMS = 96
+response_cache: OrderedDict[str, tuple[float, dict]] = OrderedDict()
 
 
 class SearchRequest(BaseModel):
@@ -91,6 +97,11 @@ def _resolve_mode(requested_mode: str, planned_mode: str) -> str:
 @app.post("/api/search")
 async def search(request: SearchRequest) -> dict:
     started = perf_counter()
+    cache_key = _response_cache_key(request)
+    cached = _get_cached_response(cache_key)
+    if cached:
+        return cached
+
     filters = normalize_search_filters(
         request.include_domains,
         request.exclude_domains,
@@ -167,7 +178,7 @@ async def search(request: SearchRequest) -> dict:
         )
     candidate_citations = [serialize_evidence(item) for item in evidence]
     elapsed_ms = round((perf_counter() - started) * 1000)
-    return {
+    response = {
         "query": request.query,
         "mode": effective_mode,
         "requested_mode": request.mode,
@@ -200,9 +211,40 @@ async def search(request: SearchRequest) -> dict:
             "crag_status": (crag_after or crag_before).status,
             "crag_corrected": crag_corrected,
             "research_steps": len(research_trace),
+            "cache_hit": False,
             "elapsed_ms": elapsed_ms,
         },
     }
+    _store_cached_response(cache_key, response)
+    return response
+
+
+def _response_cache_key(request: SearchRequest) -> str:
+    return json.dumps(request.model_dump(mode="json"), ensure_ascii=False, sort_keys=True)
+
+
+def _get_cached_response(key: str) -> dict | None:
+    cached = response_cache.get(key)
+    if not cached:
+        return None
+    stored_at, response = cached
+    if time() - stored_at > RESPONSE_CACHE_TTL_SECONDS:
+        response_cache.pop(key, None)
+        return None
+    response_cache.move_to_end(key)
+    copied = copy.deepcopy(response)
+    copied.setdefault("meta", {})["cache_hit"] = True
+    copied["meta"]["elapsed_ms"] = 0
+    return copied
+
+
+def _store_cached_response(key: str, response: dict) -> None:
+    cached = copy.deepcopy(response)
+    cached.setdefault("meta", {})["cache_hit"] = False
+    response_cache[key] = (time(), cached)
+    response_cache.move_to_end(key)
+    while len(response_cache) > RESPONSE_CACHE_MAX_ITEMS:
+        response_cache.popitem(last=False)
 
 
 def main() -> None:

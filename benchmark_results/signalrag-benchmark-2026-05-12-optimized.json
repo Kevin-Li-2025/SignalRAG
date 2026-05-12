@@ -1,0 +1,222 @@
+{
+  "api_base": "http://127.0.0.1:8000",
+  "summary": {
+    "cases": 6,
+    "expected_source_recall": 0.8889,
+    "used_source_recall": 0.8055,
+    "answer_term_coverage": 0.8472,
+    "citation_coverage": 0.8889,
+    "supported_claim_rate": 0.845,
+    "weak_claim_rate": 0.0439,
+    "review_claim_rate": 0.1111,
+    "crag_sufficient_rate": 1.0,
+    "fallback_rate": 0.3333,
+    "avg_elapsed_ms": 33183,
+    "p95_elapsed_ms": 67661
+  },
+  "results": [
+    {
+      "name": "chatgpt_search_citations",
+      "mode": "pro",
+      "answer_mode": "deepseek",
+      "reasoning_effort": "none",
+      "expected_source_recall": 1.0,
+      "used_source_recall": 0.5,
+      "answer_term_coverage": 1.0,
+      "citation_coverage": 1.0,
+      "supported_claim_rate": 1.0,
+      "weak_claim_rate": 0.0,
+      "review_claim_rate": 0.0,
+      "contradicted_claims": 0,
+      "used_citations": 2,
+      "claims": 4,
+      "crag_status": "sufficient",
+      "crag_corrected": false,
+      "research_steps": 0,
+      "context_compression_ratio": 1.0,
+      "elapsed_ms": 8786,
+      "wall_ms": 8808,
+      "matched_expected": [
+        "help.openai.com/en/articles/9237897",
+        "openai.com/index/introducing-chatgpt-search"
+      ],
+      "matched_used": [
+        "help.openai.com/en/articles/9237897"
+      ],
+      "term_hits": [
+        "query",
+        "sources",
+        "citations"
+      ]
+    },
+    {
+      "name": "openai_web_search_api",
+      "mode": "pro",
+      "answer_mode": "deepseek",
+      "reasoning_effort": "high",
+      "expected_source_recall": 1.0,
+      "used_source_recall": 1.0,
+      "answer_term_coverage": 1.0,
+      "citation_coverage": 1.0,
+      "supported_claim_rate": 1.0,
+      "weak_claim_rate": 0.0,
+      "review_claim_rate": 0.0,
+      "contradicted_claims": 0,
+      "used_citations": 1,
+      "claims": 2,
+      "crag_status": "sufficient",
+      "crag_corrected": false,
+      "research_steps": 0,
+      "context_compression_ratio": 1.0,
+      "elapsed_ms": 10907,
+      "wall_ms": 10910,
+      "matched_expected": [
+        "developers.openai.com/api/docs/guides/tools-web-search"
+      ],
+      "matched_used": [
+        "developers.openai.com/api/docs/guides/tools-web-search"
+      ],
+      "term_hits": [
+        "domain",
+        "sources",
+        "citations"
+      ]
+    },
+    {
+      "name": "deepseek_api_quickstart",
+      "mode": "fast",
+      "answer_mode": "deepseek",
+      "reasoning_effort": "none",
+      "expected_source_recall": 1.0,
+      "used_source_recall": 1.0,
+      "answer_term_coverage": 1.0,
+      "citation_coverage": 0.3333,
+      "supported_claim_rate": 0.3333,
+      "weak_claim_rate": 0.0,
+      "review_claim_rate": 0.6667,
+      "contradicted_claims": 0,
+      "used_citations": 2,
+      "claims": 6,
+      "crag_status": "sufficient",
+      "crag_corrected": false,
+      "research_steps": 0,
+      "context_compression_ratio": 0.8328,
+      "elapsed_ms": 7078,
+      "wall_ms": 7081,
+      "matched_expected": [
+        "api-docs.deepseek.com",
+        "api-docs.deepseek.com/api/create-chat-completion"
+      ],
+      "matched_used": [
+        "api-docs.deepseek.com",
+        "api-docs.deepseek.com/api/create-chat-completion"
+      ],
+      "term_hits": [
+        "api.deepseek.com",
+        "deepseek",
+        "model"
+      ]
+    },
+    {
+      "name": "deepseek_thinking_mode",
+      "mode": "deep",
+      "answer_mode": "extractive",
+      "reasoning_effort": "max",
+      "expected_source_recall": 1.0,
+      "used_source_recall": 1.0,
+      "answer_term_coverage": 0.75,
+      "citation_coverage": 1.0,
+      "supported_claim_rate": 1.0,
+      "weak_claim_rate": 0.0,
+      "review_claim_rate": 0.0,
+      "contradicted_claims": 0,
+      "used_citations": 2,
+      "claims": 4,
+      "crag_status": "sufficient",
+      "crag_corrected": false,
+      "research_steps": 4,
+      "context_compression_ratio": 1.0,
+      "elapsed_ms": 44929,
+      "wall_ms": 44936,
+      "matched_expected": [
+        "api-docs.deepseek.com/guides/thinking_mode",
+        "api-docs.deepseek.com/quick_start/pricing"
+      ],
+      "matched_used": [
+        "api-docs.deepseek.com/guides/thinking_mode",
+        "api-docs.deepseek.com/quick_start/pricing"
+      ],
+      "term_hits": [
+        "thinking",
+        "high",
+        "max"
+      ]
+    },
+    {
+      "name": "context_window_compression",
+      "mode": "deep",
+      "answer_mode": "deepseek",
+      "reasoning_effort": "max",
+      "expected_source_recall": 0.3333,
+      "used_source_recall": 0.3333,
+      "answer_term_coverage": 1.0,
+      "citation_coverage": 1.0,
+      "supported_claim_rate": 0.7368,
+      "weak_claim_rate": 0.2632,
+      "review_claim_rate": 0.0,
+      "contradicted_claims": 0,
+      "used_citations": 2,
+      "claims": 19,
+      "crag_status": "sufficient",
+      "crag_corrected": false,
+      "research_steps": 4,
+      "context_compression_ratio": 1.0,
+      "elapsed_ms": 67661,
+      "wall_ms": 67672,
+      "matched_expected": [
+        "microsoft.com/en-us/research/project/llmlingua/longllmlingua"
+      ],
+      "matched_used": [
+        "microsoft.com/en-us/research/project/llmlingua/longllmlingua"
+      ],
+      "term_hits": [
+        "LongLLMLingua",
+        "contextual",
+        "lost"
+      ]
+    },
+    {
+      "name": "chatgpt_enterprise_edu",
+      "mode": "deep",
+      "answer_mode": "extractive",
+      "reasoning_effort": "max",
+      "expected_source_recall": 1.0,
+      "used_source_recall": 1.0,
+      "answer_term_coverage": 0.3333,
+      "citation_coverage": 1.0,
+      "supported_claim_rate": 1.0,
+      "weak_claim_rate": 0.0,
+      "review_claim_rate": 0.0,
+      "contradicted_claims": 0,
+      "used_citations": 3,
+      "claims": 3,
+      "crag_status": "sufficient",
+      "crag_corrected": false,
+      "research_steps": 4,
+      "context_compression_ratio": 1.0,
+      "elapsed_ms": 59738,
+      "wall_ms": 59747,
+      "matched_expected": [
+        "help.openai.com/en/articles/10093903",
+        "help.openai.com/en/articles/9237897"
+      ],
+      "matched_used": [
+        "help.openai.com/en/articles/10093903",
+        "help.openai.com/en/articles/9237897"
+      ],
+      "term_hits": [
+        "citations"
+      ]
+    }
+  ]
+}

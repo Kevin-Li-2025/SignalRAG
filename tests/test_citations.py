@@ -75,6 +75,25 @@ def test_verify_claim_citations_marks_supported_claims() -> None:
     assert claims[0]["citations"][0]["url"] == "https://help.openai.com/search"
 
 
+def test_verify_claim_citations_inherits_line_citation_for_split_claims() -> None:
+    evidence = [
+        Evidence(
+            id=1,
+            title="DeepSeek Thinking Mode",
+            url="https://api-docs.deepseek.com/guides/thinking_mode",
+            passage="DeepSeek thinking mode supports high and max reasoning effort. Thinking can be disabled for simple tasks.",
+            score=3,
+        )
+    ]
+    claims = verify_claim_citations(
+        "DeepSeek thinking mode supports high and max reasoning effort. Thinking can be disabled for simple tasks. [1]",
+        evidence,
+    )
+    assert len(claims) == 2
+    assert all(claim["citation_ids"] == [1] for claim in claims)
+    assert all(claim["status"] == "supported" for claim in claims)
+
+
 def test_verify_claim_citations_flags_missing_citation() -> None:
     claims = verify_claim_citations(
         "ChatGPT search rewrites a user query into targeted search queries before answering.",
@@ -101,3 +120,18 @@ def test_merge_judgements_overrides_lexical_status() -> None:
     assert merged[0]["status"] == "supported"
     assert merged[0]["support_score"] == 0.91
     assert merged[0]["verifier"] == "deepseek"
+
+
+def test_merge_judgements_can_target_adaptive_judge_subset() -> None:
+    claims = [
+        {"claim": "A", "citation_ids": [1], "status": "supported", "support_score": 0.9},
+        {"claim": "B", "citation_ids": [1], "status": "weak", "support_score": 0.1},
+    ]
+    merged = _merge_judgements(
+        claims,
+        {"claims": [{"index": 0, "status": "supported", "confidence": 0.82, "rationale": "direct"}]},
+        original_indexes=[1],
+    )
+    assert merged[0]["support_score"] == 0.9
+    assert merged[1]["status"] == "supported"
+    assert merged[1]["support_score"] == 0.82

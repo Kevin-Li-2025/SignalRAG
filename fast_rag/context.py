@@ -11,13 +11,13 @@ from .rank import domain_for, query_phrases, tokenize
 SENTENCE_RE = re.compile(r"(?<=[.!?。！？])\s+")
 MODE_CHAR_BUDGET = {
     "fast": 4_800,
-    "pro": 9_600,
-    "deep": 19_200,
+    "pro": 7_200,
+    "deep": 12_000,
 }
 MODE_ITEM_BUDGET = {
     "fast": 780,
-    "pro": 1_120,
-    "deep": 1_620,
+    "pro": 980,
+    "deep": 1_100,
 }
 
 

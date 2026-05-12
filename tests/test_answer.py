@@ -1,4 +1,4 @@
-from fast_rag.answer import _extractive_answer
+from fast_rag.answer import _extractive_answer, repair_missing_citations
 from fast_rag.models import Evidence
 
 
@@ -51,3 +51,34 @@ def test_extractive_answer_can_build_chatgpt_search_pattern() -> None:
     assert "模型层" in answer
     assert "查询改写" in answer
     assert "输出形式" in answer
+
+
+def test_repair_missing_citations_adds_best_evidence_id() -> None:
+    evidence = [
+        Evidence(
+            id=1,
+            title="DeepSeek Thinking Mode",
+            url="https://api-docs.deepseek.com/guides/thinking_mode",
+            passage="DeepSeek thinking mode supports high and max reasoning effort.",
+            score=5.0,
+            provider="official",
+        ),
+        Evidence(
+            id=2,
+            title="Other",
+            url="https://example.com",
+            passage="Unrelated setup information.",
+            score=1.0,
+        ),
+    ]
+    answer = repair_missing_citations(
+        "DeepSeek thinking mode",
+        "DeepSeek thinking mode supports high and max reasoning effort.",
+        evidence,
+    )
+    assert answer.endswith("[1]")
+
+
+def test_repair_missing_citations_preserves_existing_citations() -> None:
+    evidence = [Evidence(id=1, title="One", url="https://one.example", passage="Alpha", score=1)]
+    assert repair_missing_citations("Alpha", "Alpha [1]", evidence) == "Alpha [1]"
