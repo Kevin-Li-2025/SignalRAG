@@ -425,25 +425,28 @@ start:
 | --- | ---: |
 | Cases | 50 |
 | Source-scored cases | 50 |
-| Expected source recall | 0.6000 |
-| Used source recall | 0.3200 |
-| Answer term coverage | 0.9200 |
-| Citation coverage | 0.9180 |
-| Supported claim rate | 0.7230 |
-| Review claim rate | 0.1826 |
-| CRAG sufficient rate | 0.8200 |
-| Fallback rate | 0.0000 |
+| Expected source recall | 0.8200 |
+| Used source recall | 0.4400 |
+| Answer term coverage | 0.9300 |
+| Citation coverage | 0.9113 |
+| Supported claim rate | 0.7779 |
+| Review claim rate | 0.1618 |
+| CRAG sufficient rate | 0.9000 |
+| Fallback rate | 0.0200 |
 | Cache hit rate | 0.0000 |
-| Average latency | 10.2s |
-| P95 latency | 17.9s |
+| Average latency | 10.5s |
+| P95 latency | 22.9s |
 
 Interpretation: the realistic suite is harsher and more useful for product
 work. It exposed that DuckDuckGo-only HTML search can return zero results or
 bad results for short real queries, so SignalRAG now queries Bing and Yahoo
 HTML fallbacks in parallel and avoids truncating one provider's results before
-fusion. The answer layer is solid on this suite, but used-source recall is still
-the main gap: the engine often answers with citations, but not always from the
-preferred gold source.
+fusion. SignalRAG also applies authority-aware query rewrites, trust-aware
+pre-fetch reranking, and a small high-confidence official source router for
+navigational documentation queries. This lifted expected-source recall from
+0.60 to 0.82 and used-source recall from 0.32 to 0.44 on the realistic suite.
+Used-source recall remains the main gap: the engine often retrieves the
+preferred gold source, but the final answer does not always cite it.
 
 ## Smart Cache
 

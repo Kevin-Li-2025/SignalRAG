@@ -5,6 +5,7 @@ from fast_rag.search import (
     _decode_yahoo_url,
     _parse_bing_results,
     _parse_yahoo_results,
+    _rank_search_results,
     dedupe_documents,
     dedupe_results,
     filter_results,
@@ -19,7 +20,7 @@ def test_rewrite_queries_prioritizes_openai_official_sources() -> None:
     queries = rewrite_queries("ChatGPT search how it works OpenAI", "fast")
     assert queries[0].startswith("site:help.openai.com")
     assert any("site:help.openai.com" in query for query in queries)
-    assert queries[-1] == "ChatGPT search how it works OpenAI"
+    assert "ChatGPT search how it works OpenAI" in queries
 
 
 def test_rewrite_queries_pro_adds_developer_and_official_queries() -> None:
@@ -44,6 +45,18 @@ def test_rewrite_queries_applies_domain_controls() -> None:
     queries = rewrite_queries("vector database recall", "pro", filters)
     assert any(query.startswith("site:docs.example.com") for query in queries)
     assert all("-site:medium.com" in query for query in queries)
+
+
+def test_rewrite_queries_adds_keyword_and_authority_queries_for_short_queries() -> None:
+    queries = rewrite_queries("how do i change chrome default search engine", "fast")
+    assert "change chrome default search engine" in queries
+    assert any("support google" in query for query in queries)
+
+
+def test_rewrite_queries_adds_official_technical_authority_query() -> None:
+    queries = rewrite_queries("github actions cache pnpm", "pro")
+    assert any(query.startswith("github docs actions") for query in queries)
+    assert "pnpm github actions cache docs" in queries
 
 
 def test_normalize_search_filters_cleans_domains_and_recency() -> None:
@@ -121,6 +134,17 @@ def test_seed_results_adds_source_trust_sources() -> None:
     assert "https://www.cancer.gov/about-cancer/managing-care/using-trusted-resources" in urls
 
 
+def test_seed_results_adds_high_confidence_official_router_sources() -> None:
+    chrome_urls = {item.url for item in seed_results("how do i change chrome default search engine")}
+    robots_urls = {item.url for item in seed_results("robots txt block all crawlers")}
+    actions_urls = {item.url for item in seed_results("github actions cache pnpm")}
+    npm_urls = {item.url for item in seed_results("npm install package globally")}
+    assert "https://support.google.com/chrome/answer/95426" in chrome_urls
+    assert "https://developers.google.com/search/docs/crawling-indexing/robots/create-robots-txt" in robots_urls
+    assert "https://docs.github.com/en/actions/reference/workflows-and-actions/dependency-caching" in actions_urls
+    assert "https://docs.npmjs.com/downloading-and-installing-packages-globally/" in npm_urls
+
+
 def test_decode_bing_redirect_url() -> None:
     url = _decode_bing_url(
         "https://www.bing.com/ck/a?!&&u=a1aHR0cHM6Ly9kb2NzLnB5dGhvbi5vcmcvMy9saWJyYXJ5L2pzb24uaHRtbA&ntb=1"
@@ -173,6 +197,29 @@ def test_parse_yahoo_results_extracts_links_and_snippets() -> None:
     ]
 
 
+def test_rank_search_results_boosts_trusted_relevant_sources() -> None:
+    results = _rank_search_results(
+        "python read json file",
+        [
+            SearchResult(
+                title="Read JSON in Python",
+                url="https://example.com/python-json",
+                snippet="Use json.load to read a JSON file.",
+                provider="bing",
+                rank=1,
+            ),
+            SearchResult(
+                title="json - Python documentation",
+                url="https://docs.python.org/3/library/json.html",
+                snippet="The json module serializes and deserializes JSON files.",
+                provider="yahoo",
+                rank=4,
+            ),
+        ],
+    )
+    assert results[0].url == "https://docs.python.org/3/library/json.html"
+
+
 def test_dedupe_results_drops_duckduckgo_ads() -> None:
     results = dedupe_results(
         [
@@ -212,6 +259,29 @@ def test_fuse_results_keeps_seeded_official_sources_high() -> None:
     )
     assert results[0].url == "https://docs.example.com"
     assert results[0].provider == "official"
+
+
+def test_post_fusion_ranking_can_rescue_authoritative_sources() -> None:
+    ranked = _rank_search_results(
+        "robots txt block all crawlers",
+        [
+            SearchResult(
+                title="Robot - Wikipedia",
+                url="https://en.wikipedia.org/wiki/Robot",
+                snippet="A robot is a machine.",
+                provider="bing",
+                rank=1,
+            ),
+            SearchResult(
+                title="Robots.txt Introduction and Guide",
+                url="https://developers.google.com/search/docs/crawling-indexing/robots/intro",
+                snippet="Use robots.txt rules such as Disallow to control crawler access.",
+                provider="yahoo",
+                rank=8,
+            ),
+        ],
+    )
+    assert ranked[0].url == "https://developers.google.com/search/docs/crawling-indexing/robots/intro"
 
 
 def test_dedupe_documents_prefers_official_redirect_result() -> None:
