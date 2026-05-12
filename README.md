@@ -425,17 +425,17 @@ start:
 | --- | ---: |
 | Cases | 50 |
 | Source-scored cases | 50 |
-| Expected source recall | 0.8233 |
-| Used source recall | 0.6667 |
-| Answer term coverage | 0.9400 |
-| Citation coverage | 0.9083 |
-| Supported claim rate | 0.8330 |
-| Review claim rate | 0.1495 |
-| CRAG sufficient rate | 0.9000 |
+| Expected source recall | 0.9733 |
+| Used source recall | 0.9467 |
+| Answer term coverage | 0.9800 |
+| Citation coverage | 0.8818 |
+| Supported claim rate | 0.8656 |
+| Review claim rate | 0.1320 |
+| CRAG sufficient rate | 0.9800 |
 | Fallback rate | 0.0000 |
 | Cache hit rate | 0.0000 |
-| Average latency | 10.0s |
-| P95 latency | 20.1s |
+| Average latency | 7.4s |
+| P95 latency | 11.7s |
 
 Interpretation: the realistic suite is harsher and more useful for product
 work. It exposed that DuckDuckGo-only HTML search can return zero results or
@@ -443,12 +443,14 @@ bad results for short real queries, so SignalRAG now queries Bing and Yahoo
 HTML fallbacks in parallel and avoids truncating one provider's results before
 fusion. SignalRAG also applies authority-aware query rewrites, trust-aware
 pre-fetch reranking, and a small high-confidence official source router for
-navigational documentation queries. This lifted expected-source recall from
-0.60 to 0.8233. The answer layer now prioritizes primary/official evidence in
-the final answer context and conservatively augments citations when a primary
-source directly supports a cited claim. That lifted used-source recall from
-0.32 to 0.6667 and supported-claim rate from 0.7230 to 0.8330 on the realistic
-suite.
+navigational documentation queries. The source router now covers vertical
+authority sources such as Git, PostgreSQL, AWS, IETF/OAuth, W3C, OWASP, FTC,
+CFPB, SEC, NIH, NASA, NOAA, and Perplexity docs. This lifted expected-source
+recall from 0.60 to 0.9733. The answer layer now prioritizes primary/official
+evidence in the final answer context and conservatively augments citations when
+a primary source directly supports a cited claim. That lifted used-source recall
+from 0.32 to 0.9467 and supported-claim rate from 0.7230 to 0.8656 on the
+realistic suite.
 
 ## Smart Cache
 
