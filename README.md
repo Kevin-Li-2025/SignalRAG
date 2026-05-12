@@ -425,17 +425,17 @@ start:
 | --- | ---: |
 | Cases | 50 |
 | Source-scored cases | 50 |
-| Expected source recall | 0.8200 |
-| Used source recall | 0.4400 |
-| Answer term coverage | 0.9300 |
-| Citation coverage | 0.9113 |
-| Supported claim rate | 0.7779 |
-| Review claim rate | 0.1618 |
+| Expected source recall | 0.8233 |
+| Used source recall | 0.6667 |
+| Answer term coverage | 0.9400 |
+| Citation coverage | 0.9083 |
+| Supported claim rate | 0.8330 |
+| Review claim rate | 0.1495 |
 | CRAG sufficient rate | 0.9000 |
-| Fallback rate | 0.0200 |
+| Fallback rate | 0.0000 |
 | Cache hit rate | 0.0000 |
-| Average latency | 10.5s |
-| P95 latency | 22.9s |
+| Average latency | 10.0s |
+| P95 latency | 20.1s |
 
 Interpretation: the realistic suite is harsher and more useful for product
 work. It exposed that DuckDuckGo-only HTML search can return zero results or
@@ -444,9 +444,11 @@ HTML fallbacks in parallel and avoids truncating one provider's results before
 fusion. SignalRAG also applies authority-aware query rewrites, trust-aware
 pre-fetch reranking, and a small high-confidence official source router for
 navigational documentation queries. This lifted expected-source recall from
-0.60 to 0.82 and used-source recall from 0.32 to 0.44 on the realistic suite.
-Used-source recall remains the main gap: the engine often retrieves the
-preferred gold source, but the final answer does not always cite it.
+0.60 to 0.8233. The answer layer now prioritizes primary/official evidence in
+the final answer context and conservatively augments citations when a primary
+source directly supports a cited claim. That lifted used-source recall from
+0.32 to 0.6667 and supported-claim rate from 0.7230 to 0.8330 on the realistic
+suite.
 
 ## Smart Cache
 

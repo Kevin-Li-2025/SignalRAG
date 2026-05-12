@@ -97,7 +97,9 @@ STANDARDS_AND_SECURITY_DOMAINS = {
 }
 OFFICIAL_DOCS_DOMAINS = {
     "api-docs.deepseek.com",
+    "boto3.amazonaws.com",
     "cloud.google.com",
+    "cloudflare.com",
     "developer.mozilla.org",
     "developers.google.com",
     "developers.openai.com",
@@ -127,6 +129,7 @@ OFFICIAL_DOCS_DOMAINS = {
     "react.dev",
     "support.apple.com",
     "support.google.com",
+    "support.microsoft.com",
     "typescriptlang.org",
 }
 MEDICAL_REFERENCE_DOMAINS = {

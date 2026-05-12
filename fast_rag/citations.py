@@ -9,7 +9,7 @@ import httpx
 from .config import settings
 from .extract import clean_text
 from .models import Evidence
-from .rank import tokenize
+from .rank import source_trust_tier, tokenize
 
 
 CITATION_RE = re.compile(r"\[(\d+(?:\s*,\s*\d+)*)\]")
@@ -50,6 +50,25 @@ SUPPORT_STOPWORDS = {
     "with",
     "would",
 }
+PRIMARY_TRUST_TIERS = {
+    "government",
+    "academic",
+    "standards",
+    "official_docs",
+    "medical",
+    "news_wire",
+}
+TRUST_PRIORITY = {
+    "government": 4.0,
+    "academic": 3.8,
+    "standards": 3.8,
+    "official_docs": 3.7,
+    "medical": 3.5,
+    "news_wire": 2.7,
+    "reference": 1.3,
+    "general": 0.0,
+    "low_signal": -1.2,
+}
 
 
 def serialize_evidence(item: Evidence) -> dict:
@@ -74,6 +93,58 @@ def select_answer_evidence(evidence: list[Evidence]) -> list[Evidence]:
         seen_urls.add(key)
         selected.append(item)
     return selected
+
+
+def prioritize_answer_evidence(query: str, evidence: list[Evidence]) -> list[Evidence]:
+    selected = select_answer_evidence(evidence)
+    scored = sorted(
+        enumerate(selected),
+        key=lambda pair: (-_answer_priority_score(query, pair[1]), pair[0]),
+    )
+    prioritized: list[Evidence] = []
+    for new_id, (_, item) in enumerate(scored, start=1):
+        priority = _answer_priority_score(query, item)
+        prioritized.append(
+            Evidence(
+                id=new_id,
+                title=item.title,
+                url=item.url,
+                passage=item.passage,
+                score=item.score,
+                provider=item.provider,
+                signals={
+                    **item.signals,
+                    "answer_priority": round(priority, 4),
+                    "original_id": item.id,
+                    "primary_source": _is_primary_source(item),
+                },
+            )
+        )
+    return prioritized
+
+
+def _answer_priority_score(query: str, item: Evidence) -> float:
+    query_tokens = set(tokenize(query))
+    title_tokens = set(tokenize(item.title))
+    passage_tokens = set(tokenize(item.passage))
+    evidence_tokens = title_tokens | passage_tokens
+    if not query_tokens:
+        query_overlap = 0.0
+        title_overlap = 0.0
+    else:
+        query_overlap = len(query_tokens & evidence_tokens) / len(query_tokens)
+        title_overlap = len(query_tokens & title_tokens) / len(query_tokens)
+    tier = source_trust_tier(item.url)
+    trust = TRUST_PRIORITY.get(tier, 0.0)
+    provider = 0.7 if item.provider == "official" else 0.45 if item.provider == "seed" else 0.0
+    score = query_overlap * 3.0 + title_overlap * 2.2 + trust + provider + min(item.score, 10.0) * 0.04
+    if tier == "low_signal":
+        score -= 1.2
+    return score
+
+
+def _is_primary_source(item: Evidence) -> bool:
+    return source_trust_tier(item.url) in PRIMARY_TRUST_TIERS or item.provider == "official"
 
 
 def normalize_answer_citations(answer: str, evidence: list[Evidence]) -> tuple[str, list[dict], list[int]]:

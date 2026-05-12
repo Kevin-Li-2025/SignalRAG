@@ -1,4 +1,4 @@
-from fast_rag.answer import _extractive_answer, repair_missing_citations
+from fast_rag.answer import _extractive_answer, prefer_primary_citations, repair_missing_citations
 from fast_rag.models import Evidence
 
 
@@ -82,3 +82,73 @@ def test_repair_missing_citations_adds_best_evidence_id() -> None:
 def test_repair_missing_citations_preserves_existing_citations() -> None:
     evidence = [Evidence(id=1, title="One", url="https://one.example", passage="Alpha", score=1)]
     assert repair_missing_citations("Alpha", "Alpha [1]", evidence) == "Alpha [1]"
+
+
+def test_prefer_primary_citations_augments_general_citation_when_supported() -> None:
+    evidence = [
+        Evidence(
+            id=1,
+            title="json - Python documentation",
+            url="https://docs.python.org/3/library/json.html",
+            passage="The json module deserializes JSON documents from file-like objects using json.load.",
+            score=2,
+            signals={"primary_source": True},
+        ),
+        Evidence(
+            id=2,
+            title="Blog",
+            url="https://example.com/blog",
+            passage="Use json.load to read a JSON file.",
+            score=5,
+        ),
+    ]
+    answer = prefer_primary_citations(
+        "python read json file",
+        "Use json.load to read a JSON file. [2]",
+        evidence,
+    )
+    assert answer == "Use json.load to read a JSON file. [2][1]"
+
+
+def test_prefer_primary_citations_adds_complementary_primary_source() -> None:
+    evidence = [
+        Evidence(
+            id=1,
+            title="RFC 7636",
+            url="https://datatracker.ietf.org/doc/html/rfc7636",
+            passage="PKCE mitigates authorization code interception attacks for OAuth public clients.",
+            score=4,
+            provider="official",
+            signals={"primary_source": True},
+        ),
+        Evidence(
+            id=2,
+            title="PKCE for OAuth 2.0",
+            url="https://oauth.net/2/pkce/",
+            passage="PKCE solves the authorization code interception problem for OAuth public clients.",
+            score=4,
+            provider="official",
+            signals={"primary_source": True},
+        ),
+    ]
+    answer = prefer_primary_citations(
+        "oauth pkce what problem does it solve",
+        "PKCE helps OAuth public clients mitigate authorization code interception. [1]",
+        evidence,
+    )
+    assert answer == "PKCE helps OAuth public clients mitigate authorization code interception. [1][2]"
+
+
+def test_prefer_primary_citations_leaves_code_blocks_alone() -> None:
+    evidence = [
+        Evidence(
+            id=1,
+            title="Python documentation",
+            url="https://docs.python.org/3/library/json.html",
+            passage="json.load reads JSON files.",
+            score=2,
+            signals={"primary_source": True},
+        )
+    ]
+    answer = "```python\njson.load(file)  # [2]\n```"
+    assert prefer_primary_citations("python json", answer, evidence) == answer

@@ -1,3 +1,8 @@
+import asyncio
+
+import httpx
+
+from fast_rag.cache import PageCache
 from fast_rag.models import Document, SearchResult
 from fast_rag.search import (
     SearchFilters,
@@ -9,6 +14,7 @@ from fast_rag.search import (
     dedupe_documents,
     dedupe_results,
     filter_results,
+    fetch_document,
     fuse_results,
     normalize_search_filters,
     rewrite_queries,
@@ -57,6 +63,14 @@ def test_rewrite_queries_adds_official_technical_authority_query() -> None:
     queries = rewrite_queries("github actions cache pnpm", "pro")
     assert any(query.startswith("github docs actions") for query in queries)
     assert "pnpm github actions cache docs" in queries
+
+
+def test_rewrite_queries_adds_vertical_authority_queries() -> None:
+    queries = rewrite_queries("oauth pkce what problem does it solve", "pro")
+    assert "RFC 7636 PKCE oauth public clients" in queries
+
+    queries = rewrite_queries("earthquake magnitude vs intensity", "pro")
+    assert any(query.lower() == "usgs earthquake magnitude intensity" for query in queries)
 
 
 def test_normalize_search_filters_cleans_domains_and_recency() -> None:
@@ -143,6 +157,52 @@ def test_seed_results_adds_high_confidence_official_router_sources() -> None:
     assert "https://developers.google.com/search/docs/crawling-indexing/robots/create-robots-txt" in robots_urls
     assert "https://docs.github.com/en/actions/reference/workflows-and-actions/dependency-caching" in actions_urls
     assert "https://docs.npmjs.com/downloading-and-installing-packages-globally/" in npm_urls
+
+
+def test_seed_results_adds_vertical_authority_sources() -> None:
+    urls = {item.url for item in seed_results("git undo last commit but keep changes")}
+    assert "https://git-scm.com/docs/git-reset" in urls
+
+    urls = {item.url for item in seed_results("docker compose env file syntax")}
+    assert "https://docs.docker.com/compose/how-tos/environment-variables/" in urls
+
+    urls = {item.url for item in seed_results("oauth pkce what problem does it solve")}
+    assert "https://datatracker.ietf.org/doc/html/rfc7636" in urls
+    assert "https://oauth.net/2/pkce/" in urls
+
+    urls = {item.url for item in seed_results("dns cname vs a record")}
+    assert "https://www.cloudflare.com/learning/dns/dns-records" in urls
+
+    urls = {item.url for item in seed_results("earthquake magnitude vs intensity")}
+    assert "https://www.usgs.gov/programs/earthquake-hazards/earthquake-magnitude-energy-release-and-shaking-intensity" in urls
+
+    urls = {item.url for item in seed_results("postgres create index concurrently lock")}
+    assert "https://www.postgresql.org/docs/current/sql-createindex.html" in urls
+
+    urls = {item.url for item in seed_results("why is the sky blue")}
+    assert "https://www.nesdis.noaa.gov/about/k-12-education/atmosphere/why-the-sky-blue" in urls
+
+
+def test_fetch_document_uses_snippet_when_official_page_blocks(tmp_path) -> None:
+    async def run() -> str:
+        def handler(request: httpx.Request) -> httpx.Response:
+            return httpx.Response(
+                403,
+                headers={"content-type": "text/html"},
+                text="<html><title>Just a moment...</title><body>Access denied</body></html>",
+            )
+
+        result = SearchResult(
+            title="DNS records | Cloudflare Learning Center",
+            url="https://www.cloudflare.com/learning/dns/dns-records",
+            snippet="A records map names to IPv4 addresses. CNAME records point aliases to canonical names.",
+            provider="official",
+        )
+        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
+            doc = await fetch_document(client, PageCache(tmp_path / "pages.db"), result, timeout=1)
+        return doc.text
+
+    assert asyncio.run(run()).startswith("A records map names")
 
 
 def test_decode_bing_redirect_url() -> None:
@@ -282,6 +342,29 @@ def test_post_fusion_ranking_can_rescue_authoritative_sources() -> None:
         ],
     )
     assert ranked[0].url == "https://developers.google.com/search/docs/crawling-indexing/robots/intro"
+
+
+def test_post_fusion_ranking_boosts_official_seed_provider() -> None:
+    ranked = _rank_search_results(
+        "what causes northern lights",
+        [
+            SearchResult(
+                title="What causes the Northern Lights?",
+                url="https://example.com/northern-lights",
+                snippet="A general explanation of northern lights.",
+                provider="web",
+                rank=1,
+            ),
+            SearchResult(
+                title="Northern Lights and Auroras | NASA Science",
+                url="https://science.nasa.gov/sun/auroras/",
+                snippet="NASA explains what causes the northern lights and how energetic particles interact with Earth's atmosphere.",
+                provider="official",
+                rank=2,
+            ),
+        ],
+    )
+    assert ranked[0].url == "https://science.nasa.gov/sun/auroras/"
 
 
 def test_dedupe_documents_prefers_official_redirect_result() -> None:

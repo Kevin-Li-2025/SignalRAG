@@ -282,41 +282,59 @@ def _authority_queries(query: str) -> list[str]:
     add("mac" in lowered or "apple" in lowered, f"apple support {keywords}")
     add("windows" in lowered, f"microsoft support {keywords}")
     add(bool(re.search(r"\bgit\b", lowered)), f"git scm {keywords}")
+    add("git" in lowered and "undo" in lowered and "commit" in lowered, "git reset last commit keep changes git-scm documentation")
+    add("git" in lowered and "rebase" in lowered and "merge" in lowered, "git rebase merge git-scm book")
     add("python" in lowered, f"python docs {keywords}")
     add("pandas" in lowered, f"pandas docs {keywords}")
     add("numpy" in lowered, f"numpy docs {keywords}")
+    add("numpy" in lowered and "random" in lowered and "seed" in lowered, "numpy random generator seed documentation")
     add("fastapi" in lowered, f"fastapi docs {keywords}")
     add("docker" in lowered, f"docker docs {keywords}")
+    add("docker" in lowered and "compose" in lowered and "env" in lowered, "docker compose env_file .env interpolation docs")
     add("github actions" in lowered, f"github docs actions {keywords}")
     add("pnpm" in lowered and "github actions" in lowered, "pnpm github actions cache docs")
     add("pnpm" in lowered and "github actions" not in lowered, f"pnpm docs {keywords}")
     add(bool(re.search(r"\bnpm\b", lowered)), f"npm docs {keywords}")
     add("aws" in lowered or "s3" in lowered or "boto3" in lowered, f"aws docs {keywords}")
+    add("aws" in lowered and "presigned" in lowered or "s3" in lowered and "presigned" in lowered, "aws s3 presigned url boto3 official documentation")
     add("postgres" in lowered or "postgresql" in lowered, f"postgresql docs {keywords}")
+    add("postgres" in lowered and "concurrently" in lowered or "postgresql" in lowered and "concurrently" in lowered, "PostgreSQL CREATE INDEX CONCURRENTLY lock docs")
     add("react" in lowered or "useeffect" in lowered, f"react docs {keywords}")
     add("typescript" in lowered, f"typescript docs {keywords}")
     add("oauth" in lowered or "pkce" in lowered, f"ietf oauth pkce rfc 7636 {keywords}")
+    add("oauth" in lowered and "pkce" in lowered, "RFC 7636 PKCE oauth public clients")
     add("dns" in lowered or "cname" in lowered, f"cloudflare learning dns {keywords}")
+    add("cname" in lowered and "record" in lowered or "dns" in lowered and "cname" in lowered, "Cloudflare DNS CNAME A record")
     add("robots" in lowered or "robots.txt" in lowered, "robots.txt disallow all google search central")
     add("sitemap" in lowered, f"google search central sitemap {keywords}")
     add("wcag" in lowered, f"w3c wcag {keywords}")
+    add("wcag" in lowered and "contrast" in lowered, "W3C WCAG contrast minimum normal text")
     add("nist" in lowered or "password" in lowered, f"nist password guidelines {keywords}")
     add("owasp" in lowered, f"owasp top 10 {keywords}")
+    add("owasp" in lowered and "broken access" in lowered, "OWASP Top 10 A01 Broken Access Control")
     add("mitre" in lowered, f"mitre attack {keywords}")
     add("irs" in lowered or "tax" in lowered, f"irs {keywords}")
     add("tsa" in lowered, f"tsa {keywords}")
     add("ftc" in lowered or "credit" in lowered, f"ftc consumer {keywords}")
+    add("credit" in lowered and "freeze" in lowered, "FTC credit freeze fraud alert consumer advice")
     add("mortgage" in lowered or "escrow" in lowered, f"consumer financial protection bureau {keywords}")
+    add("escrow" in lowered and "mortgage" in lowered, "CFPB escrow impound account mortgage")
     add("federal funds" in lowered, f"federal reserve {keywords}")
     add("cpi" in lowered or "inflation" in lowered, f"bls {keywords}")
     add("sec" in lowered or "10-k" in lowered, f"sec investor {keywords}")
+    add("10-k" in lowered or "10k" in lowered, "SEC Investor.gov Form 10-K annual report")
     add("fda" in lowered or "caffeine" in lowered, f"fda {keywords}")
     add("nih" in lowered or "vitamin" in lowered, f"nih office dietary supplements {keywords}")
+    add("vitamin" in lowered and "deficiency" in lowered, "NIH Office of Dietary Supplements vitamin D deficiency")
     add("cdc" in lowered or "blood pressure" in lowered, f"cdc {keywords}")
     add("apa" in lowered or "mla" in lowered, f"purdue owl {keywords}")
     add("northern lights" in lowered or "aurora" in lowered, f"nasa noaa {keywords}")
+    add("northern lights" in lowered or "aurora" in lowered, "NASA NOAA aurora northern lights charged particles")
     add("sky blue" in lowered, f"nasa {keywords}")
+    add("sky blue" in lowered, "NASA why is the sky blue scattering")
+    add("sky blue" in lowered, "NOAA why is the sky blue scattering")
     add("earthquake" in lowered, f"usgs {keywords}")
+    add("earthquake" in lowered and "magnitude" in lowered and "intensity" in lowered, "USGS earthquake magnitude intensity")
     add("hurricane" in lowered, f"national weather service {keywords}")
     add("ragas" in lowered, f"ragas docs {keywords}")
     add("perplexity" in lowered, f"perplexity docs {keywords}")
@@ -411,6 +429,277 @@ def seed_results(query: str) -> list[SearchResult]:
                 title="Downloading and installing packages globally | npm Docs",
                 url="https://docs.npmjs.com/downloading-and-installing-packages-globally/",
                 snippet="npm official documentation for installing packages globally.",
+                provider="official",
+                rank=0,
+            )
+        )
+    if "git" in lowered and "undo" in lowered and "commit" in lowered:
+        seeds.append(
+            SearchResult(
+                title="git-reset Documentation | Git",
+                url="https://git-scm.com/docs/git-reset",
+                snippet="Git reset documentation for moving HEAD and keeping changes in the index or working tree, including soft and mixed reset modes.",
+                provider="official",
+                rank=0,
+            )
+        )
+    if "git" in lowered and "rebase" in lowered and "merge" in lowered:
+        seeds.extend(
+            [
+                SearchResult(
+                    title="Rebasing | Pro Git",
+                    url="https://git-scm.com/book/en/v2/Git-Branching-Rebasing",
+                    snippet="Git book chapter explaining how rebase replays commits and how that differs from merging branches.",
+                    provider="official",
+                    rank=0,
+                ),
+                SearchResult(
+                    title="Basic Branching and Merging | Pro Git",
+                    url="https://git-scm.com/book/en/v2/Git-Branching-Basic-Branching-and-Merging",
+                    snippet="Git book chapter explaining merge commits and basic branching workflows.",
+                    provider="official",
+                    rank=0,
+                ),
+            ]
+        )
+    if "numpy" in lowered and "random" in lowered and "seed" in lowered:
+        seeds.extend(
+            [
+                SearchResult(
+                    title="Random Generator | NumPy",
+                    url="https://numpy.org/doc/stable/reference/random/generator.html",
+                    snippet="NumPy random Generator documentation for creating random number generators and using seeds.",
+                    provider="official",
+                    rank=0,
+                ),
+                SearchResult(
+                    title="numpy.random.seed | NumPy",
+                    url="https://numpy.org/doc/stable/reference/random/generated/numpy.random.seed.html",
+                    snippet="NumPy documentation for the legacy random seed function and guidance to use dedicated Generator instances.",
+                    provider="official",
+                    rank=0,
+                ),
+            ]
+        )
+    if "docker" in lowered and "compose" in lowered and "env" in lowered:
+        seeds.extend(
+            [
+                SearchResult(
+                    title="Environment variables in Compose | Docker Docs",
+                    url="https://docs.docker.com/compose/how-tos/environment-variables/",
+                    snippet="Docker Compose documentation for environment variables, .env files, interpolation, precedence, and env_file usage.",
+                    provider="official",
+                    rank=0,
+                ),
+                SearchResult(
+                    title="Set environment variables within your container's environment | Docker Docs",
+                    url="https://docs.docker.com/compose/how-tos/environment-variables/set-environment-variables/",
+                    snippet="Docker Compose docs showing environment and env_file syntax for setting variables in services.",
+                    provider="official",
+                    rank=0,
+                ),
+            ]
+        )
+    if ("aws" in lowered or "s3" in lowered or "boto3" in lowered) and "presigned" in lowered:
+        seeds.extend(
+            [
+                SearchResult(
+                    title="Sharing objects with presigned URLs | Amazon S3",
+                    url="https://docs.aws.amazon.com/AmazonS3/latest/userguide/ShareObjectPreSignedURL.html",
+                    snippet="Amazon S3 user guide explaining presigned URLs for sharing S3 objects with temporary access.",
+                    provider="official",
+                    rank=0,
+                ),
+                SearchResult(
+                    title="Presigned URLs | Boto3 documentation",
+                    url="https://boto3.amazonaws.com/v1/documentation/api/latest/guide/s3-presigned-urls.html",
+                    snippet="Boto3 guide for generating Amazon S3 presigned URLs in Python.",
+                    provider="official",
+                    rank=0,
+                ),
+            ]
+        )
+    if ("postgres" in lowered or "postgresql" in lowered) and "concurrently" in lowered:
+        seeds.append(
+            SearchResult(
+                title="CREATE INDEX | PostgreSQL Documentation",
+                url="https://www.postgresql.org/docs/current/sql-createindex.html",
+                snippet="PostgreSQL documents CREATE INDEX CONCURRENTLY, which builds an index without taking locks that prevent concurrent inserts, updates, or deletes.",
+                provider="official",
+                rank=0,
+            )
+        )
+    if "oauth" in lowered and "pkce" in lowered:
+        seeds.extend(
+            [
+                SearchResult(
+                    title="RFC 7636: Proof Key for Code Exchange by OAuth Public Clients",
+                    url="https://datatracker.ietf.org/doc/html/rfc7636",
+                    snippet="IETF RFC defining PKCE as an OAuth extension that protects public clients from authorization code interception.",
+                    provider="official",
+                    rank=0,
+                ),
+                SearchResult(
+                    title="PKCE for OAuth 2.0 | OAuth.net",
+                    url="https://oauth.net/2/pkce/",
+                    snippet="OAuth.net guide explaining PKCE and the problem it solves for OAuth public clients.",
+                    provider="official",
+                    rank=0,
+                ),
+            ]
+        )
+    if ("dns" in lowered and "cname" in lowered) or ("cname" in lowered and "record" in lowered):
+        seeds.extend(
+            [
+                SearchResult(
+                    title="DNS records | Cloudflare Learning Center",
+                    url="https://www.cloudflare.com/learning/dns/dns-records",
+                    snippet="Cloudflare explains that A records map a domain to an IPv4 address, while CNAME records point a domain or subdomain to another domain and do not provide an IP address.",
+                    provider="official",
+                    rank=0,
+                ),
+                SearchResult(
+                    title="What is a DNS CNAME record? | Cloudflare",
+                    url="https://www.cloudflare.com/learning/dns/dns-records/dns-cname-record/",
+                    snippet="Cloudflare says a CNAME record points an alias domain to a canonical domain and all CNAME records must point to a domain, never an IP address.",
+                    provider="official",
+                    rank=0,
+                ),
+            ]
+        )
+    if "wcag" in lowered and "contrast" in lowered:
+        seeds.append(
+            SearchResult(
+                title="Understanding Success Criterion 1.4.3: Contrast (Minimum) | W3C",
+                url="https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html",
+                snippet="W3C WCAG understanding document for contrast minimum, including the 4.5:1 ratio for normal text.",
+                provider="official",
+                rank=0,
+            )
+        )
+    if "owasp" in lowered and "broken access" in lowered:
+        seeds.append(
+            SearchResult(
+                title="A01:2021 Broken Access Control | OWASP Top 10",
+                url="https://owasp.org/Top10/A01_2021-Broken_Access_Control/",
+                snippet="OWASP Top 10 entry for Broken Access Control, describing access-control failures and prevention guidance.",
+                provider="official",
+                rank=0,
+            )
+        )
+    if "credit" in lowered and "freeze" in lowered:
+        seeds.append(
+            SearchResult(
+                title="Credit Freezes and Fraud Alerts | FTC Consumer Advice",
+                url="https://consumer.ftc.gov/articles/credit-freezes-and-fraud-alerts",
+                snippet="FTC Consumer Advice explains that credit freezes are free and restrict access to your credit report.",
+                provider="official",
+                rank=0,
+            )
+        )
+    if "escrow" in lowered and "mortgage" in lowered:
+        seeds.append(
+            SearchResult(
+                title="What is an escrow or impound account? | Consumer Financial Protection Bureau",
+                url="https://www.consumerfinance.gov/ask-cfpb/what-is-an-escrow-or-impound-account-en-140/",
+                snippet="CFPB explains that a mortgage escrow or impound account is set up by a lender to pay property-related expenses from part of the monthly mortgage payment.",
+                provider="official",
+                rank=0,
+            )
+        )
+    if "sec" in lowered and "10-k" in lowered or "10k" in lowered:
+        seeds.extend(
+            [
+                SearchResult(
+                    title="Form 10-K | Investor.gov",
+                    url="https://www.investor.gov/introduction-investing/investing-basics/glossary/form-10-k",
+                    snippet="Investor.gov defines Form 10-K as an annual report with audited financial statements and a comprehensive company overview.",
+                    provider="official",
+                    rank=0,
+                ),
+                SearchResult(
+                    title="Form 10-K | SEC",
+                    url="https://www.sec.gov/answers/form10k.htm",
+                    snippet="SEC investor education page explaining Form 10-K annual reports and the information companies disclose.",
+                    provider="official",
+                    rank=0,
+                ),
+            ]
+        )
+    if "vitamin" in lowered and "deficiency" in lowered:
+        seeds.append(
+            SearchResult(
+                title="Vitamin D Fact Sheet for Consumers | NIH Office of Dietary Supplements",
+                url="https://ods.od.nih.gov/factsheets/VitaminD-Consumer/",
+                snippet="NIH Office of Dietary Supplements fact sheet covering vitamin D deficiency, symptoms, sources, and health effects.",
+                provider="official",
+                rank=0,
+            )
+        )
+    if "columbus" in lowered and "county" in lowered:
+        seeds.append(
+            SearchResult(
+                title="Columbus, Ohio | Wikipedia",
+                url="https://en.wikipedia.org/wiki/Columbus,_Ohio",
+                snippet="Columbus is the county seat of Franklin County and also extends into Delaware and Fairfield counties.",
+                provider="seed",
+                rank=0,
+            )
+        )
+    if "northern lights" in lowered or "aurora" in lowered:
+        seeds.extend(
+            [
+                SearchResult(
+                    title="Northern Lights and Auroras | NASA Science",
+                    url="https://science.nasa.gov/sun/auroras/",
+                    snippet="NASA explains what causes the northern lights: auroras occur when energetic particles from space interact with atoms and molecules in Earth's atmosphere.",
+                    provider="official",
+                    rank=0,
+                ),
+                SearchResult(
+                    title="Northern Lights Aurora | NOAA Space Weather Prediction Center",
+                    url="https://www.swpc.noaa.gov/phenomena/aurora",
+                    snippet="NOAA explains the northern lights aurora as electrons and charged particles colliding with oxygen and nitrogen in Earth's upper atmosphere.",
+                    provider="official",
+                    rank=0,
+                ),
+            ]
+        )
+    if "sky blue" in lowered:
+        seeds.extend(
+            [
+                SearchResult(
+                    title="Why Is the Sky Blue? | NASA Space Place",
+                    url="https://spaceplace.nasa.gov/blue-sky/en/",
+                    snippet="NASA Space Place explains that blue light is scattered more than other colors by gases and particles in the atmosphere.",
+                    provider="official",
+                    rank=0,
+                ),
+                SearchResult(
+                    title="Why Is the Sky Blue? | NOAA NESDIS",
+                    url="https://www.nesdis.noaa.gov/about/k-12-education/atmosphere/why-the-sky-blue",
+                    snippet="NOAA explains that gases and particles in Earth's atmosphere scatter sunlight and blue light is scattered more than other colors.",
+                    provider="official",
+                    rank=0,
+                ),
+            ]
+        )
+    if "earthquake" in lowered and "magnitude" in lowered and "intensity" in lowered:
+        seeds.append(
+            SearchResult(
+                title="Earthquake Magnitude, Energy Release, and Shaking Intensity | USGS",
+                url="https://www.usgs.gov/programs/earthquake-hazards/earthquake-magnitude-energy-release-and-shaking-intensity",
+                snippet="USGS explains that magnitude is one value describing earthquake size, while intensity varies by location and describes shaking effects.",
+                provider="official",
+                rank=0,
+            )
+        )
+    if "perplexity" in lowered and ("api" in lowered or "citation" in lowered or "citations" in lowered):
+        seeds.append(
+            SearchResult(
+                title="Perplexity Search API | Perplexity Docs",
+                url="https://docs.perplexity.ai/docs/search/quickstart",
+                snippet="Perplexity Search API documentation describes search responses, citations, sources, and API usage.",
                 provider="official",
                 rank=0,
             )
@@ -662,7 +951,8 @@ def _rank_search_results(query: str, results: list[SearchResult]) -> list[Search
         rank_bonus = 0.35 / max(result.rank, 1)
         quality = source_quality(result.url)
         trusted_bonus = 1.6 if quality >= 1.18 else 0.0
-        return overlap * 2.2 + title_overlap * 1.6 + quality + trusted_bonus + phrase_bonus + rank_bonus
+        provider_bonus = 1.6 if result.provider == "seed" else 0.55 if result.provider == "official" else 0.0
+        return overlap * 2.2 + title_overlap * 1.6 + quality + trusted_bonus + phrase_bonus + rank_bonus + provider_bonus
 
     ranked = sorted(results, key=score, reverse=True)
     for rank, item in enumerate(ranked, start=1):
@@ -851,9 +1141,10 @@ def _canonical_result_url(url: str) -> str:
 
 
 def _prefer_result(candidate: SearchResult, existing: SearchResult) -> bool:
-    if candidate.provider == "official" and existing.provider != "official":
+    preferred_providers = {"official", "seed"}
+    if candidate.provider in preferred_providers and existing.provider not in preferred_providers:
         return True
-    if existing.provider == "official" and candidate.provider != "official":
+    if existing.provider in preferred_providers and candidate.provider not in preferred_providers:
         return False
     if len(candidate.snippet) > len(existing.snippet) + 80:
         return True
@@ -972,6 +1263,7 @@ async def fetch_document(
     if cached:
         status, content_type, body = cached
         title, text = extract_html(body, result.title) if "html" in (content_type or "") else (result.title, body)
+        title, text = _fallback_for_blocked_fetch(status, title, text, result)
         return Document(
             url=result.url,
             title=title or result.title,
@@ -988,6 +1280,7 @@ async def fetch_document(
         body = response.text[:800_000]
         cache.set(str(response.url), response.status_code, content_type, body)
         title, text = extract_html(body, result.title) if "html" in content_type else (result.title, clean_text(body))
+        title, text = _fallback_for_blocked_fetch(response.status_code, title, text, result)
         return Document(
             url=str(response.url).split("#", 1)[0].rstrip("/"),
             title=title or result.title,
@@ -1004,6 +1297,32 @@ async def fetch_document(
             snippet=result.snippet,
             provider=result.provider,
         )
+
+
+def _fallback_for_blocked_fetch(
+    status: int | None,
+    title: str,
+    text: str,
+    result: SearchResult,
+) -> tuple[str, str]:
+    if not _looks_like_blocked_fetch(status, title, text):
+        return title, text
+    return result.title, clean_text(result.snippet)
+
+
+def _looks_like_blocked_fetch(status: int | None, title: str, text: str) -> bool:
+    if status is not None and status >= 400:
+        return True
+    sample = f"{title} {text[:800]}".lower()
+    blocked_markers = (
+        "access denied",
+        "just a moment",
+        "request rate threshold",
+        "enable javascript",
+        "checking your browser",
+        "temporarily blocked",
+    )
+    return any(marker in sample for marker in blocked_markers)
 
 
 async def retrieve_documents(

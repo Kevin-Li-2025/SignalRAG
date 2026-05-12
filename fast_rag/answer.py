@@ -9,7 +9,7 @@ import httpx
 from .config import settings
 from .extract import clean_text
 from .models import Evidence
-from .rank import tokenize
+from .rank import domain_for, source_trust_tier, tokenize
 
 
 CJK_RE = re.compile(r"[\u3400-\u9fff]")
@@ -57,8 +57,13 @@ def _language_for(query: str) -> str:
 def _evidence_block(evidence: list[Evidence]) -> str:
     blocks = []
     for item in evidence:
+        trust_tier = item.signals.get("trust_tier") or source_trust_tier(item.url)
+        priority = "primary" if item.signals.get("primary_source") else "supporting"
         blocks.append(
-            f"[{item.id}] {item.title}\nURL: {item.url}\nPASSAGE: {item.passage}"
+            f"[{item.id}] {item.title}\n"
+            f"URL: {item.url}\n"
+            f"SOURCE TYPE: {trust_tier}; PRIORITY: {priority}\n"
+            f"PASSAGE: {item.passage}"
         )
     return "\n\n".join(blocks)
 
@@ -73,6 +78,7 @@ async def generate_answer(
     if provider == "deepseek" and evidence:
         try:
             answer = await _deepseek_answer(query, evidence, mode, query_plan)
+            answer = prefer_primary_citations(query, answer, evidence)
             if not answer.strip():
                 return _extractive_answer(query, evidence), "extractive"
             if _missing_required_citations(answer):
@@ -86,7 +92,8 @@ async def generate_answer(
             return f"{fallback}\n\n模型生成失败，已使用抽取式答案。错误：{type(exc).__name__}", "extractive"
     if provider == "openai" and evidence:
         try:
-            return await _openai_answer(query, evidence, mode, query_plan), "openai"
+            answer = await _openai_answer(query, evidence, mode, query_plan)
+            return prefer_primary_citations(query, answer, evidence), "openai"
         except Exception as exc:
             fallback = _extractive_answer(query, evidence)
             return f"{fallback}\n\n模型生成失败，已使用抽取式答案。错误：{type(exc).__name__}", "extractive"
@@ -110,6 +117,7 @@ def _system_prompt(query: str, query_plan: dict[str, Any] | None = None) -> str:
     prompt = (
         "You are a fast, highly accurate web-search RAG answerer. "
         "Use only the supplied evidence. Every factual claim must cite sources like [1]. "
+        "When primary/official evidence supports the answer, cite it before general blogs, forums, or secondary explainers. "
         "If evidence is weak or conflicting, say that clearly. "
         "Prefer concise synthesis over long summaries. "
         "Do not mention availability, pricing, plan access, rollout status, or dates unless the user asks. "
@@ -142,7 +150,9 @@ def _user_prompt(query: str, evidence: list[Evidence], mode: str) -> str:
         f"Mode: {mode}\n\n"
         f"Evidence:\n{_evidence_block(evidence)}\n\n"
         f"{deep_instruction}"
-        "Write a direct answer with citations. Do not include a bibliography, source list, or 'Sources checked' section."
+        "Write a direct answer with citations. Prefer PRIMARY sources when they answer the question. "
+        "For claims supported by multiple independent PRIMARY sources, cite up to two of them. "
+        "Do not include a bibliography, source list, or 'Sources checked' section."
     )
 
 
@@ -208,6 +218,121 @@ def repair_missing_citations(query: str, answer: str, evidence: list[Evidence]) 
         citation_id = _best_citation_id(stripped, evidence) or _best_citation_id(query, evidence) or fallback_id
         lines.append(f"{line.rstrip()} [{citation_id}]")
     return "\n".join(lines)
+
+
+def prefer_primary_citations(query: str, answer: str, evidence: list[Evidence]) -> str:
+    if not answer.strip() or not CITATION_MARK_RE.search(answer):
+        return answer
+    primary = [item for item in evidence if _is_primary(item)]
+    if not primary:
+        return answer
+
+    output: list[str] = []
+    in_code_block = False
+    for line in answer.splitlines():
+        stripped = line.strip()
+        if stripped.startswith("```"):
+            in_code_block = not in_code_block
+            output.append(line)
+            continue
+        if in_code_block or not CITATION_MARK_RE.search(line):
+            output.append(line)
+            continue
+        cited_ids = {int(match.group(0).strip("[]")) for match in CITATION_MARK_RE.finditer(line)}
+        if any(item.id in cited_ids for item in primary):
+            best = _best_complementary_primary_citation_id(query, line, primary, cited_ids)
+            if best is not None:
+                output.append(_append_citation_to_first_group(line, best))
+                continue
+            output.append(line)
+            continue
+        best = _best_primary_citation_id(query, line, primary, cited_ids)
+        if best is None:
+            output.append(line)
+            continue
+        output.append(_append_citation_to_first_group(line, best))
+    return "\n".join(output)
+
+
+def _is_primary(item: Evidence) -> bool:
+    return bool(item.signals.get("primary_source")) or source_trust_tier(item.url) in {
+        "government",
+        "academic",
+        "standards",
+        "official_docs",
+        "medical",
+        "news_wire",
+    } or item.provider in {"official", "seed"}
+
+
+def _best_primary_citation_id(
+    query: str,
+    text: str,
+    primary: list[Evidence],
+    existing_ids: set[int],
+) -> int | None:
+    text_tokens = set(tokenize(text))
+    query_tokens = set(tokenize(query))
+    best: tuple[float, int] | None = None
+    for item in primary:
+        if item.id in existing_ids:
+            continue
+        evidence_tokens = set(tokenize(f"{item.title} {item.passage}"))
+        if not evidence_tokens:
+            continue
+        text_overlap = len(text_tokens & evidence_tokens) / max(len(text_tokens), 1)
+        query_overlap = len(query_tokens & evidence_tokens) / max(len(query_tokens), 1)
+        if text_overlap < 0.10 and query_overlap < 0.38:
+            continue
+        tier_bonus = 0.35 if source_trust_tier(item.url) in {"government", "official_docs", "standards"} else 0.2
+        score = text_overlap * 3.0 + query_overlap + tier_bonus + min(item.score, 8.0) * 0.03
+        candidate = (score, item.id)
+        if best is None or candidate[0] > best[0]:
+            best = candidate
+    if not best or best[0] < 0.9:
+        return None
+    return best[1]
+
+
+def _best_complementary_primary_citation_id(
+    query: str,
+    text: str,
+    primary: list[Evidence],
+    existing_ids: set[int],
+) -> int | None:
+    if len(existing_ids) >= 4:
+        return None
+    text_tokens = set(tokenize(text))
+    query_tokens = set(tokenize(query))
+    cited_domains = {domain_for(item.url) for item in primary if item.id in existing_ids}
+    best: tuple[float, int] | None = None
+    for item in primary:
+        if item.id in existing_ids:
+            continue
+        evidence_tokens = set(tokenize(f"{item.title} {item.passage}"))
+        if not evidence_tokens:
+            continue
+        text_overlap = len(text_tokens & evidence_tokens) / max(len(text_tokens), 1)
+        query_overlap = len(query_tokens & evidence_tokens) / max(len(query_tokens), 1)
+        if text_overlap < 0.14 and query_overlap < 0.46:
+            continue
+        tier = source_trust_tier(item.url)
+        tier_bonus = 0.35 if tier in {"government", "official_docs", "standards"} else 0.2
+        domain_bonus = 0.22 if domain_for(item.url) not in cited_domains else -0.18
+        score = text_overlap * 2.6 + query_overlap * 1.2 + tier_bonus + domain_bonus + min(item.score, 8.0) * 0.02
+        candidate = (score, item.id)
+        if best is None or candidate[0] > best[0]:
+            best = candidate
+    if not best or best[0] < 1.15:
+        return None
+    return best[1]
+
+
+def _append_citation_to_first_group(line: str, citation_id: int) -> str:
+    def replace(match: re.Match[str]) -> str:
+        return f"{match.group(0)}[{citation_id}]"
+
+    return CITATION_MARK_RE.sub(replace, line, count=1)
 
 
 def _best_citation_id(text: str, evidence: list[Evidence]) -> int | None:

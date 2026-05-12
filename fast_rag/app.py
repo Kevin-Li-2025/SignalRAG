@@ -9,10 +9,11 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
-from .answer import generate_answer
+from .answer import generate_answer, prefer_primary_citations
 from .cache import PageCache, SmartResponseCache, copy_cached_response
 from .citations import (
     normalize_answer_citations,
+    prioritize_answer_evidence,
     select_answer_evidence,
     serialize_evidence,
     verify_claim_citations,
@@ -152,6 +153,7 @@ async def search(request: SearchRequest) -> dict:
             "correction": correction_meta,
             "documents": len(docs),
         }
+    evidence = prioritize_answer_evidence(request.query, evidence)
     selected_evidence = select_answer_evidence(evidence)
     packed_context = pack_answer_context(request.query, selected_evidence, effective_mode)
     answer_evidence = packed_context.evidence
@@ -161,15 +163,17 @@ async def search(request: SearchRequest) -> dict:
         effective_mode,
         query_plan_dict,
     )
-    answer, used_citations, used_citation_ids = normalize_answer_citations(answer, answer_evidence)
-    claim_citations = verify_claim_citations(answer, answer_evidence)
+    answer = prefer_primary_citations(request.query, answer, evidence)
+    citation_evidence = evidence
+    answer, used_citations, used_citation_ids = normalize_answer_citations(answer, citation_evidence)
+    claim_citations = verify_claim_citations(answer, citation_evidence)
     if request.citation_verifier != "lexical" and (
         request.citation_verifier == "deepseek" or effective_mode in {"pro", "deep"}
     ):
         claim_citations = await verify_claim_citations_with_judge(
             request.query,
             claim_citations,
-            answer_evidence,
+            citation_evidence,
         )
     candidate_citations = [serialize_evidence(item) for item in evidence]
     elapsed_ms = round((perf_counter() - started) * 1000)

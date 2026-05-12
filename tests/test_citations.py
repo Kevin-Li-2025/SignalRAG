@@ -1,6 +1,7 @@
 from fast_rag.citations import (
     _merge_judgements,
     normalize_answer_citations,
+    prioritize_answer_evidence,
     select_answer_evidence,
     verify_claim_citations,
 )
@@ -54,6 +55,31 @@ def test_select_answer_evidence_keeps_best_passage_per_url() -> None:
     ]
     selected = select_answer_evidence(evidence)
     assert [item.id for item in selected] == [1, 3]
+
+
+def test_prioritize_answer_evidence_promotes_primary_sources_and_renumbers() -> None:
+    evidence = [
+        Evidence(
+            id=1,
+            title="Read JSON File",
+            url="https://example.com/python-json",
+            passage="Use json.load to read JSON files in Python.",
+            score=8,
+        ),
+        Evidence(
+            id=5,
+            title="json - Python documentation",
+            url="https://docs.python.org/3/library/json.html",
+            passage="The json module deserializes JSON documents from file-like objects.",
+            score=2,
+            provider="web",
+        ),
+    ]
+    selected = prioritize_answer_evidence("python read json file", evidence)
+    assert selected[0].url == "https://docs.python.org/3/library/json.html"
+    assert [item.id for item in selected] == [1, 2]
+    assert selected[0].signals["primary_source"] is True
+    assert selected[0].signals["original_id"] == 5
 
 
 def test_verify_claim_citations_marks_supported_claims() -> None:
