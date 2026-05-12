@@ -36,27 +36,120 @@ STOPWORDS = {
     "works",
 }
 
-HIGH_TRUST_SUFFIXES = (".gov", ".edu", ".ac.uk")
-HIGH_TRUST_DOMAINS = {
-    "openai.com",
-    "help.openai.com",
-    "developers.openai.com",
-    "platform.openai.com",
-    "wikipedia.org",
-    "reuters.com",
-    "apnews.com",
-    "api-docs.deepseek.com",
-    "nature.com",
-    "science.org",
-    "who.int",
+TRUSTED_SUFFIXES = (
+    ".gov",
+    ".mil",
+    ".edu",
+    ".ac.uk",
+    ".edu.au",
+    ".ac.jp",
+    ".gov.uk",
+    ".gc.ca",
+)
+GOVERNMENT_AND_INSTITUTIONAL_DOMAINS = {
+    "cancer.gov",
     "cdc.gov",
+    "data.gov",
+    "ec.europa.eu",
+    "ed.gov",
+    "ema.europa.eu",
+    "epa.gov",
+    "europa.eu",
     "fda.gov",
+    "federalreserve.gov",
+    "ftc.gov",
+    "imf.org",
+    "irs.gov",
+    "nasa.gov",
+    "ncbi.nlm.nih.gov",
+    "nih.gov",
+    "nist.gov",
+    "noaa.gov",
+    "oecd.org",
+    "sec.gov",
+    "treasury.gov",
+    "un.org",
+    "usda.gov",
+    "who.int",
+    "worldbank.org",
+}
+ACADEMIC_AND_RESEARCH_DOMAINS = {
+    "aclanthology.org",
+    "arxiv.org",
+    "bmj.com",
+    "cell.com",
+    "jamanetwork.com",
+    "nejm.org",
+    "nature.com",
+    "pubmed.ncbi.nlm.nih.gov",
+    "science.org",
+    "sciencedirect.com",
+    "springer.com",
+}
+STANDARDS_AND_SECURITY_DOMAINS = {
+    "cisa.gov",
+    "csrc.nist.gov",
+    "ietf.org",
+    "iso.org",
+    "mitre.org",
+    "owasp.org",
+    "w3.org",
+}
+OFFICIAL_DOCS_DOMAINS = {
+    "api-docs.deepseek.com",
+    "cloud.google.com",
+    "developer.mozilla.org",
+    "developers.google.com",
+    "developers.openai.com",
+    "docs.anthropic.com",
+    "docs.aws.amazon.com",
+    "docs.github.com",
+    "docs.llamaindex.ai",
+    "docs.microsoft.com",
+    "docs.perplexity.ai",
+    "docs.python.org",
+    "docs.ragas.io",
+    "docs.tavily.com",
+    "help.openai.com",
+    "learn.microsoft.com",
+    "openai.com",
+    "platform.openai.com",
+}
+MEDICAL_REFERENCE_DOMAINS = {
+    "cancer.gov",
+    "clevelandclinic.org",
+    "mayoclinic.org",
+    "medlineplus.gov",
+    "msdmanuals.com",
+}
+NEWS_WIRE_DOMAINS = {
+    "apnews.com",
+    "bbc.com",
+    "bbc.co.uk",
+    "npr.org",
+    "reuters.com",
+}
+REFERENCE_DOMAINS = {
+    "britannica.com",
+    "wikipedia.org",
 }
 LOW_SIGNAL_DOMAINS = {
+    "medium.com",
     "pinterest.com",
     "quora.com",
     "reddit.com",
-    "medium.com",
+    "substack.com",
+}
+TRUST_TIER_WEIGHTS = {
+    "government": 1.24,
+    "academic": 1.22,
+    "standards": 1.21,
+    "official_docs": 1.19,
+    "medical": 1.18,
+    "news_wire": 1.12,
+    "reference": 1.05,
+    "low_signal": 0.84,
+    "general": 1.0,
 }
 
 
@@ -89,14 +182,32 @@ def domain_for(url: str) -> str:
 
 
 def source_quality(url: str) -> float:
+    return TRUST_TIER_WEIGHTS[source_trust_tier(url)]
+
+
+def source_trust_tier(url: str) -> str:
     domain = domain_for(url)
-    if any(domain.endswith(suffix) for suffix in HIGH_TRUST_SUFFIXES):
-        return 1.18
-    if domain in HIGH_TRUST_DOMAINS or any(domain.endswith("." + d) for d in HIGH_TRUST_DOMAINS):
-        return 1.12
-    if domain in LOW_SIGNAL_DOMAINS or any(domain.endswith("." + d) for d in LOW_SIGNAL_DOMAINS):
-        return 0.86
-    return 1.0
+    if _domain_in(domain, LOW_SIGNAL_DOMAINS):
+        return "low_signal"
+    if any(domain.endswith(suffix) for suffix in TRUSTED_SUFFIXES) or _domain_in(domain, GOVERNMENT_AND_INSTITUTIONAL_DOMAINS):
+        return "government"
+    if _domain_in(domain, ACADEMIC_AND_RESEARCH_DOMAINS):
+        return "academic"
+    if _domain_in(domain, STANDARDS_AND_SECURITY_DOMAINS):
+        return "standards"
+    if _domain_in(domain, OFFICIAL_DOCS_DOMAINS):
+        return "official_docs"
+    if _domain_in(domain, MEDICAL_REFERENCE_DOMAINS):
+        return "medical"
+    if _domain_in(domain, NEWS_WIRE_DOMAINS):
+        return "news_wire"
+    if _domain_in(domain, REFERENCE_DOMAINS):
+        return "reference"
+    return "general"
+
+
+def _domain_in(domain: str, candidates: set[str]) -> bool:
+    return domain in candidates or any(domain.endswith("." + item) for item in candidates)
 
 
 def contextual_passage_text(title: str, url: str, snippet: str, passage: str) -> str:
@@ -192,6 +303,7 @@ def rank_evidence(query: str, docs: list[Document], limit: int = 8) -> list[Evid
                     "title": round(title_hit, 4),
                     "snippet": round(snippet_hit, 4),
                     "quality": round(quality, 4),
+                    "trust_tier": source_trust_tier(doc.url),
                     "contextual_bm25": 1.0,
                 },
             )

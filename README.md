@@ -124,9 +124,45 @@ The response includes:
 - `research_trace`: the per-step trace used by Deep Research mode.
 - `context_packing`: answer-context compression stats, including strategy,
   packed evidence count, budget, packed characters, and compression ratio.
+- `candidate_citations[].signals.trust_tier`: source credibility tier used by
+  ranking and CRAG, such as `government`, `academic`, `standards`,
+  `official_docs`, `medical`, `news_wire`, `reference`, `general`, or
+  `low_signal`.
 - `claim_citations`: per-claim citation trace. With DeepSeek configured, `auto`
   uses a judge model for supported/weak/contradicted/insufficient decisions;
   otherwise it falls back to the fast lexical verifier.
+
+## Source Trust Tiers
+
+SignalRAG scores source credibility before final passage ranking. The trust
+tiers are intentionally conservative:
+
+- `government`: `.gov`, `.mil`, `.edu`-adjacent public institutions, major
+  public agencies, regulators, and intergovernmental institutions such as CDC,
+  FDA, NIH, NIST, SEC, WHO, UN, IMF, OECD, and World Bank.
+- `academic`: research repositories, journals, and scholarly publishers such as
+  arXiv, ACL Anthology, Nature, Science, NEJM, JAMA, BMJ, PubMed/NCBI, Cell,
+  Springer, and ScienceDirect.
+- `standards`: standards and security bodies such as W3C, IETF, ISO, OWASP,
+  MITRE, NIST CSRC, and CISA.
+- `official_docs`: first-party product or developer documentation, including
+  OpenAI, DeepSeek, Anthropic, Google, Microsoft, AWS, GitHub, Python,
+  Perplexity, Tavily, LlamaIndex, and Ragas docs.
+- `medical`: evidence-oriented public medical references such as MedlinePlus,
+  Mayo Clinic, Cleveland Clinic, MSD Manuals, and NCI.
+- `news_wire`: high-accountability news and public media sources such as AP,
+  Reuters, BBC, and NPR.
+- `reference`: broad reference sources such as Britannica and Wikipedia. These
+  are useful for orientation but are boosted less than primary sources.
+- `low_signal`: social, forum, or open publishing domains such as Reddit,
+  Quora, Medium, Substack, and Pinterest. These can still be useful for
+  experience-oriented queries, but are not treated as authoritative evidence.
+
+These tiers are based on source-evaluation principles from Google Search's
+E-E-A-T guidance, academic credibility guidance that prioritizes `.edu`, `.gov`,
+and peer-reviewed evidence, and NCI guidance that health information should
+come from government agencies, hospitals, universities, medical journals, and
+professional societies.
 
 ## Further Improvement Roadmap
 

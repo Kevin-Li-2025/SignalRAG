@@ -1,5 +1,5 @@
 from fast_rag.models import Document
-from fast_rag.rank import rank_evidence, source_quality, tokenize
+from fast_rag.rank import rank_evidence, source_quality, source_trust_tier, tokenize
 
 
 def test_tokenize_supports_english_and_chinese() -> None:
@@ -85,6 +85,20 @@ def test_rank_evidence_penalizes_passages_missing_required_topic() -> None:
 def test_source_quality_boosts_official_domains() -> None:
     assert source_quality("https://developers.openai.com/api/docs") > source_quality("https://example.com")
     assert source_quality("https://api-docs.deepseek.com/api/create-chat-completion") > source_quality("https://example.com")
+
+
+def test_source_trust_tiers_cover_authoritative_sources() -> None:
+    assert source_trust_tier("https://www.cdc.gov/flu") == "government"
+    assert source_trust_tier("https://arxiv.org/abs/2307.03172") == "academic"
+    assert source_trust_tier("https://www.w3.org/TR/WCAG22/") == "standards"
+    assert source_trust_tier("https://docs.python.org/3/library/json.html") == "official_docs"
+    assert source_trust_tier("https://www.reuters.com/world/") == "news_wire"
+    assert source_trust_tier("https://www.reddit.com/r/search/") == "low_signal"
+
+
+def test_source_quality_orders_trust_tiers() -> None:
+    assert source_quality("https://www.nih.gov/health-information") > source_quality("https://example.com")
+    assert source_quality("https://www.reddit.com/r/AskDocs") < source_quality("https://example.com")
 
 
 def test_rank_evidence_limits_single_url_dominance() -> None:

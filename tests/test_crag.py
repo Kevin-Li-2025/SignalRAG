@@ -51,3 +51,39 @@ def test_assess_retrieval_accepts_relevant_official_evidence() -> None:
     assessment = assess_retrieval("OpenAI web search API citations sources", docs, evidence)
     assert assessment.confidence >= 0.58
     assert not should_correct(assessment)
+
+
+def test_assess_retrieval_counts_trusted_non_official_sources() -> None:
+    docs = [
+        Document(
+            url="https://www.nih.gov/health-information",
+            title="Health information",
+            text="Government health information about vaccines and evidence quality.",
+        )
+    ]
+    evidence = [
+        Evidence(
+            id=1,
+            title="Health information",
+            url=docs[0].url,
+            passage="Government health information about vaccines and evidence quality.",
+            score=8,
+        ),
+        Evidence(
+            id=2,
+            title="CDC",
+            url="https://www.cdc.gov/vaccines",
+            passage="CDC vaccine information provides evidence-based public health guidance.",
+            score=6,
+        ),
+        Evidence(
+            id=3,
+            title="WHO",
+            url="https://www.who.int/health-topics/vaccines",
+            passage="WHO vaccine information covers public health guidance and evidence.",
+            score=5,
+        ),
+    ]
+    assessment = assess_retrieval("vaccine evidence public health guidance", docs, evidence)
+    assert assessment.metrics["trusted_sources"] == 3
+    assert "no_curated_trusted_source" not in assessment.reasons

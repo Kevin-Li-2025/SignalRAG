@@ -4,7 +4,7 @@ from dataclasses import asdict, dataclass, field
 from urllib.parse import urlparse
 
 from .models import Document, Evidence
-from .rank import tokenize
+from .rank import source_trust_tier, tokenize
 from .search import SearchFilters
 
 
@@ -35,6 +35,8 @@ def assess_retrieval(
     overlap = len(query_tokens & evidence_tokens) / max(len(query_tokens), 1)
     domains = {_domain(item.url) for item in evidence if _domain(item.url)}
     official = sum(1 for item in evidence if item.provider == "official")
+    trusted = sum(1 for item in evidence if source_trust_tier(item.url) not in {"general", "low_signal"})
+    low_signal = sum(1 for item in evidence if source_trust_tier(item.url) == "low_signal")
     top_score = max((item.score for item in evidence), default=0.0)
     doc_count = len(docs)
     evidence_count = len(evidence)
@@ -46,6 +48,10 @@ def assess_retrieval(
     confidence += min(len(domains) / 4.0, 0.08)
     if official:
         confidence += 0.08
+    if trusted:
+        confidence += min(trusted / 6.0, 0.08)
+    if low_signal and not trusted:
+        confidence -= 0.08
     confidence = min(confidence, 1.0)
 
     reasons: list[str] = []
@@ -60,9 +66,10 @@ def assess_retrieval(
     if len(domains) < 2 and not filters.include_domains:
         reasons.append("low_source_diversity")
         corrective_queries.append(f"{query} independent sources")
-    if not official and not filters.include_domains:
-        reasons.append("no_curated_official_source")
+    if not official and not trusted and not filters.include_domains:
+        reasons.append("no_curated_trusted_source")
         corrective_queries.append(f"{query} official documentation")
+        corrective_queries.append(f"{query} government academic source")
 
     if confidence >= 0.58 and not reasons:
         status = "sufficient"
@@ -88,6 +95,8 @@ def assess_retrieval(
             "query_token_coverage": round(overlap, 4),
             "domains": len(domains),
             "official_sources": official,
+            "trusted_sources": trusted,
+            "low_signal_sources": low_signal,
             "documents": doc_count,
             "evidence": evidence_count,
             "top_score": round(top_score, 4),
