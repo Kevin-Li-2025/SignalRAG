@@ -153,8 +153,8 @@ async def _deepseek_answer(
     query_plan: dict[str, Any] | None = None,
 ) -> str:
     reasoning_effort = str((query_plan or {}).get("reasoning_effort") or "none").lower()
-    if mode == "deep":
-        reasoning_effort = "max"
+    if mode == "deep" and reasoning_effort == "none":
+        reasoning_effort = "high"
     payload = {
         "model": os.getenv("DEEPSEEK_MODEL", settings.deepseek_model),
         "messages": [

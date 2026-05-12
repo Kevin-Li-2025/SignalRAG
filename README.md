@@ -102,10 +102,11 @@ freshness need, search depth, and DeepSeek reasoning effort:
 - `high`: thinking enabled for comparisons, recommendations, API/code guidance, multi-hop synthesis, or uncertainty.
 - `max`: thinking enabled with max effort only for deep research, long-horizon tasks, formal proof, or many constraints.
 
-Deep Research mode always escalates final synthesis to `reasoning_effort: max`
-and enables DeepSeek thinking mode. This matches DeepSeek's current OpenAI-format
-API controls: `{"thinking":{"type":"enabled"}}` plus `reasoning_effort` of
-`high` or `max`.
+Deep Research mode always enables DeepSeek thinking mode with at least
+`reasoning_effort: high`, and uses `max` only when the planner marks the query
+as a complex long-horizon or max-effort task. This keeps Deep Research stable
+while still using DeepSeek's OpenAI-format controls:
+`{"thinking":{"type":"enabled"}}` plus `reasoning_effort` of `high` or `max`.
 
 The request can include:
 
@@ -187,7 +188,8 @@ This roadmap is based on current RAG research and search-product patterns:
 8. **Deep Research UX and reasoning**: expose a visible plan, progress trace,
    source controls, exportable report, table of contents, and source list for
    review. SignalRAG now runs deeper research steps, including countercheck and
-   synthesis, and forces max-effort DeepSeek thinking for final synthesis.
+   synthesis, and uses adaptive DeepSeek thinking for final synthesis: `high`
+   by default, `max` for long-horizon tasks.
    - Reference: [ChatGPT Deep Research](https://help.openai.com/en/articles/10500283-deep-research-faq/)
    - Reference: [Perplexity Sonar Deep Research](https://docs.perplexity.ai/docs/sonar/models/sonar-deep-research)
    - Reference: [DeepSeek Thinking Mode](https://api-docs.deepseek.com/guides/thinking_mode)
@@ -318,31 +320,36 @@ SignalRAG includes a small end-to-end benchmark runner:
 python -m fast_rag.benchmark \
   --api-base http://127.0.0.1:8000 \
   --timeout 220 \
-  --output benchmark_results/signalrag-benchmark-2026-05-12.json
+  --output benchmark_results/signalrag-benchmark-2026-05-12-optimized-cold.json
 ```
 
-Latest local run with DeepSeek enabled, DuckDuckGo search, and no Brave API key:
+Latest cold-cache local run with DeepSeek enabled, DuckDuckGo search, and no
+Brave API key:
 
 | Metric | Result |
 | --- | ---: |
 | Cases | 6 |
 | Expected source recall | 0.8889 |
-| Used source recall | 0.7222 |
-| Answer term coverage | 0.9028 |
-| Citation coverage | 0.5868 |
-| Supported claim rate | 0.5471 |
-| Review claim rate | 0.4465 |
+| Used source recall | 0.8055 |
+| Answer term coverage | 0.8472 |
+| Citation coverage | 0.8670 |
+| Supported claim rate | 0.8461 |
+| Review claim rate | 0.1469 |
 | CRAG sufficient rate | 1.0000 |
-| Fallback rate | 0.0000 |
-| Average latency | 39.8s |
-| P95 latency | 75.4s |
+| Fallback rate | 0.1667 |
+| Average latency | 20.9s |
+| P95 latency | 41.3s |
 
-Interpretation: retrieval is already strong for official-source and API-doc
-queries, and Deep Research now completes without extractive fallback. The main
-quality gap is citation verifier strictness: many claims are marked for review
-even when the answer has useful citations. The main latency gap is Deep Research
-max-reasoning, which currently dominates p95 latency.
+Interpretation: adaptive DeepSeek thinking, tighter context packing, citation
+inheritance, adaptive judge calls, and response/planner caching materially
+improve the speed/quality tradeoff. Compared with the earlier 2026-05-12 run,
+average latency dropped from 39.8s to 20.9s, p95 latency dropped from 75.4s to
+41.3s, citation coverage rose from 0.5868 to 0.8670, supported-claim rate rose
+from 0.5471 to 0.8461, and review rate dropped from 0.4465 to 0.1469. One Deep
+Research case used extractive cited fallback because the model did not return a
+valid cited answer; this preserves grounded citations instead of returning an
+uncited synthesis.
 
 ## Design Notes
 
-Accuracy comes from grounding every answer in retrieved passages, checking retrieval quality before generation, fusing multi-query search results with RRF, ranking with contextual BM25 signals, packing answer context with query-aware compression, and returning only used citations by default. Speed comes from short timeouts, request concurrency, page caching, early reranking, compression before generation, and the planner choosing the cheapest mode that fits the query. For production, use a paid search API such as Brave or Tavily, add an embedding or cross-encoder reranker, and persist traces for evaluation.
+Accuracy comes from grounding every answer in retrieved passages, checking retrieval quality before generation, fusing multi-query search results with RRF, ranking with contextual BM25 signals, packing answer context with query-aware compression, inheriting paragraph-level citations during claim checks, and returning only used citations by default. Speed comes from short timeouts, request concurrency, page caching, response/planner caching, adaptive citation judging, early reranking, compression before generation, and the planner choosing the cheapest mode that fits the query. For production, use a paid search API such as Brave or Tavily, add an embedding or cross-encoder reranker, and persist traces for evaluation.

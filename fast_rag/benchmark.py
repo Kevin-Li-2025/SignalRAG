@@ -166,6 +166,7 @@ def evaluate_response(case: BenchmarkCase, response: dict[str, Any], wall_ms: in
         "crag_corrected": meta.get("crag_corrected"),
         "research_steps": meta.get("research_steps", 0),
         "context_compression_ratio": (meta.get("context_packing") or {}).get("compression_ratio"),
+        "cache_hit": bool(meta.get("cache_hit")),
         "elapsed_ms": meta.get("elapsed_ms") or wall_ms,
         "wall_ms": wall_ms,
         "matched_expected": matched_expected,

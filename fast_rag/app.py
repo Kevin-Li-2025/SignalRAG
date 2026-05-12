@@ -113,8 +113,8 @@ async def search(request: SearchRequest) -> dict:
     query_plan = await plan_query(request.query, request.mode)
     effective_mode = _resolve_mode(request.mode, query_plan.search_depth)
     query_plan_dict = query_plan.to_dict()
-    if effective_mode == "deep":
-        query_plan_dict["reasoning_effort"] = "max"
+    if effective_mode == "deep" and query_plan_dict.get("reasoning_effort") == "none":
+        query_plan_dict["reasoning_effort"] = "high"
     research_trace: list[dict] = []
     if effective_mode == "deep":
         docs, retrieve_meta, research_trace = await run_deep_research(
