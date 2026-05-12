@@ -24,6 +24,9 @@ class BenchmarkCase:
     expected_url_parts: tuple[str, ...] = field(default_factory=tuple)
     expected_terms: tuple[str, ...] = field(default_factory=tuple)
     citation_verifier: str = "auto"
+    recency: str = "any"
+    country: str = "us"
+    language: str = "en"
 
     def payload(self) -> dict[str, Any]:
         data = asdict(self)
@@ -34,8 +37,9 @@ class BenchmarkCase:
             "max_results": data["max_results"],
             "include_domains": list(data["include_domains"]),
             "citation_verifier": data["citation_verifier"],
-            "country": "us",
-            "language": "en",
+            "recency": data["recency"],
+            "country": data["country"],
+            "language": data["language"],
         }
 
 
@@ -275,6 +279,78 @@ EXTENDED_CASES = (
     ),
 )
 
+REALISTIC_CASE_DATA = (
+    ("chrome_default_search", "how do i change chrome default search engine", "fast", "web", ("support.google.com/chrome",), ("default", "search engine")),
+    ("mac_screenshot_shortcut", "mac screenshot shortcut", "fast", "web", ("support.apple.com",), ("screenshot", "shift")),
+    ("windows_screenshot_shortcut", "windows screenshot shortcut", "fast", "web", ("support.microsoft.com",), ("screenshot", "snipping")),
+    ("git_undo_commit", "git undo last commit but keep changes", "pro", "web", ("git-scm.com",), ("reset", "commit")),
+    ("git_rebase_merge", "git rebase vs merge", "pro", "web", ("git-scm.com",), ("rebase", "merge")),
+    ("python_read_json", "python read json file", "fast", "web", ("docs.python.org",), ("json", "load")),
+    ("python_venv_activate", "python venv activate", "fast", "web", ("docs.python.org",), ("venv", "activate")),
+    ("pandas_read_csv_dtype", "pandas read csv dtype", "fast", "web", ("pandas.pydata.org",), ("read_csv", "dtype")),
+    ("numpy_random_seed", "numpy random seed generator", "fast", "web", ("numpy.org",), ("random", "seed")),
+    ("fastapi_upload_file", "fastapi upload file example", "fast", "web", ("fastapi.tiangolo.com",), ("UploadFile", "File")),
+    ("docker_compose_env", "docker compose env file syntax", "fast", "web", ("docs.docker.com",), ("environment", "env")),
+    ("npm_global_install", "npm install package globally", "fast", "web", ("docs.npmjs.com",), ("global", "install")),
+    ("github_actions_cache_pnpm", "github actions cache pnpm", "pro", "web", ("docs.github.com",), ("cache", "pnpm")),
+    ("aws_s3_presigned_url", "aws s3 presigned url boto3", "pro", "web", ("docs.aws.amazon.com",), ("presigned", "S3")),
+    ("postgres_index_concurrently", "postgres create index concurrently lock", "pro", "web", ("postgresql.org/docs",), ("CONCURRENTLY", "lock")),
+    ("react_useeffect_cleanup", "react useeffect cleanup function", "fast", "web", ("react.dev",), ("cleanup", "effect")),
+    ("typescript_optional_chaining", "typescript optional chaining nullish coalescing", "fast", "web", ("typescriptlang.org",), ("optional", "nullish")),
+    ("oauth_pkce", "oauth pkce what problem does it solve", "pro", "web", ("datatracker.ietf.org", "oauth.net"), ("PKCE", "code")),
+    ("dns_cname_a_record", "dns cname vs a record", "pro", "web", ("cloudflare.com/learning/dns",), ("CNAME", "A record")),
+    ("robots_disallow_all", "robots txt block all crawlers", "fast", "web", ("developers.google.com/search/docs",), ("robots.txt", "Disallow")),
+    ("sitemap_xml", "sitemap xml where to put it", "fast", "web", ("developers.google.com/search/docs",), ("sitemap", "XML")),
+    ("wcag_contrast_ratio", "wcag contrast ratio normal text", "fast", "web", ("w3.org",), ("contrast", "4.5")),
+    ("nist_password_guidelines", "nist password length guidelines", "pro", "web", ("pages.nist.gov", "nist.gov"), ("password", "length")),
+    ("owasp_broken_access", "owasp top 10 broken access control", "fast", "web", ("owasp.org",), ("Broken Access Control", "OWASP")),
+    ("mitre_phishing", "mitre attack phishing technique", "fast", "web", ("attack.mitre.org",), ("Phishing", "Initial Access")),
+    ("irs_standard_deduction", "irs standard deduction 2024 single", "fast", "web", ("irs.gov",), ("standard deduction", "2024")),
+    ("quarterly_taxes_due", "when are 2025 quarterly taxes due", "pro", "web", ("irs.gov",), ("estimated tax", "2025")),
+    ("tsa_liquids_rule", "tsa liquids rule carry on", "fast", "web", ("tsa.gov",), ("3.4", "quart")),
+    ("freeze_credit", "freeze credit free ftc", "fast", "web", ("consumer.ftc.gov",), ("freeze", "credit")),
+    ("escrow_mortgage", "what is escrow mortgage", "fast", "web", ("consumerfinance.gov",), ("escrow", "mortgage")),
+    ("federal_funds_rate", "federal funds rate meaning", "fast", "web", ("federalreserve.gov",), ("federal funds", "rate")),
+    ("cpi_inflation", "cpi inflation meaning bls", "fast", "web", ("bls.gov",), ("Consumer Price Index", "inflation")),
+    ("sec_10k", "sec 10-k what is it", "fast", "web", ("sec.gov", "investor.gov"), ("10-K", "annual")),
+    ("coffee_caffeine_fda", "how much caffeine in coffee fda", "fast", "web", ("fda.gov",), ("caffeine", "coffee")),
+    ("vitamin_d_deficiency", "symptoms vitamin d deficiency nih", "pro", "web", ("ods.od.nih.gov", "nih.gov"), ("vitamin D", "deficiency")),
+    ("blood_pressure_lifestyle", "lower blood pressure lifestyle changes cdc", "pro", "web", ("cdc.gov",), ("blood pressure", "lifestyle")),
+    ("apa_website_no_author", "apa cite website no author", "fast", "web", ("owl.purdue.edu",), ("no author", "APA")),
+    ("mla_youtube", "mla cite youtube video", "fast", "web", ("owl.purdue.edu",), ("YouTube", "MLA")),
+    ("columbus_county", "what county is columbus city in", "fast", "web", ("wikipedia.org/wiki/Columbus,_Ohio", "franklincountyohio.gov"), ("Franklin", "county")),
+    ("northern_lights", "what causes northern lights", "pro", "web", ("nasa.gov", "noaa.gov", "spaceweather.gov"), ("charged particles", "aurora")),
+    ("sky_blue", "why is the sky blue", "fast", "web", ("nasa.gov", "noaa.gov"), ("scattering", "blue")),
+    ("earthquake_magnitude_intensity", "earthquake magnitude vs intensity", "pro", "web", ("usgs.gov",), ("magnitude", "intensity")),
+    ("hurricane_watch_warning", "hurricane watch vs warning", "fast", "web", ("weather.gov",), ("watch", "warning")),
+    ("lost_middle", "lost in the middle long context paper", "deep", "academic", ("arxiv.org/abs/2307.03172",), ("lost", "middle")),
+    ("anthropic_contextual_retrieval", "anthropic contextual retrieval bm25 embeddings", "deep", "web", ("anthropic.com/news/contextual-retrieval",), ("contextual", "BM25")),
+    ("ragas_faithfulness", "ragas faithfulness metric", "pro", "web", ("docs.ragas.io",), ("faithfulness", "claims")),
+    ("perplexity_citations_api", "perplexity api citations", "pro", "web", ("docs.perplexity.ai",), ("citations", "search")),
+    ("deepseek_base_url", "deepseek api base url openai compatible", "fast", "web", ("api-docs.deepseek.com",), ("api.deepseek.com", "OpenAI")),
+    ("chatgpt_search_sources", "chatgpt search sources openai help", "pro", "web", ("help.openai.com/en/articles/9237897",), ("sources", "search")),
+    ("openai_web_search_domains", "openai web search api allowed domains", "pro", "web", ("developers.openai.com",), ("domains", "citations")),
+)
+
+REALISTIC_CASES = tuple(
+    BenchmarkCase(
+        name=name,
+        query=query,
+        mode=mode,
+        lens=lens,
+        max_results=12 if mode == "deep" else 10 if mode == "pro" else 8,
+        expected_url_parts=expected_url_parts,
+        expected_terms=expected_terms,
+    )
+    for name, query, mode, lens, expected_url_parts, expected_terms in REALISTIC_CASE_DATA
+)
+
+SUITES = {
+    "quick": QUICK_CASES,
+    "extended": EXTENDED_CASES,
+    "realistic": REALISTIC_CASES,
+}
+
 CASES = QUICK_CASES
 
 
@@ -327,8 +403,10 @@ def evaluate_response(case: BenchmarkCase, response: dict[str, Any], wall_ms: in
         "mode": response.get("mode"),
         "answer_mode": response.get("answer_mode"),
         "reasoning_effort": (response.get("query_plan") or {}).get("reasoning_effort"),
-        "expected_source_recall": _ratio(len(matched_expected), len(case.expected_url_parts)),
-        "used_source_recall": _ratio(len(matched_used), len(case.expected_url_parts)),
+        "expected_source_recall": _ratio(len(matched_expected), len(case.expected_url_parts))
+        if case.expected_url_parts
+        else None,
+        "used_source_recall": _ratio(len(matched_used), len(case.expected_url_parts)) if case.expected_url_parts else None,
         "answer_term_coverage": _ratio(len(term_hits), len(case.expected_terms)),
         "citation_coverage": _ratio(claims_with_citations, total_claims),
         "supported_claim_rate": _ratio(supported_claims, total_claims),
@@ -353,8 +431,9 @@ def evaluate_response(case: BenchmarkCase, response: dict[str, Any], wall_ms: in
 def summarize(results: list[dict[str, Any]]) -> dict[str, Any]:
     return {
         "cases": len(results),
-        "expected_source_recall": _mean(results, "expected_source_recall"),
-        "used_source_recall": _mean(results, "used_source_recall"),
+        "source_scored_cases": sum(1 for item in results if item.get("expected_source_recall") is not None),
+        "expected_source_recall": _mean_defined(results, "expected_source_recall"),
+        "used_source_recall": _mean_defined(results, "used_source_recall"),
         "answer_term_coverage": _mean(results, "answer_term_coverage"),
         "citation_coverage": _mean(results, "citation_coverage"),
         "supported_claim_rate": _mean(results, "supported_claim_rate"),
@@ -398,6 +477,13 @@ def _mean(results: list[dict[str, Any]], key: str) -> float:
     return round(statistics.mean(float(item.get(key) or 0.0) for item in results), 4)
 
 
+def _mean_defined(results: list[dict[str, Any]], key: str) -> float:
+    values = [float(item[key]) for item in results if item.get(key) is not None]
+    if not values:
+        return 0.0
+    return round(statistics.mean(values), 4)
+
+
 def _percentile(values: list[int], percentile: float) -> int:
     if not values:
         return 0
@@ -410,13 +496,13 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Run end-to-end SignalRAG quality benchmark.")
     parser.add_argument("--api-base", default="http://127.0.0.1:8000")
     parser.add_argument("--timeout", type=float, default=180.0)
-    parser.add_argument("--suite", choices=["quick", "extended"], default="quick")
+    parser.add_argument("--suite", choices=sorted(SUITES), default="quick")
     parser.add_argument("--clear-response-cache", action="store_true")
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()
     if args.clear_response_cache:
         clear_response_cache()
-    cases = EXTENDED_CASES if args.suite == "extended" else QUICK_CASES
+    cases = SUITES[args.suite]
     report = run_benchmark(args.api_base, args.timeout, cases)
     output = json.dumps(report, ensure_ascii=False, indent=2)
     if args.output:

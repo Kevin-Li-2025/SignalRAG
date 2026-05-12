@@ -1,6 +1,10 @@
 from fast_rag.models import Document, SearchResult
 from fast_rag.search import (
     SearchFilters,
+    _decode_bing_url,
+    _decode_yahoo_url,
+    _parse_bing_results,
+    _parse_yahoo_results,
     dedupe_documents,
     dedupe_results,
     filter_results,
@@ -115,6 +119,58 @@ def test_seed_results_adds_source_trust_sources() -> None:
     urls = {item.url for item in seeds}
     assert "https://developers.google.com/search/docs/fundamentals/creating-helpful-content" in urls
     assert "https://www.cancer.gov/about-cancer/managing-care/using-trusted-resources" in urls
+
+
+def test_decode_bing_redirect_url() -> None:
+    url = _decode_bing_url(
+        "https://www.bing.com/ck/a?!&&u=a1aHR0cHM6Ly9kb2NzLnB5dGhvbi5vcmcvMy9saWJyYXJ5L2pzb24uaHRtbA&ntb=1"
+    )
+    assert url == "https://docs.python.org/3/library/json.html"
+
+
+def test_parse_bing_results_extracts_links_and_snippets() -> None:
+    results = _parse_bing_results(
+        """
+        <html><body>
+          <li class="b_algo">
+            <h2><a href="https://example.com/a">Example A</a></h2>
+            <div class="b_caption"><p>Snippet A</p></div>
+          </li>
+        </body></html>
+        """,
+        limit=5,
+    )
+    assert results == [
+        SearchResult(title="Example A", url="https://example.com/a", snippet="Snippet A", provider="bing", rank=1)
+    ]
+
+
+def test_decode_yahoo_redirect_url() -> None:
+    url = _decode_yahoo_url(
+        "https://r.search.yahoo.com/_ylt=x/RV=2/RE=1/RO=10/RU=https%3a%2f%2fdocs.python.org%2f3%2flibrary%2fjson.html/RK=2/RS=x"
+    )
+    assert url == "https://docs.python.org/3/library/json.html"
+
+
+def test_parse_yahoo_results_extracts_links_and_snippets() -> None:
+    results = _parse_yahoo_results(
+        """
+        <html><body>
+          <div data-yga='{"yModuleName":"Sr"}'>
+            <div class="compTitle options-toggle">
+              <a href="https://r.search.yahoo.com/x/RV=2/RU=https%3a%2f%2fexample.com%2fa/RK=2/RS=x">
+                Example A
+              </a>
+            </div>
+            <p>Snippet A</p>
+          </div>
+        </body></html>
+        """,
+        limit=5,
+    )
+    assert results == [
+        SearchResult(title="Example A", url="https://example.com/a", snippet="Example A Snippet A", provider="yahoo", rank=1)
+    ]
 
 
 def test_dedupe_results_drops_duckduckgo_ads() -> None:

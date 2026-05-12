@@ -61,7 +61,8 @@ export DEEPSEEK_VERIFIER_MODEL="deepseek-v4-flash"
 export BRAVE_API_KEY="..."
 ```
 
-Without API keys, the app still works using DuckDuckGo HTML search and an extractive cited answer.
+Without API keys, the app still works using DuckDuckGo, Bing, and Yahoo HTML
+search fallbacks plus an extractive cited answer.
 
 If both DeepSeek and OpenAI keys are present, DeepSeek is used first by default. Override with:
 
@@ -233,7 +234,7 @@ This roadmap is based on current RAG research and search-product patterns:
 ## Example Runs
 
 These examples were run locally on 2026-05-12 with DeepSeek enabled,
-DuckDuckGo search, and no Brave API key. They are the best demo cases because
+HTML search fallbacks, and no Brave API key. They are the best demo cases because
 they use official sources, produce inline citations, and exercise different
 parts of the retrieval stack.
 
@@ -350,7 +351,25 @@ should cover both retrieval and generation:
   separate slices for factual lookup, API docs, fresh/news, comparison,
   multi-hop, Deep Research, and adversarial/no-answer cases.
 
-SignalRAG includes a small end-to-end benchmark runner:
+SignalRAG includes a small end-to-end benchmark runner. There are two useful
+50-case suites:
+
+- `extended`: a golden regression suite. It intentionally repeats known topics
+  and expected sources, so it is good for catching regressions but should not be
+  presented as representative user traffic.
+- `realistic`: a short-query suite with no include-domain allowlists. It uses
+  everyday search-box phrasing such as `python read json file`,
+  `tsa liquids rule carry on`, and `git rebase vs merge`. This is still
+  hand-curated, not production telemetry.
+
+For truly real query distributions, use anonymized logs or public datasets such
+as [MS MARCO](https://www.microsoft.com/en-us/research/?p=328361), whose
+questions come from anonymized Bing queries, [Natural Questions](https://research.google/pubs/pub47761),
+whose questions come from anonymized aggregated Google queries, and
+[BEIR](https://huggingface.co/datasets/BeIR/beir), which combines diverse
+retrieval tasks.
+
+Golden regression run:
 
 ```bash
 python -m fast_rag.benchmark \
@@ -361,8 +380,8 @@ python -m fast_rag.benchmark \
   --output benchmark_results/signalrag-benchmark-2026-05-12-50cases.json
 ```
 
-Latest 50-case local run with DeepSeek enabled, DuckDuckGo search, no Brave API
-key, and response cache cleared at the start:
+Latest golden 50-case local run with DeepSeek enabled, HTML search fallbacks,
+no Brave API key, and response cache cleared at the start:
 
 | Metric | Result |
 | --- | ---: |
@@ -386,6 +405,45 @@ extractive synthesis. Cache hits are intentionally low in this cold-start
 extended suite because the cases are broader paraphrases rather than repeated
 queries. A warm-cache repeat of the same 50 cases reached 100% response-cache
 hit rate with about 4ms average API wall time.
+
+Realistic short-query run:
+
+```bash
+python -m fast_rag.benchmark \
+  --api-base http://127.0.0.1:8000 \
+  --suite realistic \
+  --clear-response-cache \
+  --timeout 220 \
+  --output benchmark_results/signalrag-benchmark-2026-05-12-realistic-50cases.json
+```
+
+Latest realistic 50-case local run with DeepSeek enabled, DuckDuckGo/Bing/Yahoo
+HTML search fallbacks, no Brave API key, and response cache cleared at the
+start:
+
+| Metric | Result |
+| --- | ---: |
+| Cases | 50 |
+| Source-scored cases | 50 |
+| Expected source recall | 0.6000 |
+| Used source recall | 0.3200 |
+| Answer term coverage | 0.9200 |
+| Citation coverage | 0.9180 |
+| Supported claim rate | 0.7230 |
+| Review claim rate | 0.1826 |
+| CRAG sufficient rate | 0.8200 |
+| Fallback rate | 0.0000 |
+| Cache hit rate | 0.0000 |
+| Average latency | 10.2s |
+| P95 latency | 17.9s |
+
+Interpretation: the realistic suite is harsher and more useful for product
+work. It exposed that DuckDuckGo-only HTML search can return zero results or
+bad results for short real queries, so SignalRAG now queries Bing and Yahoo
+HTML fallbacks in parallel and avoids truncating one provider's results before
+fusion. The answer layer is solid on this suite, but used-source recall is still
+the main gap: the engine often answers with citations, but not always from the
+preferred gold source.
 
 ## Smart Cache
 

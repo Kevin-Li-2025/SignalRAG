@@ -153,12 +153,14 @@ async function loadHealth() {
     const res = await fetch(`${API_BASE}/api/health`, { cache: "no-store" });
     const data = await res.json();
     const provider = data.deepseek ? "DeepSeek" : data.openai ? "OpenAI" : "Extractive";
-    const search = data.brave ? "Brave Search" : "DuckDuckGo";
+    const search = data.brave ? "Brave + HTML" : "DDG/Bing/Yahoo";
     setEngineStatus("online", `Local Engine Online`);
     footerStatus.textContent = "Connected";
     footerStatusDot.classList.add("online");
-    document.querySelectorAll(".provider-pill")[0].textContent = provider;
-    document.querySelectorAll(".provider-pill")[1].textContent = search;
+    const providerPills = document.querySelectorAll(".provider-pill");
+    providerPills[0].textContent = provider;
+    providerPills[1].textContent = search;
+    providerPills[2].textContent = data.brave ? "Brave Search" : "No Brave key";
   } catch {
     setEngineStatus("offline", "Local Engine Offline");
     footerStatus.textContent = "Offline";

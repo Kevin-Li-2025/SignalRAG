@@ -92,6 +92,8 @@ def test_source_trust_tiers_cover_authoritative_sources() -> None:
     assert source_trust_tier("https://arxiv.org/abs/2307.03172") == "academic"
     assert source_trust_tier("https://www.w3.org/TR/WCAG22/") == "standards"
     assert source_trust_tier("https://docs.python.org/3/library/json.html") == "official_docs"
+    assert source_trust_tier("https://react.dev/reference/react/useEffect") == "official_docs"
+    assert source_trust_tier("https://support.google.com/chrome/answer/95426") == "official_docs"
     assert source_trust_tier("https://www.reuters.com/world/") == "news_wire"
     assert source_trust_tier("https://www.reddit.com/r/search/") == "low_signal"
 

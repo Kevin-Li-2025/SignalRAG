@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import base64
 import re
 from dataclasses import asdict, dataclass, field
 from time import perf_counter
@@ -377,6 +378,108 @@ def _decode_duck_url(href: str) -> str:
     return href
 
 
+def _decode_bing_url(href: str) -> str:
+    parsed = urlparse(href)
+    if parsed.netloc.endswith("bing.com") and parsed.path.startswith("/ck/"):
+        target = parse_qs(parsed.query).get("u", [""])[0]
+        if target.startswith("a1"):
+            encoded = target[2:]
+            try:
+                padding = "=" * (-len(encoded) % 4)
+                return base64.urlsafe_b64decode(encoded + padding).decode("utf-8")
+            except Exception:
+                return href
+        if target:
+            return unquote(target)
+    return href
+
+
+def _decode_yahoo_url(href: str) -> str:
+    parsed = urlparse(href)
+    if parsed.netloc.endswith("search.yahoo.com"):
+        match = re.search(r"/RU=([^/]+)", parsed.path)
+        if match:
+            return unquote(match.group(1))
+    return href
+
+
+def _parse_duckduckgo_results(html: str, limit: int) -> list[SearchResult]:
+    soup = BeautifulSoup(html, "html.parser")
+    results: list[SearchResult] = []
+    for rank, block in enumerate(soup.select(".result"), start=1):
+        link = block.select_one(".result__a")
+        if not link:
+            continue
+        url = _decode_duck_url(link.get("href", ""))
+        if not url.startswith(("http://", "https://")):
+            continue
+        snippet_el = block.select_one(".result__snippet")
+        results.append(
+            SearchResult(
+                title=clean_text(link.get_text(" ")),
+                url=url,
+                snippet=clean_text(snippet_el.get_text(" ") if snippet_el else ""),
+                provider="duckduckgo",
+                rank=rank,
+            )
+        )
+        if len(results) >= limit:
+            break
+    return results
+
+
+def _parse_bing_results(html: str, limit: int) -> list[SearchResult]:
+    soup = BeautifulSoup(html, "html.parser")
+    results: list[SearchResult] = []
+    for rank, block in enumerate(soup.select("li.b_algo"), start=1):
+        link = block.select_one("h2 a")
+        if not link:
+            continue
+        url = _decode_bing_url(link.get("href", ""))
+        if not url.startswith(("http://", "https://")):
+            continue
+        snippet_el = block.select_one(".b_caption p") or block.select_one("p")
+        results.append(
+            SearchResult(
+                title=clean_text(link.get_text(" ")),
+                url=url,
+                snippet=clean_text(snippet_el.get_text(" ") if snippet_el else ""),
+                provider="bing",
+                rank=rank,
+            )
+        )
+        if len(results) >= limit:
+            break
+    return results
+
+
+def _parse_yahoo_results(html: str, limit: int) -> list[SearchResult]:
+    soup = BeautifulSoup(html, "html.parser")
+    results: list[SearchResult] = []
+    for rank, title_block in enumerate(soup.select("[class*=compTitle]"), start=1):
+        link = title_block.select_one("a[href]")
+        if not link:
+            continue
+        url = _decode_yahoo_url(link.get("href", ""))
+        if not url.startswith(("http://", "https://")):
+            continue
+        container = title_block.find_parent(attrs={"data-yga": True}) or title_block.parent
+        snippet = clean_text(container.get_text(" ") if container else "")
+        title = clean_text(link.get_text(" "))
+        results.append(
+            SearchResult(
+                title=title,
+                url=url,
+                snippet=snippet[:500],
+                provider="yahoo",
+                rank=rank,
+            )
+        )
+        if len(results) >= limit:
+            break
+    return results
+
+
 class SearchProviders:
     def __init__(self, client: httpx.AsyncClient) -> None:
         self.client = client
@@ -393,6 +496,8 @@ class SearchProviders:
         if settings.brave_api_key:
             tasks.append(self._brave(query, limit, timeout, filters))
         tasks.append(self._duckduckgo(query, limit, timeout, filters))
+        tasks.append(self._bing(query, limit, timeout, filters))
+        tasks.append(self._yahoo(query, limit, timeout, filters))
         results = await asyncio.gather(*tasks, return_exceptions=True)
 
         combined: list[SearchResult] = []
@@ -400,7 +505,7 @@ class SearchProviders:
             if isinstance(result, Exception):
                 continue
             combined.extend(result)
-        return combined[:limit]
+        return dedupe_results(combined)
 
     async def _brave(
         self,
@@ -455,28 +560,45 @@ class SearchProviders:
             timeout=timeout,
         )
         response.raise_for_status()
-        soup = BeautifulSoup(response.text, "html.parser")
-        results: list[SearchResult] = []
-        for rank, block in enumerate(soup.select(".result"), start=1):
-            link = block.select_one(".result__a")
-            if not link:
-                continue
-            url = _decode_duck_url(link.get("href", ""))
-            if not url.startswith(("http://", "https://")):
-                continue
-            snippet_el = block.select_one(".result__snippet")
-            results.append(
-                SearchResult(
-                    title=clean_text(link.get_text(" ")),
-                    url=url,
-                    snippet=clean_text(snippet_el.get_text(" ") if snippet_el else ""),
-                    provider="duckduckgo",
-                    rank=rank,
-                )
-            )
-            if len(results) >= limit:
-                break
-        return results
+        return _parse_duckduckgo_results(response.text, limit)
+
+    async def _bing(
+        self,
+        query: str,
+        limit: int,
+        timeout: float,
+        filters: SearchFilters,
+    ) -> list[SearchResult]:
+        params = {"q": query, "count": min(limit, 20)}
+        if filters.country:
+            params["cc"] = filters.country
+        if filters.language:
+            params["setlang"] = filters.language
+        response = await self.client.get(
+            "https://www.bing.com/search",
+            params=params,
+            timeout=timeout,
+        )
+        response.raise_for_status()
+        return _parse_bing_results(response.text, limit)
+
+    async def _yahoo(
+        self,
+        query: str,
+        limit: int,
+        timeout: float,
+        filters: SearchFilters,
+    ) -> list[SearchResult]:
+        params = {"p": query}
+        if filters.country and filters.language:
+            params["vl"] = f"lang_{filters.language}"
+        response = await self.client.get(
+            "https://search.yahoo.com/search",
+            params=params,
+            timeout=timeout,
+        )
+        response.raise_for_status()
+        return _parse_yahoo_results(response.text, limit)
 
 
 def dedupe_results(results: list[SearchResult]) -> list[SearchResult]:
