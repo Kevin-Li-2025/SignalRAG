@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SignalRAG Search</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="shell engine-shell">
+      <section class="workspace">
+        <header class="topbar">
+          <div>
+            <h1>SignalRAG</h1>
+            <p id="health">Chromium search endpoint</p>
+          </div>
+          <a class="link-button" href="/">Workbench</a>
+        </header>
+
+        <form id="engine-form" class="search">
+          <div class="query-row">
+            <input id="engine-query" autocomplete="off" placeholder="Search SignalRAG" required />
+            <button id="engine-submit" type="submit">Search</button>
+          </div>
+        </form>
+
+        <section class="metrics" id="engine-metrics" hidden></section>
+
+        <section class="answer-wrap">
+          <div class="answer" id="engine-answer">输入查询后开始搜索。</div>
+        </section>
+
+        <section class="claims" id="engine-claims-section" hidden>
+          <div class="section-title">Claim Citations</div>
+          <div id="engine-claims" class="claim-list"></div>
+        </section>
+
+        <section class="sources">
+          <div class="section-title">Sources</div>
+          <div id="engine-sources" class="source-list"></div>
+        </section>
+      </section>
+    </main>
+    <script src="./engine.js"></script>
+  </body>
+</html>

@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SignalRAG</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="app-header">
+        <div class="brand-row">
+          <h1>SignalRAG</h1>
+          <div id="engine-status" class="status-pill">
+            <span class="status-dot"></span>
+            <span>Checking engine</span>
+          </div>
+          <span class="version">v1.0.0</span>
+        </div>
+        <div class="provider-row">
+          <button class="provider-pill" type="button"><span class="provider-icon deepseek-icon">◆</span>DeepSeek</button>
+          <button class="provider-pill" type="button"><span class="provider-icon duck-icon">◉</span>DuckDuckGo</button>
+          <button class="provider-pill" type="button"><span class="provider-icon brave-icon">⬟</span>Brave Search</button>
+          <button class="provider-pill settings-pill" type="button"><span class="provider-icon settings-icon">⚙</span>Settings <span class="chevron">⌄</span></button>
+        </div>
+      </header>
+
+      <section class="workspace-grid">
+        <section class="main-pane">
+          <form id="search-form" class="composer-card">
+            <div class="composer-top">
+              <textarea
+                id="query"
+                name="query"
+                autocomplete="off"
+                placeholder="What causes the Northern Lights?"
+                required
+                minlength="2"
+                rows="2"
+              ></textarea>
+              <div class="composer-buttons">
+                <button id="clear-query" class="icon-button" type="button" aria-label="Clear query">×</button>
+                <button id="submit" class="submit-button" type="submit" aria-label="Search">↵</button>
+              </div>
+            </div>
+            <div class="composer-bottom">
+              <div class="scope-select">
+                <span>◎</span>
+                <select id="scope">
+                  <option value="web">Web</option>
+                  <option value="official">Official</option>
+                </select>
+              </div>
+              <div class="mode" role="tablist" aria-label="search mode">
+                <button class="mode-btn" data-mode="fast" type="button">Fast</button>
+                <button class="mode-btn active" data-mode="pro" type="button">Pro</button>
+                <button class="mode-btn" data-mode="deep" type="button">Deep Research</button>
+              </div>
+              <div class="shortcut">⌘K</div>
+            </div>
+          </form>
+
+          <div class="quick-actions" aria-label="quick actions">
+            <button class="quick-chip" data-query="Summarize this page" type="button">⌕ Summarize this page</button>
+            <button class="quick-chip" data-query="Find official sources" type="button">☷ Find official sources</button>
+            <button class="quick-chip" data-query="Compare evidence" type="button">⌾ Compare evidence</button>
+            <button class="quick-chip" data-mode="deep" data-query="Deep research this topic" type="button">✧ Deep research this topic</button>
+          </div>
+
+          <details class="advanced-card" open>
+            <summary>Advanced controls</summary>
+            <div class="control-panel">
+              <label>
+                Include domains
+                <input id="include-domains" autocomplete="off" placeholder="Add domain" />
+              </label>
+              <label>
+                Exclude domains
+                <input id="exclude-domains" autocomplete="off" placeholder="Add domain" />
+              </label>
+              <label>
+                Recency
+                <select id="recency">
+                  <option value="any">Any time</option>
+                  <option value="day">Past day</option>
+                  <option value="week">Past week</option>
+                  <option value="month">Past month</option>
+                  <option value="year">Past year</option>
+                </select>
+              </label>
+              <label>
+                Country
+                <input id="country" autocomplete="off" maxlength="2" placeholder="Global" />
+              </label>
+              <label>
+                Language
+                <input id="language" autocomplete="off" maxlength="2" placeholder="English" />
+              </label>
+              <label>
+                Verifier
+                <select id="citation-verifier">
+                  <option value="auto">DeepSeek Verifier</option>
+                  <option value="deepseek">Force DeepSeek</option>
+                  <option value="lexical">Lexical</option>
+                </select>
+              </label>
+              <button id="reset-controls" class="text-button" type="button">Reset</button>
+            </div>
+          </details>
+
+          <section id="run-summary" class="run-summary" hidden></section>
+
+          <section class="answer-section">
+            <h2>Answer</h2>
+            <div class="answer" id="answer">Ask a question to start a cited search.</div>
+          </section>
+
+          <section id="crag-strip" class="crag-strip" hidden></section>
+
+          <section class="paa-section">
+            <h3>People also ask</h3>
+            <div id="questions" class="question-list"></div>
+          </section>
+        </section>
+
+        <aside class="evidence-pane">
+          <nav class="tabs" aria-label="evidence tabs">
+            <button class="tab-btn active" data-tab="sources" type="button">Sources <span id="source-count">0</span></button>
+            <button class="tab-btn" data-tab="claims" type="button">Claims <span id="claim-count">0</span></button>
+            <button class="tab-btn" data-tab="retrieval" type="button">Retrieval</button>
+            <button class="tab-btn" data-tab="trace" type="button">Trace</button>
+          </nav>
+          <section id="panel-sources" class="tab-panel active"></section>
+          <section id="panel-claims" class="tab-panel"></section>
+          <section id="panel-retrieval" class="tab-panel"></section>
+          <section id="panel-trace" class="tab-panel"></section>
+        </aside>
+      </section>
+
+      <footer class="bottom-bar">
+        <div><span>Engine</span><code>http://127.0.0.1:8000</code></div>
+        <div><span id="footer-status-dot" class="mini-dot"></span><span id="footer-status">Checking</span></div>
+        <div><span>Mode</span><strong id="footer-mode">Pro</strong></div>
+        <div><span>Verifier</span><strong id="footer-verifier">DeepSeek Verifier</strong></div>
+        <div class="footer-shortcuts"><kbd>⌘K</kbd><span>Focus search</span><kbd>Enter</kbd><span>Search</span><kbd>⇧ + Enter</kbd><span>New line</span></div>
+        <button id="clear-chat" class="clear-button" type="button">Clear chat</button>
+      </footer>
+    </main>
+    <script src="./app.js"></script>
+  </body>
+</html>

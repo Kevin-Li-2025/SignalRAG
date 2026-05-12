@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SignalRAG Options</title>
+    <link rel="stylesheet" href="extension.css" />
+  </head>
+  <body>
+    <main class="options">
+      <header class="header">
+        <div class="brand">
+          <div class="logo" aria-hidden="true">S</div>
+          <div>
+            <h1>SignalRAG Options</h1>
+            <p>Configure the local engine used by the Chromium extension.</p>
+          </div>
+        </div>
+      </header>
+
+      <form id="options-form" class="stack">
+        <label>
+          API base URL
+          <input id="api-base" placeholder="http://127.0.0.1:8000" />
+        </label>
+        <label>
+          Default mode
+          <select id="mode">
+            <option value="fast">Fast</option>
+            <option value="pro">Pro</option>
+            <option value="deep">Deep</option>
+          </select>
+        </label>
+        <label>
+          Default citation verifier
+          <select id="citation-verifier">
+            <option value="auto">Auto</option>
+            <option value="deepseek">DeepSeek</option>
+            <option value="lexical">Lexical</option>
+          </select>
+        </label>
+        <div class="controls">
+          <button id="save" type="submit">Save</button>
+          <button id="test" class="secondary" type="button">Test connection</button>
+        </div>
+      </form>
+
+      <p id="message" class="message"></p>
+    </main>
+    <script src="options.js"></script>
+  </body>
+</html>

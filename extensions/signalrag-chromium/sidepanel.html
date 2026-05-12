@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SignalRAG</title>
+    <link rel="stylesheet" href="extension.css" />
+  </head>
+  <body>
+    <main class="panel">
+      <header class="header">
+        <div class="brand">
+          <div class="logo" aria-hidden="true">S</div>
+          <div>
+            <h1>SignalRAG</h1>
+            <p id="status" class="status checking"><span></span>Checking local engine...</p>
+          </div>
+        </div>
+        <a href="options.html" target="_blank" class="icon-link" title="Options">Options</a>
+      </header>
+
+      <section id="offline-card" class="notice" hidden>
+        <strong>Local engine is not reachable.</strong>
+        <p>Start SignalRAG at <code>http://127.0.0.1:8000</code>, then retry.</p>
+        <button id="retry-health" type="button" class="secondary">Retry connection</button>
+      </section>
+
+      <form id="search-form" class="stack">
+        <div class="composer">
+          <textarea id="query" rows="4" placeholder="Ask SignalRAG"></textarea>
+          <div class="composer-actions">
+            <button id="use-tab" type="button" class="ghost">Use current tab</button>
+            <button id="open-full" type="button" class="ghost">Open full page</button>
+          </div>
+        </div>
+        <div class="controls">
+          <select id="mode">
+            <option value="fast">Fast</option>
+            <option value="pro" selected>Pro</option>
+            <option value="deep">Deep</option>
+          </select>
+          <select id="citation-verifier">
+            <option value="auto" selected>Auto verifier</option>
+            <option value="deepseek">DeepSeek verifier</option>
+            <option value="lexical">Lexical verifier</option>
+          </select>
+        </div>
+        <div class="chips" aria-label="quick searches">
+          <button type="button" data-query="Summarize the current page with citations" class="chip">Summarize</button>
+          <button type="button" data-query="Find the most reliable official sources for this topic" class="chip">Official sources</button>
+          <button type="button" data-query="Compare the evidence and call out uncertainty" class="chip">Compare evidence</button>
+        </div>
+        <details class="filters">
+          <summary>Search controls</summary>
+          <label>
+            Include domains
+            <input id="include-domains" placeholder="openai.com, docs.example.com" />
+          </label>
+          <label>
+            Exclude domains
+            <input id="exclude-domains" placeholder="reddit.com, medium.com" />
+          </label>
+          <div class="mini-grid">
+            <label>
+              Recency
+              <select id="recency">
+                <option value="any">Any</option>
+                <option value="day">Day</option>
+                <option value="week">Week</option>
+                <option value="month">Month</option>
+                <option value="year">Year</option>
+              </select>
+            </label>
+            <label>
+              Country
+              <input id="country" maxlength="2" placeholder="us" />
+            </label>
+            <label>
+              Language
+              <input id="language" maxlength="2" placeholder="en" />
+            </label>
+          </div>
+        </details>
+        <button id="submit" type="submit">Search</button>
+      </form>
+
+      <section id="metrics" class="metrics" hidden></section>
+      <section id="trace" class="trace" hidden></section>
+      <section id="answer" class="answer">Start the local server, then search from here.</section>
+      <section id="claims" class="claims" hidden></section>
+      <section id="sources" class="sources"></section>
+    </main>
+    <script src="sidepanel.js"></script>
+  </body>
+</html>

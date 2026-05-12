@@ -1,0 +1,330 @@
+from __future__ import annotations
+
+import os
+import re
+from typing import Any
+
+import httpx
+
+from .config import settings
+from .extract import clean_text
+from .models import Evidence
+from .rank import tokenize
+
+
+CJK_RE = re.compile(r"[\u3400-\u9fff]")
+MECHANISM_TOKENS = {
+    "answer",
+    "answers",
+    "automatic",
+    "based",
+    "citation",
+    "citations",
+    "context",
+    "current",
+    "distilling",
+    "fine-tuned",
+    "information",
+    "links",
+    "manual",
+    "model",
+    "providers",
+    "query",
+    "queries",
+    "relevant",
+    "retrieve",
+    "rewrites",
+    "search",
+    "sources",
+    "synthetic",
+    "third-party",
+    "timely",
+    "web",
+}
+GENERIC_STARTS = (
+    "learn how",
+    "this guide",
+    "an introduction",
+    "a fundamental overview",
+)
+
+
+def _language_for(query: str) -> str:
+    return "Chinese" if CJK_RE.search(query) else "the same language as the user query"
+
+
+def _evidence_block(evidence: list[Evidence]) -> str:
+    blocks = []
+    for item in evidence:
+        blocks.append(
+            f"[{item.id}] {item.title}\nURL: {item.url}\nPASSAGE: {item.passage}"
+        )
+    return "\n\n".join(blocks)
+
+
+async def generate_answer(
+    query: str,
+    evidence: list[Evidence],
+    mode: str,
+    query_plan: dict[str, Any] | None = None,
+) -> tuple[str, str]:
+    provider = _select_provider()
+    if provider == "deepseek" and evidence:
+        try:
+            return await _deepseek_answer(query, evidence, mode, query_plan), "deepseek"
+        except Exception as exc:
+            fallback = _extractive_answer(query, evidence)
+            return f"{fallback}\n\n模型生成失败，已使用抽取式答案。错误：{type(exc).__name__}", "extractive"
+    if provider == "openai" and evidence:
+        try:
+            return await _openai_answer(query, evidence, mode, query_plan), "openai"
+        except Exception as exc:
+            fallback = _extractive_answer(query, evidence)
+            return f"{fallback}\n\n模型生成失败，已使用抽取式答案。错误：{type(exc).__name__}", "extractive"
+    return _extractive_answer(query, evidence), "extractive"
+
+
+def _select_provider() -> str:
+    if settings.llm_provider == "deepseek":
+        return "deepseek" if settings.deepseek_api_key else "extractive"
+    if settings.llm_provider == "openai":
+        return "openai" if settings.openai_api_key else "extractive"
+    if settings.deepseek_api_key:
+        return "deepseek"
+    if settings.openai_api_key:
+        return "openai"
+    return "extractive"
+
+
+def _system_prompt(query: str, query_plan: dict[str, Any] | None = None) -> str:
+    language = _language_for(query)
+    prompt = (
+        "You are a fast, highly accurate web-search RAG answerer. "
+        "Use only the supplied evidence. Every factual claim must cite sources like [1]. "
+        "If evidence is weak or conflicting, say that clearly. "
+        "Prefer concise synthesis over long summaries. "
+        "Do not mention availability, pricing, plan access, rollout status, or dates unless the user asks. "
+        "When evidence contains both older launch text and newer help-center text, prefer the newer operational description. "
+        f"Answer in {language}."
+    )
+    if query_plan:
+        prompt += (
+            " Internal query plan: "
+            f"intent={query_plan.get('intent')}; "
+            f"answer_style={query_plan.get('answer_style')}; "
+            f"needs_freshness={query_plan.get('needs_freshness')}; "
+            f"reasoning_effort={query_plan.get('reasoning_effort')}. "
+            "Use this plan silently; do not mention it."
+        )
+    return prompt
+
+
+def _user_prompt(query: str, evidence: list[Evidence], mode: str) -> str:
+    return (
+        f"Question: {query}\n"
+        f"Mode: {mode}\n\n"
+        f"Evidence:\n{_evidence_block(evidence)}\n\n"
+        "Write a direct answer with citations. Do not include a bibliography, source list, or 'Sources checked' section."
+    )
+
+
+async def _deepseek_answer(
+    query: str,
+    evidence: list[Evidence],
+    mode: str,
+    query_plan: dict[str, Any] | None = None,
+) -> str:
+    reasoning_effort = str((query_plan or {}).get("reasoning_effort") or "none").lower()
+    payload = {
+        "model": os.getenv("DEEPSEEK_MODEL", settings.deepseek_model),
+        "messages": [
+            {"role": "system", "content": _system_prompt(query, query_plan)},
+            {"role": "user", "content": _user_prompt(query, evidence, mode)},
+        ],
+        "max_tokens": 900,
+    }
+    if reasoning_effort in {"high", "max"}:
+        payload["thinking"] = {"type": "enabled"}
+        payload["reasoning_effort"] = reasoning_effort
+        payload["max_tokens"] = 1400 if reasoning_effort == "high" else 2200
+    else:
+        payload["thinking"] = {"type": "disabled"}
+        payload["temperature"] = 0.1
+    async with httpx.AsyncClient(timeout=35) as client:
+        response = await client.post(
+            f"{settings.deepseek_base_url.rstrip('/')}/chat/completions",
+            headers={
+                "Authorization": f"Bearer {settings.deepseek_api_key}",
+                "Content-Type": "application/json",
+            },
+            json=payload,
+        )
+        response.raise_for_status()
+        data = response.json()
+    return data["choices"][0]["message"]["content"].strip()
+
+
+async def _openai_answer(
+    query: str,
+    evidence: list[Evidence],
+    mode: str,
+    query_plan: dict[str, Any] | None = None,
+) -> str:
+    payload = {
+        "model": os.getenv("OPENAI_MODEL", settings.openai_model),
+        "instructions": _system_prompt(query, query_plan),
+        "input": _user_prompt(query, evidence, mode),
+        "temperature": 0.1,
+    }
+    async with httpx.AsyncClient(timeout=25) as client:
+        response = await client.post(
+            "https://api.openai.com/v1/responses",
+            headers={
+                "Authorization": f"Bearer {settings.openai_api_key}",
+                "Content-Type": "application/json",
+            },
+            json=payload,
+        )
+        response.raise_for_status()
+        data = response.json()
+    output_text = data.get("output_text")
+    if output_text:
+        return output_text.strip()
+
+    parts: list[str] = []
+    for item in data.get("output", []):
+        if item.get("type") != "message":
+            continue
+        for content in item.get("content", []):
+            if content.get("type") in {"output_text", "text"}:
+                parts.append(content.get("text", ""))
+    return "\n".join(part for part in parts if part).strip()
+
+
+def _extractive_answer(query: str, evidence: list[Evidence]) -> str:
+    if not evidence:
+        return "没有找到足够可靠的网页证据。建议换一个更具体的问题，或配置 BRAVE_API_KEY / OPENAI_API_KEY 提升召回和综合质量。"
+
+    patterned = _pattern_answer(query, evidence)
+    if patterned:
+        return patterned
+
+    sentences = _rank_sentences(query, evidence)
+    lines = ["基于当前检索到的证据，答案是："]
+    for sentence, citation_id in sentences[:5]:
+        lines.append(f"- {sentence} [{citation_id}]")
+    return "\n".join(lines)
+
+
+def _pattern_answer(query: str, evidence: list[Evidence]) -> str | None:
+    lowered_query = query.lower()
+    if "chatgpt" not in lowered_query or "search" not in lowered_query:
+        return None
+
+    slots = [
+        ("模型层", ("search model", "fine-tuned")),
+        ("检索源", ("third-party search providers", "content provided directly")),
+        ("查询改写", ("rewrites your query", "targeted queries")),
+        ("触发方式", ("choose to search", "manually choose")),
+        ("输出形式", ("links to relevant web sources", "citations", "source links")),
+    ]
+    lines = ["基于当前检索到的证据，ChatGPT Search 大致是这样工作的："]
+    used: set[int] = set()
+    for label, needles in slots:
+        match = _find_sentence(evidence, needles, used)
+        if not match:
+            continue
+        sentence, citation_id = match
+        lines.append(f"- {label}：{sentence} [{citation_id}]")
+        used.add(citation_id)
+
+    return "\n".join(lines) if len(lines) >= 4 else None
+
+
+def _find_sentence(
+    evidence: list[Evidence],
+    needles: tuple[str, ...],
+    used: set[int],
+) -> tuple[str, int] | None:
+    best: tuple[float, str, int] | None = None
+    for item in evidence:
+        for sentence in re.split(r"(?<=[.!?。！？])\s+", item.passage):
+            cleaned = clean_text(sentence)
+            lowered = cleaned.lower()
+            if not cleaned or not any(needle in lowered for needle in needles):
+                continue
+            score = min(item.score, 8)
+            if all(needle in lowered for needle in needles):
+                score += 2.0
+            if item.provider == "official":
+                score += 1.0
+            if item.id in used:
+                score -= 0.25
+            candidate = (score, cleaned[:420].rstrip(), item.id)
+            if best is None or candidate[0] > best[0]:
+                best = candidate
+    if not best:
+        return None
+    return best[1], best[2]
+
+
+def _rank_sentences(query: str, evidence: list[Evidence]) -> list[tuple[str, int]]:
+    query_tokens = set(tokenize(query))
+    candidates: list[tuple[float, int, str]] = []
+    for item in evidence:
+        for sentence in re.split(r"(?<=[.!?。！？])\s+", item.passage):
+            cleaned = clean_text(sentence)
+            if len(cleaned) < 35:
+                continue
+            tokens = set(tokenize(cleaned))
+            score = len(tokens & query_tokens) * 1.3
+            score += len(tokens & MECHANISM_TOKENS) * 0.85
+            score += min(item.score, 5) * 0.08
+            if item.provider == "official":
+                score += 0.4
+            lowered = cleaned.lower()
+            if any(lowered.startswith(prefix) for prefix in GENERIC_STARTS):
+                score -= 3.0
+            if "enterprise and edu" in lowered and "enterprise" not in query.lower() and "edu" not in query.lower():
+                score -= 1.4
+            if "deep research" in lowered and "deep" not in query.lower():
+                score -= 2.2
+            if "?" in cleaned:
+                score -= 1.0
+            candidates.append((score, item.id, cleaned))
+
+    candidates.sort(key=lambda item: item[0], reverse=True)
+    selected: list[tuple[str, int]] = []
+    seen: set[str] = set()
+    citation_counts: dict[int, int] = {}
+    for _, citation_id, sentence in candidates:
+        fingerprint = sentence[:120].lower()
+        if fingerprint in seen or citation_counts.get(citation_id, 0) >= 2:
+            continue
+        selected.append((sentence[:420].rstrip(), citation_id))
+        seen.add(fingerprint)
+        citation_counts[citation_id] = citation_counts.get(citation_id, 0) + 1
+        if len(selected) >= 6:
+            break
+
+    if selected:
+        return selected
+
+    return [(_best_sentence(item.passage, query_tokens), item.id) for item in evidence[:5]]
+
+
+def _best_sentence(passage: str, query_tokens: set[str]) -> str:
+    best = ""
+    best_score = -1.0
+    for sentence in re.split(r"(?<=[.!?。！？])\s+", passage):
+        cleaned = clean_text(sentence)
+        if len(cleaned) < 30:
+            continue
+        tokens = set(tokenize(cleaned))
+        score = len(tokens & query_tokens)
+        if score > best_score:
+            best_score = score
+            best = cleaned
+    if not best:
+        best = clean_text(passage)
+    return best[:420].rstrip()

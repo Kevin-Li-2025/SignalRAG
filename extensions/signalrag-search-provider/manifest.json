@@ -1,0 +1,16 @@
+{
+  "manifest_version": 3,
+  "name": "SignalRAG Search Provider",
+  "description": "Registers the local SignalRAG endpoint as a Chromium search provider.",
+  "version": "0.1.0",
+  "chrome_settings_overrides": {
+    "search_provider": {
+      "name": "SignalRAG",
+      "keyword": "sr",
+      "search_url": "http://127.0.0.1:8000/engine?q={searchTerms}&mode=pro",
+      "favicon_url": "http://127.0.0.1:8000/static/favicon.svg",
+      "encoding": "UTF-8",
+      "is_default": true
+    }
+  }
+}
