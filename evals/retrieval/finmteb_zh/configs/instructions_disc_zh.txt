@@ -1,0 +1,13 @@
+# DISCFinLLM-focused reranking instructions.
+# These are searched on train split only, then any selected instruction must be frozen before test.
+
+Given a finance question, retrieve and rank passages that directly answer it. Prioritize exact entities, numbers, dates, formulas, and financial terminology.
+Given a Chinese finance question, judge whether the document contains the exact answer. Prefer passages with matching company names, stock codes, dates, amounts, ratios, and event descriptions.
+Given a question from Chinese financial news or reports, rank the document by answer completeness and factual match. Penalize topic-only matches that do not answer the question.
+Determine whether the document is the best evidence for answering the financial query. Entity, time, numeric value, and causal relation mismatches should be treated as non-relevant.
+For Chinese finance QA retrieval, return yes only when the passage directly supports the answer with precise facts, not just a related topic.
+For Chinese finance reranking, when several passages are on topic, prefer the passage whose title and first paragraph most directly match the question intent, entities, location, event action, and requested effect.
+Rank Chinese financial news passages by benchmark-style relevance: exact query intent, named entities, time/place constraints, and answer-bearing sentences outrank broad market commentary.
+If the question asks about impact, cause, feasibility, sustainability, or policy consequences, prefer passages that state a clear conclusion and causal chain instead of passages that only provide background.
+Prefer passages that can serve as the main evidence for a concise answer. Penalize passages that share keywords but omit the requested conclusion, affected party, or financial consequence.
+When passages are similarly relevant, rank the one with the closest title-question alignment and the most explicit answer in the opening paragraphs higher.

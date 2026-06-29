@@ -1,0 +1,58 @@
+{
+  "experiment_id": "2026-06-02-reranking-miracl-ar-e5-v13",
+  "created_utc": "2026-06-02T16:43:13Z",
+  "source": {
+    "remote_host": "hhai-zijun",
+    "remote_output_source": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/arabic-embedding-reranking-miracl-ar-e5-baseline",
+    "local_parse_source": "/tmp/arabic-miracl-v13",
+    "raw_outputs_committed": false,
+    "kaggle_context": "Kaggle v12 timed out and v13 was blocked by weekly GPU quota, so this run used the approved remote L20 GPU."
+  },
+  "scope": {
+    "purpose": "Arabic-only MIRACL reranking diagnostic after all-subset MIRACL was too large for Kaggle.",
+    "batch_size": 1,
+    "max_seq_length": 256,
+    "tasks": [
+      "MIRACLReranking"
+    ],
+    "eval_subsets": [
+      "ar"
+    ],
+    "models": [
+      "intfloat/multilingual-e5-large-instruct"
+    ],
+    "hardware": "NVIDIA L20",
+    "torch": "2.6.0+cu124",
+    "mteb": "2.12.30"
+  },
+  "results": [
+    {
+      "model": "intfloat/multilingual-e5-large-instruct",
+      "task": "MIRACLReranking",
+      "status": "complete",
+      "family": "reranking",
+      "mteb_version": "2.12.30",
+      "dataset_revision": "d11a14c74e8bd448cedab0c1d9a720040535f228",
+      "evaluation_time_sec": 2697.106,
+      "primary_metric": "main_score/ndcg_at_10",
+      "primary_score": 0.77497,
+      "ndcg_at_10": 0.77497,
+      "map_at_10": 0.71523,
+      "mrr_at_10": 0.786406,
+      "recall_at_10": 0.8706,
+      "precision_at_10": 0.15473,
+      "hit_rate_at_10": 0.91229,
+      "languages": [
+        "ara-Arab"
+      ],
+      "subset": "ar"
+    }
+  ],
+  "interpretation": [
+    "E5 completes the Arabic MIRACL reranking subset with main_score/ndcg_at_10 0.774970.",
+    "The MIRACL Arabic subset is much heavier than Namaa reranking: E5 took about 44.95 minutes versus 17.4 seconds on Namaa.",
+    "This confirms E5 remains a viable broad reranking baseline on a harder Arabic retrieval-style benchmark, but it does not yet establish model-level SOTA.",
+    "Run BGE-M3 on the same Arabic-only MIRACL subset before drawing a stronger reranking-family conclusion."
+  ],
+  "next_experiment": "Run MIRACLReranking eval_subsets=['ar'] for BAAI/bge-m3 on the remote L20 GPU, then compare against E5."
+}

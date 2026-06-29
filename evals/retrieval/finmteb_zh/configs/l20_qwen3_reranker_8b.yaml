@@ -1,0 +1,45 @@
+seed: 20260526
+base_model: Qwen/Qwen3-Reranker-8B
+output_dir: outputs/qwen3-reranker-8b-finmteb-lora
+
+target_tasks:
+  - FinanceMTEB/FinEvaRetrieval-reranking
+  - FinanceMTEB/DISCFinLLM-reranking
+
+train_tasks:
+  - FinanceMTEB/FinEvaRetrieval-reranking
+  - FinanceMTEB/DISCFinLLM-reranking
+  - FinanceMTEB/FinFact-reranking
+  - FinanceMTEB/FiQA-reranking
+
+instruction: "Given a finance question, retrieve and rank passages that directly answer it. Prioritize exact entities, numbers, dates, formulas, and financial terminology."
+
+max_length: 4096
+per_device_batch_size: 2
+gradient_accumulation_steps: 16
+epochs: 2
+learning_rate: 0.00002
+warmup_ratio: 0.06
+weight_decay: 0.01
+max_train_examples: 120000
+negatives_per_query: 6
+validation_ratio: 0.08
+eval_steps: 200
+save_steps: 200
+log_steps: 20
+bf16: true
+load_in_4bit: true
+
+lora:
+  r: 32
+  alpha: 64
+  dropout: 0.05
+  target_modules:
+    - q_proj
+    - k_proj
+    - v_proj
+    - o_proj
+    - gate_proj
+    - up_proj
+    - down_proj
+

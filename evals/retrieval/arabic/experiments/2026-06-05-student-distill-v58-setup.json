@@ -1,0 +1,107 @@
+{
+  "date": "2026-06-05",
+  "experiment": "student-distill-v58-setup",
+  "status": "queued_after_v57_full_gemma_rerank",
+  "goal": "Start the standalone-model phase by distilling the MIRACL Arabic train teacher into a BGE-M3 student retriever smoke checkpoint.",
+  "claim_scope": {
+    "is_standalone_embedding_model_result": false,
+    "is_training_setup": true,
+    "sota_claim_allowed": false,
+    "reason": "The student checkpoint has not completed or beaten the frozen BGE-M3 dense/hybrid baselines yet."
+  },
+  "research_refresh": [
+    {
+      "source": "SentenceTransformers losses documentation",
+      "url": "https://sbert.net/docs/package_reference/sentence_transformer/losses.html",
+      "implication": "MarginMSELoss is the appropriate lightweight objective for distilling teacher score margins over query, positive passage, and negative passage triples."
+    },
+    {
+      "source": "SentenceTransformers loss overview",
+      "url": "https://sbert.net/docs/sentence_transformer/loss_overview.html",
+      "implication": "The documented data shape for MarginMSELoss matches the v58 split: query, passage_one, passage_two, and a teacher similarity margin."
+    },
+    {
+      "source": "BGE-M3 paper",
+      "url": "https://arxiv.org/abs/2402.03216",
+      "implication": "BGE-M3 itself was trained around dense, sparse, and multi-vector retrieval with teacher-signal distillation, so a teacher-to-student retrieval distillation loop is aligned with the model family."
+    },
+    {
+      "source": "FlagEmbedding BGE-M3 modeling documentation",
+      "url": "https://bge-model.com/_modules/FlagEmbedding/finetune/embedder/encoder_only/m3/modeling.html",
+      "implication": "The official implementation exposes teacher_scores for distillation and separate dense, sparse, and ColBERT losses; future scaling should revisit this once the validation loop is stable."
+    }
+  ],
+  "teacher_data": {
+    "source_record": "experiments/2026-06-05-miracl-ar-bge-reranker-teacher-data-v50.json",
+    "source_split": "MIRACL Arabic train",
+    "teacher_stack": "BGE-M3 hybrid r100 candidates rescored with BAAI/bge-reranker-v2-m3",
+    "query_count": 3495,
+    "positive_pairs": 4949,
+    "negative_pairs": 27960,
+    "positive_above_max_negative_rate": 0.7590844062947067,
+    "hybrid_margin_vs_reranker_margin_pearson": 0.8291772449035898,
+    "raw_teacher_jsonl_committed": false
+  },
+  "split_summary": {
+    "script": "scripts/prepare_student_distill_splits.py",
+    "remote_output_dir": "remote_outputs/student-distill-v58",
+    "total_rows": 3495,
+    "eligible_rows": 2113,
+    "filters": {
+      "min_best_margin": 1.0,
+      "min_all_margin": -1.0,
+      "label_transform": "tanh",
+      "margin_temperature": 4.0,
+      "negatives_per_query": 4
+    },
+    "train": {
+      "rows": 1000,
+      "expanded_margin_mse_triples": 4000,
+      "unique_queries": 1000,
+      "mean_best_margin": 6.4294765739440916,
+      "mean_all_margin": 5.05422269821167,
+      "target_margin_mean": 0.9396895703106855,
+      "target_margin_min": 0.7680785634920665,
+      "target_margin_max": 0.9996825081638767
+    },
+    "heldout": {
+      "rows": 200,
+      "expanded_margin_mse_triples": 800,
+      "unique_queries": 200,
+      "mean_best_margin": 4.519829483032226,
+      "mean_all_margin": 3.5299027252197264,
+      "target_margin_mean": 0.8531481873430373,
+      "target_margin_min": 0.30093452809241167,
+      "target_margin_max": 0.9989409163771535
+    },
+    "query_overlap": 0,
+    "raw_split_jsonl_committed": false
+  },
+  "training_plan": {
+    "config": "configs/train_bge_m3_student_margin_mse_smoke.yaml",
+    "base_model": "BAAI/bge-m3",
+    "loss": "MarginMSELoss",
+    "num_train_epochs": 1,
+    "learning_rate": 1e-06,
+    "effective_batch_size": 16,
+    "max_seq_length": 256,
+    "remote_log": "logs/v58-student-margin-mse-smoke.log",
+    "queued_remote_pid": 2271260,
+    "starts_after_remote_pid": 2270147
+  },
+  "validation_gate": {
+    "must_compare_against": [
+      "BAAI/bge-m3 dense full MIRACL Arabic dev nDCG@10 0.785230",
+      "BAAI/bge-m3 hybrid r100 full MIRACL Arabic dev nDCG@10 0.801110",
+      "v56 teacher-system score blend nDCG@10 0.828605"
+    ],
+    "minimum_to_scale": "Student must improve over the frozen BGE-M3 dense baseline on a held-out or dev diagnostic before larger training.",
+    "publish_checkpoint": false
+  },
+  "artifact_policy": {
+    "commit_raw_training_data": false,
+    "commit_generated_embeddings": false,
+    "commit_checkpoints": false,
+    "commit_logs": false
+  }
+}

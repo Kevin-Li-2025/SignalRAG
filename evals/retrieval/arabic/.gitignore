@@ -1,0 +1,29 @@
+.DS_Store
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.venv/
+venv/
+
+# Generated data and model artifacts
+data/
+outputs/
+remote_outputs/
+runs/
+checkpoints/
+models/
+wandb/
+mlruns/
+*.safetensors
+*.bin
+*.pt
+*.pth
+
+# Credentials and local machine state
+.env
+.env.*
+kaggle.json
+hf_token*
+*.log

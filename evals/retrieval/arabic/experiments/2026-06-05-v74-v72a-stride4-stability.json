@@ -1,0 +1,143 @@
+{
+  "experiment_id": "2026-06-05-v74-v72a-stride4-stability",
+  "status": "completed_failed_multisplit_stability_gate",
+  "goal": "Evaluate the existing v72a surface-aware LoRA student checkpoint on four query-disjoint stride-4 MIRACL Arabic diagnostic slices before considering any scaling or full-dev evaluation.",
+  "depends_on": [
+    "experiments/2026-06-05-v72-surface-aware-teacher-and-smoke.json",
+    "experiments/2026-06-05-v73-multisplit-stability-gate.json"
+  ],
+  "fresh_research_basis_2026_06_05": [
+    {
+      "source": "BAAI/bge-m3 model card",
+      "url": "https://huggingface.co/BAAI/bge-m3",
+      "finding": "BGE-M3 is a dense+sparse+multi-vector retrieval model, so standalone student gates should check hybrid surfaces rather than only one dense or sparse ablation."
+    },
+    {
+      "source": "FlagEmbedding finetune embedder documentation",
+      "url": "https://github.com/FlagOpen/FlagEmbedding/tree/master/examples/finetune/embedder",
+      "finding": "Official embedding finetuning supports teacher-score based training, but validation must remain query-disjoint and independent of the train rows."
+    },
+    {
+      "source": "BGE-M3 technical report",
+      "url": "https://arxiv.org/abs/2402.03216",
+      "finding": "BGE-M3's published strength comes from unified dense, lexical, and multi-vector retrieval plus distillation."
+    },
+    {
+      "source": "MIRACL official repository",
+      "url": "https://github.com/project-miracl/miracl",
+      "finding": "MIRACL has enough Arabic dev queries to support repeated query-disjoint diagnostics before a full-dev claim."
+    }
+  ],
+  "remote_evaluation": {
+    "host": "hhai-zijun",
+    "repo_path": "/home/hhai/arabic-embedding-sota-lab",
+    "output_root": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/v74-v72a-stride4-stability",
+    "gate_summary": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/v74-v72a-stride4-stability/gate/summary.json",
+    "student_model_path": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/training-smoke-bge-m3-official-no-ddp-v72a-surface-aware-lora-qkv-r16-lr2e-5-t005-g9/model",
+    "candidate_run_file": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/miracl-official-ar-bge-m3-hybrid-r100-v43/runfiles/ar_dev.txt",
+    "offline_mode": true,
+    "new_training_launched": false,
+    "query_slices": [
+      {
+        "label": "slice0",
+        "query_count": 50,
+        "query_offset": 0,
+        "query_stride": 4
+      },
+      {
+        "label": "slice1",
+        "query_count": 50,
+        "query_offset": 1,
+        "query_stride": 4
+      },
+      {
+        "label": "slice2",
+        "query_count": 50,
+        "query_offset": 2,
+        "query_stride": 4
+      },
+      {
+        "label": "slice3",
+        "query_count": 50,
+        "query_offset": 3,
+        "query_stride": 4
+      }
+    ],
+    "candidate_depth": 100,
+    "batch_size": 16,
+    "max_passage_length": 256
+  },
+  "gate_result": {
+    "required_delta": 0.005,
+    "min_pass_fraction": 1.0,
+    "selected_same_weight_label": "sparse_colbert",
+    "gate_pass": false,
+    "aggregate": {
+      "best_vs_best": {
+        "mean_delta": 0.0038684937964669486,
+        "min_delta": -0.00010130435611932498,
+        "max_delta": 0.012598021169094697,
+        "pass_fraction": 0.25
+      },
+      "model_card": {
+        "mean_delta": 0.004124836595150477,
+        "min_delta": 0.0004856112869693341,
+        "max_delta": 0.008285990969021162,
+        "pass_fraction": 0.25
+      },
+      "selected_same_weight": {
+        "mean_delta": 0.005880758862752494,
+        "min_delta": 0.0009075686785732229,
+        "max_delta": 0.012598021169094697,
+        "pass_fraction": 0.5
+      }
+    },
+    "criteria": {
+      "best_vs_best_pass_fraction": false,
+      "model_card_pass_fraction": false,
+      "selected_same_weight_pass_fraction": false,
+      "best_vs_best_mean_delta": false,
+      "model_card_mean_delta": false,
+      "selected_same_weight_mean_delta": true
+    },
+    "split_deltas": [
+      {
+        "label": "slice0",
+        "best_vs_best": -0.00010130435611932498,
+        "model_card": 0.0035569870577787377,
+        "selected_same_weight": 0.003957510408603149
+      },
+      {
+        "label": "slice1",
+        "best_vs_best": 0.0023394968955101625,
+        "model_card": 0.0041707570668326754,
+        "selected_same_weight": 0.006059935194738908
+      },
+      {
+        "label": "slice2",
+        "best_vs_best": 0.0006377614773822593,
+        "model_card": 0.0004856112869693341,
+        "selected_same_weight": 0.0009075686785732229
+      },
+      {
+        "label": "slice3",
+        "best_vs_best": 0.012598021169094697,
+        "model_card": 0.008285990969021162,
+        "selected_same_weight": 0.012598021169094697
+      }
+    ]
+  },
+  "decision": {
+    "scale_v72a": false,
+    "full_dev_evaluation": false,
+    "publish_checkpoint": false,
+    "upload_checkpoint": false,
+    "sota_claim": false,
+    "reason": "v74 rejects v72a under the stricter four-slice stability gate. The selected sparse_colbert surface clears the mean-delta threshold, but best-vs-best and model-card means remain below +0.005 and pass only 1/4 slices; the strongest gains are concentrated in slice3.",
+    "next_action": "Do not launch a larger v72-style run. The next standalone-student attempt must change the data/objective design enough to improve model-card and base-best surfaces consistently across query slices."
+  },
+  "raw_outputs_committed": false,
+  "model_checkpoints_committed": false,
+  "generated_embeddings_committed": false,
+  "credentials_committed": false
+}

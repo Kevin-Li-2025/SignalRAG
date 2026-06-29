@@ -1,0 +1,144 @@
+{
+  "experiment_id": "2026-06-05-v75-bge-m3-component-teacher-augmentation",
+  "status": "completed_component_augmentation_no_training",
+  "goal": "After v74 rejected the v72a LoRA checkpoint as split-specific, augment the MIRACL Arabic train teacher rows with true BGE-M3 dense, sparse, and ColBERT component scores so the next student-data selector can directly target model-card/base-best surface errors.",
+  "depends_on": [
+    "experiments/2026-06-05-v69-blended-teacher-diagnostic.json",
+    "experiments/2026-06-05-v72-surface-aware-teacher-and-smoke.json",
+    "experiments/2026-06-05-v73-multisplit-stability-gate.json",
+    "experiments/2026-06-05-v74-v72a-stride4-stability.json"
+  ],
+  "current_best_system_reference": {
+    "version": "v56",
+    "method": "BGE-M3 hybrid r100 plus BGE-reranker-v2-m3 min-max score blend",
+    "benchmark": "MIRACL Arabic dev",
+    "main_score_ndcg_at_10": 0.8286045292115427,
+    "claim_scope": "retrieval-system teacher/reference, not standalone embedding model SOTA"
+  },
+  "fresh_research_2026_06_05": [
+    {
+      "source": "BAAI/bge-m3 model card",
+      "url": "https://huggingface.co/BAAI/bge-m3",
+      "finding": "BGE-M3 exposes dense, lexical/sparse, and multi-vector retrieval signals and documents model-card style hybrid scoring.",
+      "implication": "Student training data should know which BGE-M3 component or fusion surface is failing, not only a single aggregate hybrid score."
+    },
+    {
+      "source": "FlagEmbedding finetune embedder documentation",
+      "url": "https://github.com/FlagOpen/FlagEmbedding/tree/master/examples/finetune/embedder",
+      "finding": "Official M3 fine-tuning consumes per-row teacher scores through pos_scores and neg_scores.",
+      "implication": "A component-aware selector can still emit standard teacher-score rows for the existing no-DDP FlagEmbedding training path."
+    },
+    {
+      "source": "BGE-M3 technical report",
+      "url": "https://arxiv.org/abs/2402.03216",
+      "finding": "The model is designed around multi-function retrieval and self-knowledge distillation.",
+      "implication": "The next standalone checkpoint should preserve and tune multi-mode behavior rather than return to dense-only distillation."
+    },
+    {
+      "source": "MIRACL official repository",
+      "url": "https://github.com/project-miracl/miracl",
+      "finding": "MIRACL Arabic provides enough train/dev queries for query-disjoint diagnostics but remains dev-selection sensitive.",
+      "implication": "Use the v73/v74 multi-split gate before scaling, full-dev evaluation, checkpoint upload, or SOTA wording."
+    }
+  ],
+  "implemented_changes": [
+    {
+      "file": "scripts/augment_teacher_rows_bge_m3_components.py",
+      "change": "Added a BGE-M3 component augmentation tool that scores every query-positive and query-negative pair with dense, sparse, and ColBERT components, then materializes named fusion-surface scores for later selector design."
+    },
+    {
+      "file": "tests/test_augment_teacher_rows_bge_m3_components.py",
+      "change": "Added unit tests for component scoring, named fusion surfaces, row augmentation fields, persisted summary generation, and artifact-policy flags."
+    }
+  ],
+  "remote_run": {
+    "host": "hhai-zijun",
+    "path": "/home/hhai/arabic-embedding-sota-lab",
+    "input_jsonl": "remote_outputs/student-distill-v69-blended-teacher/teacher_train_blended.jsonl",
+    "output_jsonl": "remote_outputs/student-distill-v75-component-teacher/teacher_train_component_augmented.jsonl",
+    "summary_json": "remote_outputs/student-distill-v75-component-teacher/summary.json",
+    "log": "logs/v75-component-augment.log",
+    "model": "BAAI/bge-m3",
+    "batch_size": 16,
+    "max_passage_length": 256,
+    "written_rows": 3495,
+    "pairs_scored": 32909,
+    "elapsed_seconds": 153.34651125688106,
+    "pairs_per_second": 214.6054692100032,
+    "summary_size": "76K",
+    "augmented_jsonl_size": "58M",
+    "gpu_state_after_run": "NVIDIA L20 idle, 692 MiB / 46068 MiB, 0 percent utilization"
+  },
+  "surface_diagnostics": {
+    "model_card": {
+      "pos_above_max_neg_fraction": 0.7490701001430615,
+      "negative_rows": 877,
+      "best_margin_mean": 0.03505857339403319,
+      "best_margin_p25": -0.00030813217163083717,
+      "best_margin_p50": 0.036850476264953524,
+      "best_margin_p75": 0.07107552289962771,
+      "entropy_temperature_0p2": 0.9853596361593304,
+      "positive_probability_temperature_0p2": 0.1656916230073226
+    },
+    "colbert_heavy": {
+      "pos_above_max_neg_fraction": 0.7467811158798283,
+      "negative_rows": 885,
+      "best_margin_mean": 0.03556224900253852,
+      "best_margin_p25": -0.0004632413387298806,
+      "best_margin_p50": 0.037636733055114724,
+      "best_margin_p75": 0.07170253396034237,
+      "entropy_temperature_0p2": 0.9848293966411422,
+      "positive_probability_temperature_0p2": 0.16672684847291608
+    },
+    "sparse_colbert": {
+      "pos_above_max_neg_fraction": 0.7313304721030043,
+      "negative_rows": 939,
+      "best_margin_mean": 0.031278667213408565,
+      "best_margin_p25": -0.003065940141677881,
+      "best_margin_p50": 0.032977374792098946,
+      "best_margin_p75": 0.06649879008531573,
+      "entropy_temperature_0p2": 0.9863862873269343,
+      "positive_probability_temperature_0p2": 0.1620604208159923
+    },
+    "sparse_heavy": {
+      "pos_above_max_neg_fraction": 0.7201716738197425,
+      "negative_rows": 978,
+      "best_margin_mean": 0.02788347515553364,
+      "best_margin_p25": -0.005694665014743805,
+      "best_margin_p50": 0.030147194862365723,
+      "best_margin_p75": 0.06199091672897339,
+      "entropy_temperature_0p2": 0.9876576523300121,
+      "positive_probability_temperature_0p2": 0.15836370247492002
+    },
+    "training_default": {
+      "pos_above_max_neg_fraction": 0.7496423462088698,
+      "negative_rows": 875,
+      "best_margin_mean": 0.08309258009742769,
+      "best_margin_p25": -0.00025693178176888765,
+      "best_margin_p50": 0.08741118907928458,
+      "best_margin_p75": 0.16777768135070814,
+      "entropy_temperature_0p2": 0.9117055896460078,
+      "positive_probability_temperature_0p2": 0.2668895818170019
+    }
+  },
+  "interpretation": {
+    "component_labels_available": true,
+    "surface_error_signal": "The component-augmented rows expose hundreds of queries where strong BGE-M3 fusion surfaces still rank at least one negative above the positive. For example, model_card has 877 such rows and sparse_colbert has 939.",
+    "why_this_matters_after_v74": "v74 showed v72a gains were split-specific. v75 provides the missing train-side labels needed to construct multi-surface hard-negative rows instead of selecting by only a precomputed aggregate hybrid score.",
+    "not_a_model_result": true
+  },
+  "decision": {
+    "launch_training": false,
+    "scale_training": false,
+    "full_dev_evaluation": false,
+    "publish_checkpoint": false,
+    "upload_checkpoint": false,
+    "sota_claim": false,
+    "reason": "v75 only prepares richer teacher rows. The next GPU run should wait until a component-aware multi-surface selector is implemented and unit-tested.",
+    "next_action": "Implement a selector over the v75 augmented rows that balances model-card, colbert-heavy, sparse-colbert, and training-default false positives, produces query-disjoint tune/held-out rows, and targets the v73/v74 multi-split gate before another LoRA or full-encoder smoke."
+  },
+  "raw_outputs_committed": false,
+  "model_checkpoints_committed": false,
+  "generated_embeddings_committed": false,
+  "credentials_committed": false
+}

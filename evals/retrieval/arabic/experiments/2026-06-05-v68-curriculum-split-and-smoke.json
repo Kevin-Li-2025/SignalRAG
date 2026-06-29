@@ -1,0 +1,245 @@
+{
+  "date": "2026-06-05",
+  "experiment_id": "2026-06-05-v68-curriculum-split-and-smoke",
+  "status": "completed_rejected_for_scaling",
+  "goal": "Generate v68 curriculum split summaries, run only the smallest healthy official BGE-M3 no-DDP head-only smoke, and decide whether the standalone student path has a robust enough signal to scale.",
+  "source_records": [
+    "experiments/2026-06-05-v68-curriculum-distillation-design.json",
+    "experiments/2026-06-05-v66-v67-stratified-student-smokes.json",
+    "experiments/2026-06-05-v65-teacher-score-distribution.json"
+  ],
+  "fresh_sources_checked": [
+    {
+      "source": "BGE-M3 model card",
+      "url": "https://huggingface.co/BAAI/bge-m3",
+      "implication": "BGE-M3's useful retrieval surface is dense+sparse+ColBERT, so the standalone student gate must preserve the hybrid mode instead of optimizing dense-only behavior."
+    },
+    {
+      "source": "BGE-M3 technical report",
+      "url": "https://arxiv.org/abs/2402.03216",
+      "implication": "The original method relies on multi-functionality and self-knowledge distillation, which supports keeping official M3 teacher-score training rather than a generic pairwise dense loss."
+    },
+    {
+      "source": "FlagEmbedding M3 modeling documentation",
+      "url": "https://bge-model.com/_modules/FlagEmbedding/finetune/embedder/encoder_only/m3/modeling.html",
+      "implication": "The implementation exposes dense, sparse, and ColBERT scores/losses, so diagnostics must compare base and student over the same fusion surfaces."
+    },
+    {
+      "source": "FlagEmbedding fine-tuning tutorial",
+      "url": "https://bge-model.com/tutorial/7_Finetuning/7.1.2.html",
+      "implication": "The v50 rows with pos_scores and neg_scores are compatible with official teacher-score KD; the blocker is data distribution and validation, not file shape."
+    },
+    {
+      "source": "Curriculum Learning for Dense Retrieval Distillation",
+      "url": "https://arxiv.org/abs/2204.13679",
+      "implication": "Difficulty-controlled rows are a reasonable response to v66 being too adversarial and v67 being too small."
+    },
+    {
+      "source": "Beyond Hard Negatives: The Importance of Score Distribution in Knowledge Distillation for Dense Retrieval",
+      "url": "https://arxiv.org/abs/2604.04734",
+      "implication": "Focusing only on hard negatives can lose teacher preference structure; split summaries should track teacher score entropy and margin spectrum."
+    }
+  ],
+  "remote_artifacts": {
+    "source_teacher_rows": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/teacher-miracl-ar-train-bge-reranker-v2-m3-v50/teacher_train_reranker.jsonl",
+    "v68a_split_dir": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/student-distill-v68a-boundary-hard-clean",
+    "v68b_split_dir": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/student-distill-v68b-middle-score-spectrum",
+    "v68c_split_dir": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/student-distill-v68c-broad-anchor",
+    "v68d_split_dir": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/student-distill-v68d-qrel-spectrum-g4",
+    "v68e_split_dir": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/student-distill-v68e-confident-spectrum-g4",
+    "v68d_training_output_dir": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/training-smoke-bge-m3-official-no-ddp-v68d-qrel-spectrum-g4-lr2e-6",
+    "v68d_eval_output_dir": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/v68d-qrel-spectrum-g4-lr2e-6-weight-diagnostic",
+    "raw_outputs_committed": false,
+    "teacher_rows_committed": false,
+    "run_files_committed": false,
+    "logs_committed": false,
+    "checkpoints_committed": false
+  },
+  "split_generation": {
+    "input_rows": 3495,
+    "rows_with_scores": 3495,
+    "query_disjoint": true,
+    "score_scale": 0.25,
+    "variants": [
+      {
+        "name": "v68a-boundary-hard-clean",
+        "candidate_rows": 103,
+        "insufficient_minimum_mix_rows": 3392,
+        "train_rows": 94,
+        "heldout_rows": 9,
+        "query_overlap": 0,
+        "negative_mix": {
+          "hard": 1,
+          "middle": 1,
+          "easy": 2,
+          "negatives_per_query": 4,
+          "min_best_margin": 0.05,
+          "max_best_margin": 0.5
+        },
+        "train_rows_meeting_requested_mix": 94,
+        "train_positive_above_max_negative_fraction": 1.0,
+        "train_best_margin_mean": 0.0660085475191157,
+        "train_teacher_entropy_t0p2": 0.49420111424676266,
+        "interpretation": "Clean but too small for a meaningful smoke."
+      },
+      {
+        "name": "v68b-middle-score-spectrum",
+        "candidate_rows": 54,
+        "insufficient_minimum_mix_rows": 3441,
+        "train_rows": 46,
+        "heldout_rows": 8,
+        "query_overlap": 0,
+        "negative_mix": {
+          "hard": 1,
+          "middle": 3,
+          "easy": 2,
+          "negatives_per_query": 6,
+          "min_best_margin": 0.5,
+          "max_best_margin": 4.0
+        },
+        "train_rows_meeting_requested_mix": 46,
+        "train_positive_above_max_negative_fraction": 1.0,
+        "train_best_margin_mean": 0.18616319739300272,
+        "train_teacher_entropy_t0p2": 0.4976366802661565,
+        "interpretation": "Good entropy but far too few rows because requiring hard negatives plus three middle negatives is too restrictive."
+      },
+      {
+        "name": "v68c-broad-anchor",
+        "candidate_rows": 73,
+        "insufficient_minimum_mix_rows": 3422,
+        "train_rows": 65,
+        "heldout_rows": 8,
+        "query_overlap": 0,
+        "negative_mix": {
+          "hard": 1,
+          "middle": 3,
+          "easy": 4,
+          "negatives_per_query": 8,
+          "min_best_margin": 0.05,
+          "max_best_margin": 8.0
+        },
+        "train_rows_meeting_requested_mix": 30,
+        "train_positive_above_max_negative_fraction": 1.0,
+        "train_best_margin_mean": 0.1319659893329327,
+        "train_teacher_entropy_t0p2": 0.4283626104900709,
+        "interpretation": "Too small and many rows miss the requested hard/middle/easy mix."
+      },
+      {
+        "name": "v68d-qrel-spectrum-g4",
+        "candidate_rows": 716,
+        "insufficient_minimum_mix_rows": 2779,
+        "train_rows": 512,
+        "heldout_rows": 96,
+        "query_overlap": 0,
+        "negative_mix": {
+          "hard": 0,
+          "middle": 2,
+          "easy": 2,
+          "negatives_per_query": 4,
+          "min_best_margin": 0.05,
+          "max_best_margin": 4.0
+        },
+        "train_rows_meeting_requested_mix": 512,
+        "train_positive_above_max_negative_fraction": 1.0,
+        "train_best_margin_mean": 0.5804115459322929,
+        "train_teacher_entropy_t0p2": 0.21274128373888262,
+        "interpretation": "Healthy row count and qrel consistency, but no hard negatives and low-entropy teacher distributions."
+      },
+      {
+        "name": "v68e-confident-spectrum-g4",
+        "candidate_rows": 641,
+        "insufficient_minimum_mix_rows": 2854,
+        "train_rows": 512,
+        "heldout_rows": 80,
+        "query_overlap": 0,
+        "negative_mix": {
+          "hard": 0,
+          "middle": 2,
+          "easy": 2,
+          "negatives_per_query": 4,
+          "min_best_margin": 0.5,
+          "max_best_margin": 4.0
+        },
+        "train_rows_meeting_requested_mix": 512,
+        "train_positive_above_max_negative_fraction": 1.0,
+        "train_best_margin_mean": 0.5841653584502637,
+        "train_teacher_entropy_t0p2": 0.2123823359904001,
+        "interpretation": "Trainable but even more confidence-filtered than v68d; held for later only if a new hypothesis justifies it."
+      }
+    ]
+  },
+  "v68d_training": {
+    "base_model": "BAAI/bge-m3",
+    "launcher": "scripts/run_flagembedding_m3_no_ddp.py",
+    "objective": "official FlagEmbedding M3 unified teacher-score distillation",
+    "kd_loss_type": "m3_kd_loss",
+    "unified_finetuning": true,
+    "fix_encoder": true,
+    "trainable_parameters": [
+      "sparse_linear",
+      "colbert_linear"
+    ],
+    "train_rows": 512,
+    "train_group_size": 5,
+    "per_device_train_batch_size": 2,
+    "learning_rate": 0.000002,
+    "temperature": 0.02,
+    "query_max_len": 64,
+    "passage_max_len": 128,
+    "num_train_epochs": 1,
+    "train_steps": 256,
+    "train_runtime_seconds": 19.0436,
+    "train_loss": 0.8954858966171741
+  },
+  "diagnostic_surface": {
+    "candidate_run_file": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/miracl-official-ar-bge-m3-hybrid-r100-v43/runfiles/ar_dev.txt",
+    "query_count": 200,
+    "candidate_depth": 100,
+    "same_candidate_pool": true,
+    "metric": "main_score/ndcg_at_10",
+    "required_best_vs_best_delta": 0.005,
+    "required_model_card_delta": 0.005,
+    "full_dev_evaluation_allowed_if_gate_passes": true
+  },
+  "v68d_diagnostic": {
+    "base_best": {
+      "weight_label": "colbert_heavy",
+      "main_score": 0.7924932380203694,
+      "map_at_10": 0.7259103835978837,
+      "mrr_at_10": 0.8084702380952382
+    },
+    "student_best": {
+      "weight_label": "colbert_heavy",
+      "main_score": 0.7920390389101045,
+      "map_at_10": 0.7256807870370369,
+      "mrr_at_10": 0.8085
+    },
+    "best_vs_best_delta": -0.0004541991102648968,
+    "model_card_delta": 0.0004468954311639406,
+    "training_default_delta": 0.0004566716407635729,
+    "dense_sparse_delta": 0.0013353539531826275,
+    "sparse_heavy_delta": 0.0015308910613296423,
+    "colbert_heavy_delta": -0.0004541991102648968,
+    "best_same_weight_delta": {
+      "weight_label": "sparse_heavy",
+      "base_main_score": 0.7804954089458204,
+      "student_main_score": 0.78202630000715,
+      "delta": 0.0015308910613296423
+    },
+    "gate": "fail"
+  },
+  "interpretation": [
+    "The original v68a/v68b/v68c curriculum bands were too restrictive once hard negatives and bounded margins were combined; they produced only 46 to 94 train rows.",
+    "Relaxing hard-negative requirements produced trainable qrel-consistent rows, but v68d's teacher distributions were low entropy and dominated by middle/easy negatives.",
+    "v68d trained stably and again moved weak sparse-heavy and dense+sparse surfaces, but it damaged the strongest ColBERT-heavy base surface and failed best-vs-best.",
+    "This repeats the v63-v67 pattern: head-only sparse/ColBERT KD can make local corrections, but not yet a robust standalone checkpoint that beats frozen BGE-M3."
+  ],
+  "decision": {
+    "scale_v68d": false,
+    "train_v68e_now": false,
+    "publish_checkpoint": false,
+    "upload_checkpoint": false,
+    "full_dev_evaluation": false,
+    "next_action": "Do not keep sweeping small head-only curricula. The next design should change a larger factor: add a validation-aware full-encoder/adapter option, build a stronger mixed teacher with v56/v57 diversity, or create a broader multi-benchmark student tune/held-out loop before any more GPU training."
+  }
+}

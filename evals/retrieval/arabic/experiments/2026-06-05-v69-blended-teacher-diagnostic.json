@@ -1,0 +1,96 @@
+{
+  "date": "2026-06-05",
+  "experiment_id": "2026-06-05-v69-blended-teacher-diagnostic",
+  "status": "completed_teacher_distribution_gate_passed_v69a_recorded_separately",
+  "goal": "Generate and inspect v69 blended teacher score distributions before any full-encoder or adapter student smoke.",
+  "source_records": [
+    "experiments/2026-06-05-v69-blended-teacher-adapter-design.json",
+    "experiments/2026-06-05-v68-curriculum-split-and-smoke.json",
+    "experiments/2026-06-05-bge-reranker-score-blend-v56.json"
+  ],
+  "fresh_sources_checked": [
+    {
+      "source": "BGE-M3 model card",
+      "url": "https://huggingface.co/BAAI/bge-m3",
+      "implication": "The student must preserve dense+sparse+ColBERT scoring."
+    },
+    {
+      "source": "BGE-M3 technical report",
+      "url": "https://arxiv.org/abs/2402.03216",
+      "implication": "A blended teacher is consistent with multi-function distillation."
+    },
+    {
+      "source": "FlagEmbedding M3 modeling documentation",
+      "url": "https://bge-model.com/_modules/FlagEmbedding/finetune/embedder/encoder_only/m3/modeling.html",
+      "implication": "The downstream evaluator must compare the same dense/sparse/ColBERT fusion surfaces."
+    },
+    {
+      "source": "FlagEmbedding M3 training arguments",
+      "url": "https://bge-model.com/_modules/FlagEmbedding/finetune/embedder/encoder_only/m3/arguments.html",
+      "implication": "A full-encoder smoke can use fix_encoder=False, but requires an evaluator that loads the full student model path."
+    },
+    {
+      "source": "PEFT LoRA documentation",
+      "url": "https://github.com/huggingface/peft/blob/main/docs/source/developer_guides/lora.md",
+      "implication": "Adapter training remains plausible but should not start until local integration and parameter accounting exist."
+    }
+  ],
+  "local_plumbing": {
+    "script_added": "scripts/prepare_blended_teacher_scores.py",
+    "evaluator_update": "scripts/sweep_bge_m3_hybrid_weights.py now supports --student-model-path for full-encoder or adapter-merged checkpoints, while retaining --student-head-checkpoint for head-only smokes.",
+    "tests_added": "tests/test_prepare_blended_teacher_scores.py",
+    "raw_training_data_committed": false,
+    "generated_outputs_committed": false
+  },
+  "remote_artifacts": {
+    "input_jsonl": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/teacher-miracl-ar-train-bge-reranker-v2-m3-v50/teacher_train_reranker.jsonl",
+    "output_jsonl": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/student-distill-v69-blended-teacher/teacher_train_blended.jsonl",
+    "summary_json": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/student-distill-v69-blended-teacher/summary.json",
+    "log": "/home/hhai/arabic-embedding-sota-lab/logs/v69-blended-teacher-summary.log",
+    "raw_outputs_committed": false,
+    "logs_committed": false,
+    "checkpoints_committed": false
+  },
+  "method": {
+    "script": "scripts/prepare_blended_teacher_scores.py",
+    "score_blend_teacher": {
+      "method": "row_minmax_reranker_bge_m3_hybrid",
+      "reranker_weight": 0.65,
+      "hybrid_weight": 0.35,
+      "score_scale": 1.0,
+      "missing_hybrid": "skip"
+    },
+    "rationale": "Use v56's selected min-max alpha as a train-side teacher-target shape, not as a dev benchmark claim."
+  },
+  "summary": {
+    "total_rows": 3495,
+    "written_rows": 3495,
+    "skipped_rows": {},
+    "positive_above_max_negative_fraction": 0.7739628040057225,
+    "best_margin_mean": 0.2133039906931638,
+    "best_margin_p50": 0.28353217588111024,
+    "teacher_entropy": {
+      "temperature_1": 0.9780908571948029,
+      "temperature_0p5": 0.9060935810010586,
+      "temperature_0p2": 0.5227686625580843,
+      "temperature_0p1": 0.19676138755430447
+    },
+    "mean_positive_probability_temperature_0p2": 0.5624959162084088,
+    "hybrid_margin_correlation": 0.8643155164721458
+  },
+  "comparison_to_v68d": {
+    "v68d_train_rows": 512,
+    "v68d_entropy_temperature_0p2": 0.21274128373888262,
+    "v68d_mean_positive_probability_temperature_0p2": 0.9105685718816079,
+    "v69_entropy_temperature_0p2": 0.5227686625580843,
+    "v69_mean_positive_probability_temperature_0p2": 0.5624959162084088,
+    "interpretation": "The blended target is much less one-hot than v68d and keeps all train rows, making it a healthier teacher target for a tiny full-encoder smoke."
+  },
+  "decision": {
+    "teacher_distribution_gate": "pass_for_tiny_smoke",
+    "start_gpu_in_this_record": false,
+    "publish_checkpoint": false,
+    "upload_checkpoint": false,
+    "next_action": "The tiny full-encoder v69a smoke is recorded separately in experiments/2026-06-05-v69a-full-encoder-smoke.json. Do not scale v69a unless the diagnostic gate is passed, which it was not."
+  }
+}

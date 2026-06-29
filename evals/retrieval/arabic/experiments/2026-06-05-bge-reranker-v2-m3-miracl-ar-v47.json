@@ -1,0 +1,114 @@
+{
+  "experiment_id": "2026-06-05-bge-reranker-v2-m3-miracl-ar-v47",
+  "created_utc": "2026-06-05T00:15:56Z",
+  "status": "completed",
+  "purpose": "Test whether a public multilingual cross-encoder reranker can improve the frozen BGE-M3 hybrid r100 Arabic MIRACL top-100 candidate ordering.",
+  "research_basis": [
+    "BGE-M3 is designed for dense, sparse, and multi-vector retrieval, so the v43 BGE-M3 hybrid r100 run is a strong first-stage candidate generator.",
+    "BAAI/bge-reranker-v2-m3 is a multilingual reranker based on BGE-M3 and supports direct transformers sequence-classification scoring.",
+    "Qwen3/Nemotron/Jina research refresh indicates the SOTA path should combine strong first-stage retrieval, reranking, and later teacher distillation rather than further dense-only baseline chasing."
+  ],
+  "source": {
+    "remote_host": "hhai-zijun",
+    "remote_output_source": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/miracl-ar-bge-reranker-v2-m3-seqcls-full-v47",
+    "local_summary_copy": "/tmp/miracl-ar-bge-reranker-v2-m3-seqcls-full-v47-summary.json",
+    "raw_outputs_committed": false
+  },
+  "first_stage": {
+    "experiment_id": "2026-06-04-miracl-official-ar-bge-m3-hybrid-r100-v43",
+    "run_file": "remote_outputs/miracl-official-ar-bge-m3-hybrid-r100-v43/runfiles/ar_dev.txt",
+    "model": "BAAI/bge-m3",
+    "method": "Full-corpus BGE-M3 dense+sparse candidate generation followed by BGE-M3 dense+sparse+ColBERT hybrid scoring.",
+    "candidate_depth": 100,
+    "metrics_on_same_queries": {
+      "main_score": 0.8011099981276549,
+      "ndcg_at_10": 0.8011099981276549,
+      "map_at_10": 0.7380213421214864,
+      "mrr_at_10": 0.8198457916776286,
+      "recall_at_10": 0.89322341160221,
+      "precision_at_10": 0.16906077348066298,
+      "hit_rate_at_10": 0.9488950276243094
+    }
+  },
+  "reranker": {
+    "model": "BAAI/bge-reranker-v2-m3",
+    "backend": "transformers AutoModelForSequenceClassification",
+    "script": "scripts/rerank_miracl_candidates.py",
+    "batch_size": 32,
+    "max_length": 512,
+    "prompt": null
+  },
+  "dataset": {
+    "name": "mteb/MIRACLRetrieval",
+    "revision": "9c09abc13478308c27598f350e31d8f06b9b5481",
+    "subset": "ar",
+    "split": "dev",
+    "query_count": 2896,
+    "positive_count": 5658,
+    "candidate_depth": 100,
+    "top_k": 100,
+    "metric_k": 10
+  },
+  "sample_gate_v46": {
+    "query_count": 200,
+    "rerank_pairs": 20000,
+    "reranked_main_score": 0.7999165971041596,
+    "first_stage_main_score_on_same_queries": 0.7938377603781723,
+    "delta_main_score_vs_first_stage_same_queries": 0.006078836725987302,
+    "decision": "Scale to full dev because the same-query gate improved nDCG@10."
+  },
+  "full_v47": {
+    "query_count": 2896,
+    "rerank_pairs": 289600,
+    "metrics": {
+      "main_score": 0.817730759894141,
+      "ndcg_at_10": 0.817730759894141,
+      "map_at_10": 0.756479882254339,
+      "mrr_at_10": 0.8351301466719284,
+      "recall_at_10": 0.9089436442164344,
+      "precision_at_10": 0.17206491712707184,
+      "hit_rate_at_10": 0.9585635359116023
+    },
+    "delta_main_score_vs_first_stage_same_queries": 0.01662076176648608,
+    "timings": {
+      "rerank_elapsed_seconds": 1069.635227526538,
+      "rerank_elapsed_hours": 0.2971208965351495,
+      "rerank_pairs_per_second": 270.751159971437
+    },
+    "run_file": {
+      "queries": 2896,
+      "depth": 100,
+      "lines": 289600,
+      "path": "remote_outputs/miracl-ar-bge-reranker-v2-m3-seqcls-full-v47/ar_dev_bge-reranker-v2-m3-seqcls-v47.txt"
+    }
+  },
+  "comparison_context": {
+    "bge_m3_hybrid_r100_official_format": {
+      "ndcg_at_10": 0.8011099981276549,
+      "delta_vs_v47": 0.01662076176648608
+    },
+    "bge_m3_dense": {
+      "ndcg_at_10": 0.78523,
+      "delta_vs_v47": 0.032500759894141
+    },
+    "intfloat_multilingual_e5_large_instruct_dense": {
+      "ndcg_at_10": 0.76456,
+      "delta_vs_v47": 0.053170759894141
+    },
+    "qwen3_embedding_8b_direct_dense": {
+      "ndcg_at_10": 0.7001642645001055,
+      "delta_vs_v47": 0.1175664953940355
+    },
+    "arabic_triplet_matryoshka_v2_dense": {
+      "ndcg_at_10": 0.61307,
+      "delta_vs_v47": 0.204660759894141
+    }
+  },
+  "interpretation": [
+    "BGE-reranker-v2-m3 over the frozen BGE-M3 hybrid r100 top-100 candidate pool produces a real full-dev gain: +0.016621 nDCG@10 on the same 2,896 Arabic MIRACL dev queries.",
+    "This is the strongest completed Arabic MIRACLRetrieval dev result in this repository, and it is substantially above the dense-only baselines already recorded here.",
+    "This is a retrieval-system result, not a standalone Arabic embedding checkpoint, because the final ordering uses a cross-encoder reranker over first-stage candidates.",
+    "The result is strong enough to use the reranked ordering as a better teacher signal for a trainable embedding student, while keeping public claims conservative until broader MTEB/ArabicMTEB validation is complete."
+  ],
+  "next_experiment": "Run a 200-query gate with Qwen/Qwen3-Reranker-0.6B over the same BGE-M3 hybrid r100 candidates, using an Arabic retrieval instruction. If it beats v47 on the same gate, scale it to full dev; otherwise use v47 as the reranker teacher for student distillation."
+}

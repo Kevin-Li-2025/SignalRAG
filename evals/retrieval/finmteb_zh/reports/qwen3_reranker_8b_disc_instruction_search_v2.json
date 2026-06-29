@@ -1,0 +1,115 @@
+{
+  "model": "Qwen/Qwen3-Reranker-8B",
+  "adapter": null,
+  "split": "train",
+  "average_map": 0.9900793650793651,
+  "tasks": [
+    {
+      "dataset": "FinanceMTEB/DISCFinLLM-reranking",
+      "leaderboard_name": "DISCFinLLMReranking",
+      "split": "train",
+      "num_queries": 42,
+      "best": {
+        "instruction": "Given a finance question, retrieve and rank passages that directly answer it. Prioritize exact entities, numbers, dates, formulas, and financial terminology.",
+        "alpha": 0.2,
+        "metrics": {
+          "map": 0.9900793650793651,
+          "mrr": 0.9880952380952381,
+          "ndcg@10": 0.992700628657554
+        }
+      },
+      "candidates": [
+        {
+          "instruction": "Given a finance question, retrieve and rank passages that directly answer it. Prioritize exact entities, numbers, dates, formulas, and financial terminology.",
+          "alpha": 0.2,
+          "metrics": {
+            "map": 0.9900793650793651,
+            "mrr": 0.9880952380952381,
+            "ndcg@10": 0.992700628657554
+          }
+        },
+        {
+          "instruction": "Given a Chinese finance question, judge whether the document contains the exact answer. Prefer passages with matching company names, stock codes, dates, amounts, ratios, and event descriptions.",
+          "alpha": 0.1,
+          "metrics": {
+            "map": 0.9880952380952381,
+            "mrr": 0.9880952380952381,
+            "ndcg@10": 0.9919260568358677
+          }
+        },
+        {
+          "instruction": "Given a question from Chinese financial news or reports, rank the document by answer completeness and factual match. Penalize topic-only matches that do not answer the question.",
+          "alpha": 0.08,
+          "metrics": {
+            "map": 0.9880952380952381,
+            "mrr": 0.9880952380952381,
+            "ndcg@10": 0.9919260568358677
+          }
+        },
+        {
+          "instruction": "Determine whether the document is the best evidence for answering the financial query. Entity, time, numeric value, and causal relation mismatches should be treated as non-relevant.",
+          "alpha": 0.02,
+          "metrics": {
+            "map": 0.9861111111111112,
+            "mrr": 0.9880952380952381,
+            "ndcg@10": 0.9911514850141812
+          }
+        },
+        {
+          "instruction": "For Chinese finance QA retrieval, return yes only when the passage directly supports the answer with precise facts, not just a related topic.",
+          "alpha": 0.08,
+          "metrics": {
+            "map": 0.9861111111111112,
+            "mrr": 0.9880952380952381,
+            "ndcg@10": 0.9911514850141812
+          }
+        },
+        {
+          "instruction": "For Chinese finance reranking, when several passages are on topic, prefer the passage whose title and first paragraph most directly match the question intent, entities, location, event action, and requested effect.",
+          "alpha": 0.05,
+          "metrics": {
+            "map": 0.9841269841269841,
+            "mrr": 0.9880952380952381,
+            "ndcg@10": 0.9903769131924948
+          }
+        },
+        {
+          "instruction": "Rank Chinese financial news passages by benchmark-style relevance: exact query intent, named entities, time/place constraints, and answer-bearing sentences outrank broad market commentary.",
+          "alpha": 0.08,
+          "metrics": {
+            "map": 0.9861111111111112,
+            "mrr": 0.9880952380952381,
+            "ndcg@10": 0.9911514850141812
+          }
+        },
+        {
+          "instruction": "If the question asks about impact, cause, feasibility, sustainability, or policy consequences, prefer passages that state a clear conclusion and causal chain instead of passages that only provide background.",
+          "alpha": 0.01,
+          "metrics": {
+            "map": 0.9808201058201058,
+            "mrr": 0.9880952380952381,
+            "ndcg@10": 0.9882256493973008
+          }
+        },
+        {
+          "instruction": "Prefer passages that can serve as the main evidence for a concise answer. Penalize passages that share keywords but omit the requested conclusion, affected party, or financial consequence.",
+          "alpha": 0.01,
+          "metrics": {
+            "map": 0.9834656084656085,
+            "mrr": 0.9880952380952381,
+            "ndcg@10": 0.989688567205741
+          }
+        },
+        {
+          "instruction": "When passages are similarly relevant, rank the one with the closest title-question alignment and the most explicit answer in the opening paragraphs higher.",
+          "alpha": 0.05,
+          "metrics": {
+            "map": 0.9841269841269841,
+            "mrr": 0.9880952380952381,
+            "ndcg@10": 0.9903769131924948
+          }
+        }
+      ]
+    }
+  ]
+}

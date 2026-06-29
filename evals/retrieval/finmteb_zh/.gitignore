@@ -1,0 +1,15 @@
+.venv/
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+*.pyc
+
+outputs/
+reports/score_cache/
+*.safetensors
+*.pt
+*.pth
+*.bin
+
+wandb/
+accelerate_config.yaml

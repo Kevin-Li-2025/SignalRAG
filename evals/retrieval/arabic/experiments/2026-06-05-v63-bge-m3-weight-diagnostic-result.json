@@ -1,0 +1,102 @@
+{
+  "date": "2026-06-05",
+  "experiment_id": "2026-06-05-v63-bge-m3-weight-diagnostic-result",
+  "status": "completed_not_greenlit_for_scaling",
+  "goal": "Separate real standalone-student gain from fusion-weight effects by comparing base BGE-M3 and the v62 official head checkpoint under identical dense/sparse/ColBERT fusion weights on the fixed same-candidate MIRACL Arabic diagnostic.",
+  "source_records": [
+    "experiments/2026-06-05-v63-research-and-controlled-diagnostic-plan.json",
+    "experiments/2026-06-05-official-m3-no-ddp-student-smokes-v61-v62.json"
+  ],
+  "script_added": "scripts/sweep_bge_m3_hybrid_weights.py",
+  "remote_artifacts": {
+    "default_grid_summary": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/v63-bge-m3-weight-diagnostic/summary.json",
+    "expanded_grid_summary": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/v63-bge-m3-weight-diagnostic-expanded/summary.json",
+    "raw_outputs_committed": false,
+    "checkpoints_committed": false
+  },
+  "evaluation_surface": {
+    "candidate_run_file": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/miracl-official-ar-bge-m3-hybrid-r100-v43/runfiles/ar_dev.txt",
+    "student_head_checkpoint": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/training-smoke-bge-m3-official-no-ddp-v62-head2048-g9/model",
+    "query_count": 200,
+    "candidate_depth": 100,
+    "same_candidate_pool": true,
+    "metric": "main_score/ndcg_at_10"
+  },
+  "default_grid": {
+    "base_best": {
+      "weight_label": "colbert_heavy",
+      "weights_for_different_modes": [
+        0.25,
+        0.15,
+        0.6
+      ],
+      "main_score": 0.7924189216587174
+    },
+    "student_best": {
+      "weight_label": "model_card",
+      "weights_for_different_modes": [
+        0.4,
+        0.2,
+        0.4
+      ],
+      "main_score": 0.7928391539538429
+    },
+    "best_vs_best_delta": 0.00042023229512544447,
+    "best_same_weight_delta": {
+      "weight_label": "sparse_heavy",
+      "weights_for_different_modes": [
+        0.25,
+        0.5,
+        0.25
+      ],
+      "base_main_score": 0.7804954089458204,
+      "student_main_score": 0.7859903638669701,
+      "delta": 0.005494954921149708
+    },
+    "model_card_delta": 0.0036351510951481147
+  },
+  "expanded_grid": {
+    "base_best": {
+      "weight_label": "base_colbert_heavy",
+      "weights_for_different_modes": [
+        0.25,
+        0.15,
+        0.6
+      ],
+      "main_score": 0.7924189216587174
+    },
+    "student_best": {
+      "weight_label": "colbert_70",
+      "weights_for_different_modes": [
+        0.15,
+        0.15,
+        0.7
+      ],
+      "main_score": 0.793257794535962
+    },
+    "best_vs_best_delta": 0.0008388728772446008,
+    "best_same_weight_delta": {
+      "weight_label": "sparse_colbert_even",
+      "weights_for_different_modes": [
+        0.0,
+        0.5,
+        0.5
+      ],
+      "base_main_score": 0.7740961155314829,
+      "student_main_score": 0.7856688901466313,
+      "delta": 0.011572774615148385
+    },
+    "model_card_delta": 0.0036351510951481147
+  },
+  "interpretation": [
+    "The v62 head checkpoint appears to learn a localized sparse/ColBERT correction: several high-sparse or sparse+ColBERT surfaces show same-weight gains above +0.005.",
+    "The signal is not yet a robust standalone-student improvement because the strongest student surface beats the strongest base surface by only +0.000839 nDCG@10 on the diagnostic.",
+    "A same-weight gain on a weak base fusion surface can exaggerate progress; future gates should require both same-weight and best-vs-best improvements."
+  ],
+  "decision": {
+    "scale_v62": false,
+    "publish_checkpoint": false,
+    "start_full_dev_evaluation": false,
+    "next_experiment": "Design a v64 small training smoke that preserves model-card/base-best performance while strengthening sparse+ColBERT: likely lower learning rate, staged sparse-then-ColBERT or sparse+ColBERT curriculum, and an explicit base-best anchor. Do not simply increase row count."
+  }
+}

@@ -1,0 +1,114 @@
+{
+  "experiment_id": "2026-06-04-miracl-official-ar-bge-m3-hybrid-r100-v43",
+  "created_utc": "2026-06-04T23:14:51Z",
+  "status": "completed",
+  "purpose": "Generate and validate official MIRACL EvalAI-style Arabic dev/test-a top-100 TREC run files for the best BGE-M3 hybrid r100 retrieval system.",
+  "source": {
+    "remote_host": "hhai-zijun",
+    "remote_output_source": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/miracl-official-ar-bge-m3-hybrid-r100-v43",
+    "local_ignored_output_copy": "outputs/miracl-official-ar-bge-m3-hybrid-r100-v43",
+    "raw_outputs_committed": false
+  },
+  "model": "BAAI/bge-m3",
+  "task": "MIRACLRetrieval",
+  "dataset": "mteb/MIRACLRetrieval corpus plus official miracl/miracl Arabic topics/qrels",
+  "subset": "ar",
+  "run_id": "bge-m3-hybrid-r100-ar",
+  "evaluator": {
+    "script": "scripts/run_miracl_bge_m3_hybrid.py",
+    "packaging_script": "scripts/prepare_miracl_submission.py",
+    "launcher": "scripts/run_miracl_official_submission.sh",
+    "method": "Full-corpus dense+sparse candidate generation followed by FlagEmbedding BGEM3FlagModel.compute_score dense+sparse+ColBERT reranking.",
+    "candidate_top_k": 100,
+    "rerank_limit": 100,
+    "top_k": 100,
+    "metric_k": 10,
+    "weights_for_different_modes": [
+      0.4,
+      0.2,
+      0.4
+    ]
+  },
+  "runtime_config": {
+    "device": "NVIDIA L20",
+    "batch_size": 32,
+    "rerank_batch_size": 32,
+    "max_length": 256,
+    "max_passage_length": 256,
+    "encode_chunk_size": 1000,
+    "corpus_count": 2061414
+  },
+  "dev": {
+    "query_count": 2896,
+    "positive_count": 5658,
+    "run_file": {
+      "name": "ar_dev.txt",
+      "queries": 2896,
+      "depth": 100,
+      "lines": 289600
+    },
+    "metrics": {
+      "main_score": 0.8011099981276549,
+      "ndcg_at_10": 0.8011099981276549,
+      "map_at_10": 0.7380213421214864,
+      "mrr_at_10": 0.8198457916776286,
+      "recall_at_10": 0.89322341160221,
+      "precision_at_10": 0.16906077348066298,
+      "hit_rate_at_10": 0.9488950276243094
+    },
+    "timings": {
+      "candidate_elapsed_seconds": 3216.4833655506372,
+      "candidate_docs_per_second": 640.8906142895913,
+      "rerank_elapsed_seconds": 819.6306807603687,
+      "rerank_pairs": 289600
+    }
+  },
+  "test_a": {
+    "query_count": 936,
+    "run_file": {
+      "name": "ar_test-a.txt",
+      "queries": 936,
+      "depth": 100,
+      "lines": 93600
+    },
+    "metrics": null,
+    "timings": {
+      "candidate_elapsed_seconds": 2495.534168401733,
+      "candidate_docs_per_second": 826.0411843289785,
+      "rerank_elapsed_seconds": 265.12080565001816,
+      "rerank_pairs": 93600
+    }
+  },
+  "validation": {
+    "depth": 100,
+    "zip_file": "miracl_ar_bge_m3_hybrid_r100.zip",
+    "zip_entries": [
+      "miracl_submission/ar_dev.txt",
+      "miracl_submission/ar_test-a.txt"
+    ],
+    "dev_metrics_recomputed_from_run_file": true,
+    "test_a_metrics_available": false
+  },
+  "comparison_context": {
+    "previous_bge_m3_hybrid_r100_dev_ndcg_at_10": 0.8010252064432427,
+    "delta_vs_previous_r100": 0.00008479168441221035,
+    "bge_m3_dense_dev_ndcg_at_10": 0.78523,
+    "delta_vs_bge_m3_dense": 0.01587999812765492,
+    "intfloat_multilingual_e5_large_instruct_dense_dev_ndcg_at_10": 0.76456,
+    "delta_vs_e5_dense": 0.03654999812765483,
+    "qwen3_embedding_8b_direct_dense_dev_ndcg_at_10": 0.7001642645001055,
+    "delta_vs_qwen3_8b_direct_dense": 0.10094573362754935
+  },
+  "submission_status": {
+    "evalai_challenge_id": 1881,
+    "target_phase_id": 3745,
+    "submitted_to_evalai": false,
+    "blocker": "EvalAI challenge API reported is_active=false and is_frozen=true, so the package was prepared and validated but not uploaded."
+  },
+  "interpretation": [
+    "The official-format Arabic dev/test-a package is ready and validates structurally: ar_dev has 2,896 queries x 100 hits, ar_test-a has 936 queries x 100 hits, and the zip contains the required two files under one top-level directory.",
+    "The dev run file recomputes to main_score/nDCG@10 0.801110, effectively matching the prior BGE-M3 hybrid r100 result while using the official TREC run-file output path.",
+    "This remains a top-tier BGE-M3 hybrid retrieval-system result, not a newly trained standalone embedding checkpoint or a formal leaderboard rank because EvalAI is currently frozen/inactive."
+  ],
+  "next_experiment": "If an official leaderboard submission route is reopened, upload the validated zip to challenge 1881 phase 3745. For actual model SOTA progress, use this BGE-M3 hybrid run as a teacher for training or distillation rather than continuing dense-only baselines."
+}

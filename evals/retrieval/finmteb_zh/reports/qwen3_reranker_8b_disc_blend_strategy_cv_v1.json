@@ -1,0 +1,1566 @@
+{
+  "split": "train",
+  "average_validation_map": 0.9920634920634921,
+  "tasks": [
+    {
+      "dataset": "FinanceMTEB/DISCFinLLM-reranking",
+      "leaderboard_name": "DISCFinLLMReranking",
+      "split": "train",
+      "num_queries": 42,
+      "folds": 7,
+      "seed": 20260526,
+      "best": {
+        "method": "zscore_linear",
+        "feature": "doc_bigram",
+        "alpha": 0.01,
+        "full_train_metrics": {
+          "map": 0.9920634920634921,
+          "mrr": 1.0,
+          "ndcg@10": 0.996539446574441
+        },
+        "validation_map_mean": 0.9920634920634921,
+        "validation_map_min": 0.9583333333333333,
+        "validation_map_std": 0.01458029608799513,
+        "fold_metrics": [
+          {
+            "map": 1.0,
+            "mrr": 1.0,
+            "ndcg@10": 1.0
+          },
+          {
+            "map": 1.0,
+            "mrr": 1.0,
+            "ndcg@10": 1.0
+          },
+          {
+            "map": 1.0,
+            "mrr": 1.0,
+            "ndcg@10": 1.0
+          },
+          {
+            "map": 1.0,
+            "mrr": 1.0,
+            "ndcg@10": 1.0
+          },
+          {
+            "map": 1.0,
+            "mrr": 1.0,
+            "ndcg@10": 1.0
+          },
+          {
+            "map": 0.9861111111111112,
+            "mrr": 1.0,
+            "ndcg@10": 0.9945779972481948
+          },
+          {
+            "map": 0.9583333333333333,
+            "mrr": 1.0,
+            "ndcg@10": 0.9811981287728928
+          }
+        ]
+      },
+      "candidates": [
+        {
+          "method": "zscore_linear",
+          "feature": "doc_bigram",
+          "alpha": 0.01,
+          "full_train_metrics": {
+            "map": 0.9920634920634921,
+            "mrr": 1.0,
+            "ndcg@10": 0.996539446574441
+          },
+          "validation_map_mean": 0.9920634920634921,
+          "validation_map_min": 0.9583333333333333,
+          "validation_map_std": 0.01458029608799513,
+          "fold_metrics": [
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 0.9861111111111112,
+              "mrr": 1.0,
+              "ndcg@10": 0.9945779972481948
+            },
+            {
+              "map": 0.9583333333333333,
+              "mrr": 1.0,
+              "ndcg@10": 0.9811981287728928
+            }
+          ]
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "doc_bigram",
+          "alpha": 0.02,
+          "full_train_metrics": {
+            "map": 0.9920634920634921,
+            "mrr": 1.0,
+            "ndcg@10": 0.996539446574441
+          },
+          "validation_map_mean": 0.9920634920634921,
+          "validation_map_min": 0.9583333333333333,
+          "validation_map_std": 0.01458029608799513,
+          "fold_metrics": [
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 0.9861111111111112,
+              "mrr": 1.0,
+              "ndcg@10": 0.9945779972481948
+            },
+            {
+              "map": 0.9583333333333333,
+              "mrr": 1.0,
+              "ndcg@10": 0.9811981287728928
+            }
+          ]
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "doc_bigram",
+          "alpha": 0.05,
+          "full_train_metrics": {
+            "map": 0.9920634920634921,
+            "mrr": 1.0,
+            "ndcg@10": 0.996539446574441
+          },
+          "validation_map_mean": 0.9920634920634921,
+          "validation_map_min": 0.9583333333333333,
+          "validation_map_std": 0.01458029608799513,
+          "fold_metrics": [
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 0.9861111111111112,
+              "mrr": 1.0,
+              "ndcg@10": 0.9945779972481948
+            },
+            {
+              "map": 0.9583333333333333,
+              "mrr": 1.0,
+              "ndcg@10": 0.9811981287728928
+            }
+          ]
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "doc_bigram",
+          "alpha": 0.08,
+          "full_train_metrics": {
+            "map": 0.9920634920634921,
+            "mrr": 1.0,
+            "ndcg@10": 0.996539446574441
+          },
+          "validation_map_mean": 0.9920634920634921,
+          "validation_map_min": 0.9583333333333333,
+          "validation_map_std": 0.01458029608799513,
+          "fold_metrics": [
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 0.9861111111111112,
+              "mrr": 1.0,
+              "ndcg@10": 0.9945779972481948
+            },
+            {
+              "map": 0.9583333333333333,
+              "mrr": 1.0,
+              "ndcg@10": 0.9811981287728928
+            }
+          ]
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "lexical",
+          "alpha": 0.2,
+          "full_train_metrics": {
+            "map": 0.9900793650793651,
+            "mrr": 0.9880952380952381,
+            "ndcg@10": 0.992700628657554
+          },
+          "validation_map_mean": 0.9900793650793651,
+          "validation_map_min": 0.9305555555555556,
+          "validation_map_std": 0.024300493479991837,
+          "fold_metrics": [
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 0.9305555555555556,
+              "mrr": 0.9166666666666666,
+              "ndcg@10": 0.9489044006028785
+            }
+          ]
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "lexical",
+          "alpha": 0.3,
+          "full_train_metrics": {
+            "map": 0.9900793650793651,
+            "mrr": 0.9880952380952381,
+            "ndcg@10": 0.992700628657554
+          },
+          "validation_map_mean": 0.9900793650793651,
+          "validation_map_min": 0.9305555555555556,
+          "validation_map_std": 0.024300493479991837,
+          "fold_metrics": [
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 0.9305555555555556,
+              "mrr": 0.9166666666666666,
+              "ndcg@10": 0.9489044006028785
+            }
+          ]
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "lexical",
+          "alpha": 0.5,
+          "full_train_metrics": {
+            "map": 0.9900793650793651,
+            "mrr": 0.9880952380952381,
+            "ndcg@10": 0.992700628657554
+          },
+          "validation_map_mean": 0.9900793650793651,
+          "validation_map_min": 0.9305555555555556,
+          "validation_map_std": 0.024300493479991837,
+          "fold_metrics": [
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 0.9305555555555556,
+              "mrr": 0.9166666666666666,
+              "ndcg@10": 0.9489044006028785
+            }
+          ]
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "title_lexical",
+          "alpha": 0.05,
+          "full_train_metrics": {
+            "map": 0.9894179894179894,
+            "mrr": 1.0,
+            "ndcg@10": 0.995076528766001
+          },
+          "validation_map_mean": 0.9894179894179894,
+          "validation_map_min": 0.9675925925925926,
+          "validation_map_std": 0.01326054077762132,
+          "fold_metrics": [
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 0.9722222222222222,
+              "mrr": 1.0,
+              "ndcg@10": 0.986620131524698
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 0.9861111111111112,
+              "mrr": 1.0,
+              "ndcg@10": 0.9945779972481948
+            },
+            {
+              "map": 0.9675925925925926,
+              "mrr": 1.0,
+              "ndcg@10": 0.9843375725891137
+            }
+          ]
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "title_lexical",
+          "alpha": 0.08,
+          "full_train_metrics": {
+            "map": 0.9894179894179894,
+            "mrr": 1.0,
+            "ndcg@10": 0.995076528766001
+          },
+          "validation_map_mean": 0.9894179894179894,
+          "validation_map_min": 0.9675925925925926,
+          "validation_map_std": 0.01326054077762132,
+          "fold_metrics": [
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 0.9722222222222222,
+              "mrr": 1.0,
+              "ndcg@10": 0.986620131524698
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 0.9861111111111112,
+              "mrr": 1.0,
+              "ndcg@10": 0.9945779972481948
+            },
+            {
+              "map": 0.9675925925925926,
+              "mrr": 1.0,
+              "ndcg@10": 0.9843375725891137
+            }
+          ]
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "title_lexical",
+          "alpha": 0.1,
+          "full_train_metrics": {
+            "map": 0.9894179894179894,
+            "mrr": 1.0,
+            "ndcg@10": 0.995076528766001
+          },
+          "validation_map_mean": 0.9894179894179894,
+          "validation_map_min": 0.9675925925925926,
+          "validation_map_std": 0.01326054077762132,
+          "fold_metrics": [
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 0.9722222222222222,
+              "mrr": 1.0,
+              "ndcg@10": 0.986620131524698
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 0.9861111111111112,
+              "mrr": 1.0,
+              "ndcg@10": 0.9945779972481948
+            },
+            {
+              "map": 0.9675925925925926,
+              "mrr": 1.0,
+              "ndcg@10": 0.9843375725891137
+            }
+          ]
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "doc_bigram",
+          "alpha": 0.1,
+          "full_train_metrics": {
+            "map": 0.9894179894179894,
+            "mrr": 1.0,
+            "ndcg@10": 0.995076528766001
+          },
+          "validation_map_mean": 0.9894179894179894,
+          "validation_map_min": 0.9583333333333333,
+          "validation_map_std": 0.016913640016593175,
+          "fold_metrics": [
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 0.9675925925925926,
+              "mrr": 1.0,
+              "ndcg@10": 0.9843375725891137
+            },
+            {
+              "map": 0.9583333333333333,
+              "mrr": 1.0,
+              "ndcg@10": 0.9811981287728928
+            }
+          ]
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "doc_bigram",
+          "alpha": 0.15,
+          "full_train_metrics": {
+            "map": 0.9894179894179894,
+            "mrr": 1.0,
+            "ndcg@10": 0.995076528766001
+          },
+          "validation_map_mean": 0.9894179894179894,
+          "validation_map_min": 0.9583333333333333,
+          "validation_map_std": 0.016913640016593175,
+          "fold_metrics": [
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 0.9675925925925926,
+              "mrr": 1.0,
+              "ndcg@10": 0.9843375725891137
+            },
+            {
+              "map": 0.9583333333333333,
+              "mrr": 1.0,
+              "ndcg@10": 0.9811981287728928
+            }
+          ]
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "doc_bigram",
+          "alpha": 0.2,
+          "full_train_metrics": {
+            "map": 0.9894179894179894,
+            "mrr": 1.0,
+            "ndcg@10": 0.995076528766001
+          },
+          "validation_map_mean": 0.9894179894179894,
+          "validation_map_min": 0.9583333333333333,
+          "validation_map_std": 0.016913640016593175,
+          "fold_metrics": [
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 0.9675925925925926,
+              "mrr": 1.0,
+              "ndcg@10": 0.9843375725891137
+            },
+            {
+              "map": 0.9583333333333333,
+              "mrr": 1.0,
+              "ndcg@10": 0.9811981287728928
+            }
+          ]
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "doc_bigram",
+          "alpha": 0.3,
+          "full_train_metrics": {
+            "map": 0.9894179894179894,
+            "mrr": 1.0,
+            "ndcg@10": 0.995076528766001
+          },
+          "validation_map_mean": 0.9894179894179894,
+          "validation_map_min": 0.9583333333333333,
+          "validation_map_std": 0.016913640016593175,
+          "fold_metrics": [
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 0.9675925925925926,
+              "mrr": 1.0,
+              "ndcg@10": 0.9843375725891137
+            },
+            {
+              "map": 0.9583333333333333,
+              "mrr": 1.0,
+              "ndcg@10": 0.9811981287728928
+            }
+          ]
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "doc_bigram",
+          "alpha": 0.5,
+          "full_train_metrics": {
+            "map": 0.9894179894179894,
+            "mrr": 1.0,
+            "ndcg@10": 0.995076528766001
+          },
+          "validation_map_mean": 0.9894179894179894,
+          "validation_map_min": 0.9583333333333333,
+          "validation_map_std": 0.016913640016593175,
+          "fold_metrics": [
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 0.9675925925925926,
+              "mrr": 1.0,
+              "ndcg@10": 0.9843375725891137
+            },
+            {
+              "map": 0.9583333333333333,
+              "mrr": 1.0,
+              "ndcg@10": 0.9811981287728928
+            }
+          ]
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "doc_bigram",
+          "alpha": 0.005,
+          "full_train_metrics": {
+            "map": 0.9894179894179894,
+            "mrr": 1.0,
+            "ndcg@10": 0.995076528766001
+          },
+          "validation_map_mean": 0.9894179894179894,
+          "validation_map_min": 0.9398148148148148,
+          "validation_map_std": 0.020809699368455403,
+          "fold_metrics": [
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 0.9861111111111112,
+              "mrr": 1.0,
+              "ndcg@10": 0.9945779972481948
+            },
+            {
+              "map": 0.9398148148148148,
+              "mrr": 1.0,
+              "ndcg@10": 0.9709577041138117
+            }
+          ]
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "lexical",
+          "alpha": 0.08,
+          "full_train_metrics": {
+            "map": 0.9880952380952381,
+            "mrr": 0.9880952380952381,
+            "ndcg@10": 0.9919260568358677
+          },
+          "validation_map_mean": 0.9880952380952381,
+          "validation_map_min": 0.9305555555555556,
+          "validation_map_std": 0.023974297566655887,
+          "fold_metrics": [
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 0.9861111111111112,
+              "mrr": 1.0,
+              "ndcg@10": 0.9945779972481948
+            },
+            {
+              "map": 0.9305555555555556,
+              "mrr": 0.9166666666666666,
+              "ndcg@10": 0.9489044006028785
+            }
+          ]
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "lexical",
+          "alpha": 0.1,
+          "full_train_metrics": {
+            "map": 0.9880952380952381,
+            "mrr": 0.9880952380952381,
+            "ndcg@10": 0.9919260568358677
+          },
+          "validation_map_mean": 0.9880952380952381,
+          "validation_map_min": 0.9305555555555556,
+          "validation_map_std": 0.023974297566655887,
+          "fold_metrics": [
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 0.9861111111111112,
+              "mrr": 1.0,
+              "ndcg@10": 0.9945779972481948
+            },
+            {
+              "map": 0.9305555555555556,
+              "mrr": 0.9166666666666666,
+              "ndcg@10": 0.9489044006028785
+            }
+          ]
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "lexical",
+          "alpha": 0.15,
+          "full_train_metrics": {
+            "map": 0.9880952380952381,
+            "mrr": 0.9880952380952381,
+            "ndcg@10": 0.9919260568358677
+          },
+          "validation_map_mean": 0.9880952380952381,
+          "validation_map_min": 0.9305555555555556,
+          "validation_map_std": 0.023974297566655887,
+          "fold_metrics": [
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 0.9861111111111112,
+              "mrr": 1.0,
+              "ndcg@10": 0.9945779972481948
+            },
+            {
+              "map": 0.9305555555555556,
+              "mrr": 0.9166666666666666,
+              "ndcg@10": 0.9489044006028785
+            }
+          ]
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "lexical",
+          "alpha": 0.8,
+          "full_train_metrics": {
+            "map": 0.9880952380952381,
+            "mrr": 0.9880952380952381,
+            "ndcg@10": 0.9919260568358677
+          },
+          "validation_map_mean": 0.9880952380952381,
+          "validation_map_min": 0.9305555555555556,
+          "validation_map_std": 0.023974297566655887,
+          "fold_metrics": [
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 0.9861111111111112,
+              "mrr": 1.0,
+              "ndcg@10": 0.9945779972481948
+            },
+            {
+              "map": 0.9305555555555556,
+              "mrr": 0.9166666666666666,
+              "ndcg@10": 0.9489044006028785
+            }
+          ]
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "doc_bigram",
+          "alpha": 0.8,
+          "full_train_metrics": {
+            "map": 0.9874338624338624,
+            "mrr": 1.0,
+            "ndcg@10": 0.9943019569443144
+          },
+          "validation_map_mean": 0.9874338624338624,
+          "validation_map_min": 0.9583333333333333,
+          "validation_map_std": 0.016361530260387565,
+          "fold_metrics": [
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 0.9861111111111112,
+              "mrr": 1.0,
+              "ndcg@10": 0.9945779972481948
+            },
+            {
+              "map": 0.9675925925925926,
+              "mrr": 1.0,
+              "ndcg@10": 0.9843375725891137
+            },
+            {
+              "map": 0.9583333333333333,
+              "mrr": 1.0,
+              "ndcg@10": 0.9811981287728928
+            }
+          ]
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "title_bigram",
+          "alpha": 0.15,
+          "full_train_metrics": {
+            "map": 0.986904761904762,
+            "mrr": 1.0,
+            "ndcg@10": 0.9937508018612408
+          },
+          "validation_map_mean": 0.986904761904762,
+          "validation_map_min": 0.95,
+          "validation_map_std": 0.017984554275594714,
+          "fold_metrics": [
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 0.95,
+              "mrr": 1.0,
+              "ndcg@10": 0.9750574842557924
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 0.9861111111111112,
+              "mrr": 1.0,
+              "ndcg@10": 0.9945779972481948
+            },
+            {
+              "map": 0.9722222222222222,
+              "mrr": 1.0,
+              "ndcg@10": 0.986620131524698
+            }
+          ]
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "title_bigram",
+          "alpha": 0.2,
+          "full_train_metrics": {
+            "map": 0.986904761904762,
+            "mrr": 1.0,
+            "ndcg@10": 0.9937508018612408
+          },
+          "validation_map_mean": 0.986904761904762,
+          "validation_map_min": 0.95,
+          "validation_map_std": 0.017984554275594714,
+          "fold_metrics": [
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 0.95,
+              "mrr": 1.0,
+              "ndcg@10": 0.9750574842557924
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 0.9861111111111112,
+              "mrr": 1.0,
+              "ndcg@10": 0.9945779972481948
+            },
+            {
+              "map": 0.9722222222222222,
+              "mrr": 1.0,
+              "ndcg@10": 0.986620131524698
+            }
+          ]
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "title_bigram",
+          "alpha": 0.3,
+          "full_train_metrics": {
+            "map": 0.986904761904762,
+            "mrr": 1.0,
+            "ndcg@10": 0.9937508018612408
+          },
+          "validation_map_mean": 0.986904761904762,
+          "validation_map_min": 0.95,
+          "validation_map_std": 0.017984554275594714,
+          "fold_metrics": [
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 0.95,
+              "mrr": 1.0,
+              "ndcg@10": 0.9750574842557924
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 0.9861111111111112,
+              "mrr": 1.0,
+              "ndcg@10": 0.9945779972481948
+            },
+            {
+              "map": 0.9722222222222222,
+              "mrr": 1.0,
+              "ndcg@10": 0.986620131524698
+            }
+          ]
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "title_bigram",
+          "alpha": 0.5,
+          "full_train_metrics": {
+            "map": 0.986904761904762,
+            "mrr": 1.0,
+            "ndcg@10": 0.9937508018612408
+          },
+          "validation_map_mean": 0.986904761904762,
+          "validation_map_min": 0.95,
+          "validation_map_std": 0.017984554275594714,
+          "fold_metrics": [
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 0.95,
+              "mrr": 1.0,
+              "ndcg@10": 0.9750574842557924
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 0.9861111111111112,
+              "mrr": 1.0,
+              "ndcg@10": 0.9945779972481948
+            },
+            {
+              "map": 0.9722222222222222,
+              "mrr": 1.0,
+              "ndcg@10": 0.986620131524698
+            }
+          ]
+        },
+        {
+          "method": "rrf",
+          "feature": "title_trigram",
+          "alpha": 1.0,
+          "full_train_metrics": {
+            "map": 0.9867724867724867,
+            "mrr": 1.0,
+            "ndcg@10": 0.9936136109575607
+          },
+          "validation_map_mean": 0.9867724867724867,
+          "validation_map_min": 0.9398148148148148,
+          "validation_map_std": 0.022193071078786417,
+          "fold_metrics": [
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 0.9675925925925926,
+              "mrr": 1.0,
+              "ndcg@10": 0.9843375725891137
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 0.9398148148148148,
+              "mrr": 1.0,
+              "ndcg@10": 0.9709577041138117
+            }
+          ]
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "lexical",
+          "alpha": 0.01,
+          "full_train_metrics": {
+            "map": 0.9861111111111112,
+            "mrr": 0.9880952380952381,
+            "ndcg@10": 0.9911514850141812
+          },
+          "validation_map_mean": 0.9861111111111112,
+          "validation_map_min": 0.9166666666666666,
+          "validation_map_std": 0.028752731639264773,
+          "fold_metrics": [
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 0.9861111111111112,
+              "mrr": 1.0,
+              "ndcg@10": 0.9945779972481948
+            },
+            {
+              "map": 0.9166666666666666,
+              "mrr": 0.9166666666666666,
+              "ndcg@10": 0.9434823978510734
+            }
+          ]
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "lexical",
+          "alpha": 0.02,
+          "full_train_metrics": {
+            "map": 0.9861111111111112,
+            "mrr": 0.9880952380952381,
+            "ndcg@10": 0.9911514850141812
+          },
+          "validation_map_mean": 0.9861111111111112,
+          "validation_map_min": 0.9166666666666666,
+          "validation_map_std": 0.028752731639264773,
+          "fold_metrics": [
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 0.9861111111111112,
+              "mrr": 1.0,
+              "ndcg@10": 0.9945779972481948
+            },
+            {
+              "map": 0.9166666666666666,
+              "mrr": 0.9166666666666666,
+              "ndcg@10": 0.9434823978510734
+            }
+          ]
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "lexical",
+          "alpha": 0.05,
+          "full_train_metrics": {
+            "map": 0.9861111111111112,
+            "mrr": 0.9880952380952381,
+            "ndcg@10": 0.9911514850141812
+          },
+          "validation_map_mean": 0.9861111111111112,
+          "validation_map_min": 0.9166666666666666,
+          "validation_map_std": 0.028752731639264773,
+          "fold_metrics": [
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 0.9861111111111112,
+              "mrr": 1.0,
+              "ndcg@10": 0.9945779972481948
+            },
+            {
+              "map": 0.9166666666666666,
+              "mrr": 0.9166666666666666,
+              "ndcg@10": 0.9434823978510734
+            }
+          ]
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "head_lexical",
+          "alpha": 0.005,
+          "full_train_metrics": {
+            "map": 0.9861111111111112,
+            "mrr": 0.9880952380952381,
+            "ndcg@10": 0.9911514850141812
+          },
+          "validation_map_mean": 0.9861111111111112,
+          "validation_map_min": 0.9166666666666666,
+          "validation_map_std": 0.028752731639264773,
+          "fold_metrics": [
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 1.0,
+              "mrr": 1.0,
+              "ndcg@10": 1.0
+            },
+            {
+              "map": 0.9861111111111112,
+              "mrr": 1.0,
+              "ndcg@10": 0.9945779972481948
+            },
+            {
+              "map": 0.9166666666666666,
+              "mrr": 0.9166666666666666,
+              "ndcg@10": 0.9434823978510734
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

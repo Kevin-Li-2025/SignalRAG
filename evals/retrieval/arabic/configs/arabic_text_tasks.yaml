@@ -1,0 +1,51 @@
+language: ara
+notes: >
+  Text-only Arabic task manifest from MTEB 2.12.30. Excludes image/audio/document
+  understanding tasks so the first target is a pure text embedding model.
+tasks:
+  bitext_mining:
+    - IWSLT2017BitextMining
+    - Tatoeba
+    - WebFAQBitextMiningQAs
+    - WebFAQBitextMiningQuestions
+  classification:
+    - AJGT.v2
+    - HotelReviewSentimentClassification.v2
+    - OnlineStoreReviewSentimentClassification.v2
+    - RestaurantReviewSentimentClassification.v2
+    - TweetEmotionClassification.v2
+    - TweetSarcasmClassification.v2
+    - HUMEMultilingualSentimentClassification
+    - LanguageClassification
+    - MassiveIntentClassification
+    - MassiveScenarioClassification
+    - MultiHateClassification
+    - MultilingualSentimentClassification
+    - TweetSentimentClassification
+  clustering:
+    - HUMESIB200ClusteringS2S
+  pair_classification:
+    - ArEntail
+    - XNLI
+  reranking:
+    - NamaaMrTydiReranking
+    - MIRACLReranking
+    - MultiLongDocReranking
+  retrieval:
+    - SadeemQuestionRetrieval
+    - MIRACLRetrieval
+    - MIRACLRetrievalHardNegatives
+    - MIRACLRetrievalHardNegatives.v2
+    - MKQARetrieval
+    - MLQARetrieval
+    - MintakaRetrieval
+    - MrTidyRetrieval
+    - MultiLongDocRetrieval
+    - PublicHealthQA
+    - WebFAQRetrieval
+    - XPQARetrieval
+  sts:
+    - HUMESTS22
+    - STS17
+    - STS22.v2
+

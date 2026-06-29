@@ -1,0 +1,104 @@
+{
+  "experiment_id": "2026-06-05-qwen3-reranker-0p6b-miracl-ar-gates-v48-v49",
+  "created_utc": "2026-06-05T00:37:00Z",
+  "status": "completed",
+  "purpose": "Gate Qwen3-Reranker-0.6B on the same BGE-M3 hybrid r100 Arabic MIRACL top-100 candidate pool before deciding whether to run a full rerank.",
+  "research_basis": [
+    "The Qwen3-Reranker-0.6B model card lists sentence-transformers CrossEncoder usage as an official path.",
+    "The same model card also provides a transformers AutoModelForCausalLM yes/no scoring path and recommends English task instructions in multilingual contexts.",
+    "Because the v47 BGE-reranker-v2-m3 full run improved the frozen BGE-M3 hybrid candidate pool, any Qwen reranker must first beat the same-query 200-query gate before scaling."
+  ],
+  "source": {
+    "remote_host": "hhai-zijun",
+    "remote_cross_encoder_output": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/miracl-ar-qwen3-reranker-0p6b-crossencoder-sample-v48",
+    "remote_causal_output": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/miracl-ar-qwen3-reranker-0p6b-causal-sample-v49",
+    "local_cross_encoder_summary": "/tmp/miracl-ar-qwen3-reranker-0p6b-crossencoder-sample-v48-summary.json",
+    "local_causal_summary": "/tmp/miracl-ar-qwen3-reranker-0p6b-causal-sample-v49-summary.json",
+    "raw_outputs_committed": false
+  },
+  "first_stage": {
+    "experiment_id": "2026-06-04-miracl-official-ar-bge-m3-hybrid-r100-v43",
+    "run_file": "remote_outputs/miracl-official-ar-bge-m3-hybrid-r100-v43/runfiles/ar_dev.txt",
+    "model": "BAAI/bge-m3",
+    "candidate_depth": 100,
+    "metrics_on_same_200_queries": {
+      "main_score": 0.7938377603781723,
+      "ndcg_at_10": 0.7938377603781723,
+      "map_at_10": 0.7340636904761904,
+      "mrr_at_10": 0.8302420634920635,
+      "recall_at_10": 0.8629166666666667,
+      "precision_at_10": 0.157,
+      "hit_rate_at_10": 0.955
+    }
+  },
+  "dataset": {
+    "name": "mteb/MIRACLRetrieval",
+    "revision": "9c09abc13478308c27598f350e31d8f06b9b5481",
+    "subset": "ar",
+    "split": "dev",
+    "query_count": 200,
+    "positive_count": 386,
+    "candidate_depth": 100,
+    "top_k": 100,
+    "metric_k": 10
+  },
+  "v48_cross_encoder": {
+    "model": "Qwen/Qwen3-Reranker-0.6B",
+    "backend": "sentence-transformers CrossEncoder",
+    "prompt": "Given an Arabic search query, retrieve relevant Arabic passages that answer the query.",
+    "batch_size": 8,
+    "max_length": 512,
+    "metrics": {
+      "main_score": 0.7052720886380386,
+      "ndcg_at_10": 0.7052720886380386,
+      "map_at_10": 0.6218448412698413,
+      "mrr_at_10": 0.7234999999999999,
+      "recall_at_10": 0.8291249999999999,
+      "precision_at_10": 0.15000000000000002,
+      "hit_rate_at_10": 0.935
+    },
+    "delta_main_score_vs_first_stage_same_queries": -0.08856567174013374,
+    "timings": {
+      "rerank_elapsed_seconds": 178.97138143330812,
+      "rerank_pairs": 20000
+    }
+  },
+  "v49_qwen3_causal": {
+    "model": "Qwen/Qwen3-Reranker-0.6B",
+    "backend": "transformers AutoModelForCausalLM yes/no logits",
+    "prompt": "Given a web search query, retrieve relevant passages that answer the query",
+    "batch_size": 8,
+    "max_length": 512,
+    "metrics": {
+      "main_score": 0.7588527708854582,
+      "ndcg_at_10": 0.7588527708854582,
+      "map_at_10": 0.685217791005291,
+      "mrr_at_10": 0.7790892857142856,
+      "recall_at_10": 0.862375,
+      "precision_at_10": 0.15850000000000003,
+      "hit_rate_at_10": 0.945
+    },
+    "delta_main_score_vs_first_stage_same_queries": -0.034984989492714114,
+    "timings": {
+      "rerank_elapsed_seconds": 199.56582692451775,
+      "rerank_pairs": 20000
+    }
+  },
+  "comparison_context": {
+    "v46_bge_reranker_v2_m3_same_gate": {
+      "main_score": 0.7999165971041596,
+      "delta_vs_first_stage_same_queries": 0.006078836725987302
+    },
+    "full_v47_bge_reranker_v2_m3": {
+      "main_score": 0.817730759894141,
+      "delta_vs_first_stage_full_dev": 0.01662076176648608
+    }
+  },
+  "decision": "Do not scale Qwen3-Reranker-0.6B to full dev. Both the CrossEncoder wrapper and the official causal yes/no path underperformed the same first-stage candidate ordering on the identical 200-query gate.",
+  "interpretation": [
+    "Qwen3-Reranker-0.6B is a strong public reranker family member, but this specific small reranker did not improve the Arabic MIRACL BGE-M3 hybrid top-100 candidate ordering under either tested inference path.",
+    "The causal backend was better than the CrossEncoder wrapper on this sample, but it still lost to the frozen first-stage ordering by -0.034985 nDCG@10.",
+    "The negative result strengthens the decision to use v47 BGE-reranker-v2-m3 as the current best teacher rather than chasing Qwen3-0.6B full reranking."
+  ],
+  "next_experiment": "Use the v47 BGE-reranker-v2-m3 ordering as the teacher for a trainable student, or run a separate gated Qwen3-Reranker-4B probe only if the project budget accepts a much slower cross-encoder sample."
+}

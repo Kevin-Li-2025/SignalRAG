@@ -1,0 +1,125 @@
+{
+  "experiment_id": "2026-06-01-qwen3-0.6b-smoke-v5",
+  "created_utc": "2026-06-01T17:10:56Z",
+  "source": {
+    "kaggle_kernel": "likevin2005/arabic-embedding-sota-lab",
+    "kernel_status": "COMPLETE",
+    "kernel_version": 5,
+    "kernel_url": "https://www.kaggle.com/code/likevin2005/arabic-embedding-sota-lab",
+    "local_output_source": "/tmp/arabic-qwen3-smoke-check/arabic-embedding-qwen3-0.6b-smoke",
+    "raw_outputs_committed": false
+  },
+  "scope": {
+    "purpose": "memory-safe Qwen3 smoke baseline; not a leaderboard or SOTA claim",
+    "batch_size": 1,
+    "max_seq_length": 256,
+    "tasks": [
+      "ArEntail",
+      "STS17",
+      "STS22.v2"
+    ],
+    "models": [
+      "Qwen/Qwen3-Embedding-0.6B"
+    ]
+  },
+  "results": [
+    {
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "task": "ArEntail",
+      "status": "complete",
+      "mteb_version": "2.12.30",
+      "dataset_revision": "4da4316c6e3287746ab74ff67dd252ad128fceff",
+      "evaluation_time_sec": 11.542,
+      "test_subset_count": 1,
+      "primary_metric": "main_score/max_ap",
+      "primary_score": 0.771287,
+      "all_subset_main_score_mean": 0.771287,
+      "arabic_subsets": [
+        {
+          "subset": "default",
+          "languages": [
+            "ara-Arab"
+          ],
+          "main_score": 0.771287,
+          "cosine_spearman": null,
+          "max_ap": 0.771287,
+          "similarity_ap": 0.771278
+        }
+      ]
+    },
+    {
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "task": "STS17",
+      "status": "complete",
+      "mteb_version": "2.12.30",
+      "dataset_revision": "faeb762787bd10488a50c8b5be4a3b82e411949c",
+      "evaluation_time_sec": 43.088,
+      "test_subset_count": 11,
+      "primary_metric": "mean main_score across all test subsets",
+      "primary_score": 0.785389,
+      "all_subset_main_score_mean": 0.785389,
+      "arabic_subsets": [
+        {
+          "subset": "ar-ar",
+          "languages": [
+            "ara-Arab"
+          ],
+          "main_score": 0.753294,
+          "cosine_spearman": 0.753294,
+          "max_ap": null,
+          "similarity_ap": null
+        },
+        {
+          "subset": "en-ar",
+          "languages": [
+            "eng-Latn",
+            "ara-Arab"
+          ],
+          "main_score": 0.701115,
+          "cosine_spearman": 0.701115,
+          "max_ap": null,
+          "similarity_ap": null
+        }
+      ]
+    },
+    {
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "task": "STS22.v2",
+      "status": "complete",
+      "mteb_version": "2.12.30",
+      "dataset_revision": "d31f33a128469b20e357535c39b82fb3c3f6f2bd",
+      "evaluation_time_sec": 255.697,
+      "test_subset_count": 18,
+      "primary_metric": "mean main_score across all test subsets",
+      "primary_score": 0.674304,
+      "all_subset_main_score_mean": 0.674304,
+      "arabic_subsets": [
+        {
+          "subset": "ar",
+          "languages": [
+            "ara-Arab"
+          ],
+          "main_score": 0.61963,
+          "cosine_spearman": 0.61963,
+          "max_ap": null,
+          "similarity_ap": null
+        }
+      ]
+    }
+  ],
+  "aggregates": [
+    {
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "task_primary_score_mean": 0.74366,
+      "arabic_only_mean": 0.714737,
+      "arabic_involving_mean": 0.711332,
+      "note": "arabic_only_mean uses ArEntail default, STS17 ar-ar, and STS22.v2 ar; arabic_involving_mean also includes STS17 en-ar."
+    }
+  ],
+  "interpretation": [
+    "Qwen3-Embedding-0.6B does not beat BGE-M3 or Arabic-Triplet-Matryoshka-V2 on this smoke set.",
+    "It is especially weak on ArEntail versus the two previous references, which makes it a less attractive first fine-tuning base without more evidence.",
+    "The next useful experiment is multilingual-e5-large-instruct on the same smoke set before expanding to full Arabic text-task baselines."
+  ],
+  "next_experiment": "intfloat/multilingual-e5-large-instruct smoke baseline on ArEntail, STS17, and STS22.v2 with batch_size=1 and max_seq_length=256."
+}

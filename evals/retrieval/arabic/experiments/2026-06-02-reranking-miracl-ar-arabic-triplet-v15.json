@@ -1,0 +1,71 @@
+{
+  "experiment_id": "2026-06-02-reranking-miracl-ar-arabic-triplet-v15",
+  "created_utc": "2026-06-02T18:43:14Z",
+  "source": {
+    "remote_host": "hhai-zijun",
+    "remote_output_source": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/arabic-embedding-reranking-miracl-ar-arabic-triplet-baseline",
+    "local_parse_source": "/tmp/arabic-miracl-triplet-v15",
+    "raw_outputs_committed": false,
+    "kaggle_context": "Kaggle v12 timed out and later launches were blocked by weekly GPU quota, so this run used the approved remote L20 GPU."
+  },
+  "scope": {
+    "purpose": "Complete the three-model Arabic-only MIRACL reranking comparison after E5 v13 and BGE-M3 v14.",
+    "batch_size": 1,
+    "max_seq_length": 256,
+    "tasks": [
+      "MIRACLReranking"
+    ],
+    "eval_subsets": [
+      "ar"
+    ],
+    "models": [
+      "Omartificial-Intelligence-Space/Arabic-Triplet-Matryoshka-V2"
+    ],
+    "hardware": "NVIDIA L20",
+    "torch": "2.6.0+cu124",
+    "mteb": "2.12.30"
+  },
+  "results": [
+    {
+      "model": "Omartificial-Intelligence-Space/Arabic-Triplet-Matryoshka-V2",
+      "task": "MIRACLReranking",
+      "status": "complete",
+      "family": "reranking",
+      "mteb_version": "2.12.30",
+      "dataset_revision": "d11a14c74e8bd448cedab0c1d9a720040535f228",
+      "evaluation_time_sec": 1558.608,
+      "primary_metric": "main_score/ndcg_at_10",
+      "primary_score": 0.67333,
+      "ndcg_at_10": 0.67333,
+      "map_at_10": 0.59786,
+      "mrr_at_10": 0.676159,
+      "recall_at_10": 0.80771,
+      "precision_at_10": 0.14306,
+      "hit_rate_at_10": 0.87086,
+      "languages": [
+        "ara-Arab"
+      ],
+      "subset": "ar"
+    }
+  ],
+  "comparison": {
+    "best_reference": "BAAI/bge-m3 v14 on MIRACLReranking ar",
+    "best_reference_primary_score": 0.79201,
+    "absolute_primary_score_delta_vs_best": -0.11868,
+    "e5_reference": "intfloat/multilingual-e5-large-instruct v13 on MIRACLReranking ar",
+    "e5_reference_primary_score": 0.77497,
+    "absolute_primary_score_delta_vs_e5": -0.10164,
+    "bge_evaluation_time_sec": 2820.747,
+    "e5_evaluation_time_sec": 2697.106,
+    "evaluation_time_delta_sec_vs_bge": -1262.139,
+    "evaluation_time_delta_sec_vs_e5": -1138.498
+  },
+  "interpretation": [
+    "Arabic Triplet Matryoshka V2 completes the Arabic MIRACL reranking subset with main_score/ndcg_at_10 0.673330.",
+    "It is substantially behind both BGE-M3 and E5 on this harder retrieval-style reranking slice, despite being the fastest of the three remote L20 runs.",
+    "The three-model MIRACL Arabic comparison now supports BGE-M3 as the strongest dense baseline for this specific reranking slice.",
+    "Together with the Namaa reranking result, the current picture remains task-dependent: E5 wins Namaa, BGE-M3 wins MIRACL Arabic, and Arabic Triplet is better treated as an STS/NLI or pure-Arabic semantic baseline rather than a broad reranking teacher.",
+    "This is baseline evidence, not an Arabic embedding SOTA claim."
+  ],
+  "next_experiment": "Move to retrieval batches or begin training-data construction with task-family teachers: BGE-M3 for MIRACL-style retrieval/reranking, E5 for Namaa-style reranking and prompted STS/NLI, and Arabic Triplet for Arabic semantic/NLI data."
+}

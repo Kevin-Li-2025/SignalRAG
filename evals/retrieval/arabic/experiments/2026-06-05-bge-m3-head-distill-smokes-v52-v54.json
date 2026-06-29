@@ -1,0 +1,135 @@
+{
+  "date": "2026-06-05",
+  "experiment_group": "bge-m3-head-only-distillation-smokes-v52-v54",
+  "status": "completed_rejected_for_scaling",
+  "goal": "Test whether reranker-scored MIRACL Arabic train teacher margins can improve BGE-M3 hybrid retrieval by freezing the XLM-R encoder and training only the sparse and ColBERT heads.",
+  "research_refresh": [
+    {
+      "source": "https://bge-model.com/tutorial/1_Embedding/1.2.1.html",
+      "implication": "BGE-M3 is explicitly designed for dense, sparse, and multi-vector retrieval; dense-only training/evaluation underuses the model."
+    },
+    {
+      "source": "https://bge-model.com/_modules/FlagEmbedding/finetune/embedder/encoder_only/m3/modeling.html",
+      "implication": "The M3 implementation exposes sparse_linear and colbert_linear heads, supporting a custom head-only experiment after the full Trainer path proved unstable."
+    },
+    {
+      "source": "https://direct.mit.edu/tacl/article/doi/10.1162/tacl_a_00595/117438/MIRACL-A-Multilingual-Retrieval-Dataset-Covering",
+      "implication": "MIRACL should continue to be judged on standard retrieval metrics, especially nDCG@10 and Recall@100."
+    },
+    {
+      "source": "https://qwenlm.github.io/blog/qwen3-embedding/",
+      "implication": "Qwen3 remains a required high-end public reference for final claims, but the local same-task Arabic MIRACL evidence still favors BGE-M3 hybrid as the practical first-stage system."
+    }
+  ],
+  "training_data": {
+    "source_record": "experiments/2026-06-05-training-smoke-v50-filtered-margin-mse-v51.json",
+    "remote_source_jsonl": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/training-smoke-v50-filtered-margin-mse-v51/teacher_train_margin_mse.jsonl",
+    "raw_training_data_committed": false,
+    "source_teacher": "BAAI/bge-reranker-v2-m3 over MIRACL Arabic train rows",
+    "teacher_rows_available": 512,
+    "negatives_per_query": 4
+  },
+  "evaluation_surface": {
+    "candidate_run_file": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/miracl-official-ar-bge-m3-hybrid-r100-v43/runfiles/ar_dev.txt",
+    "query_count": 200,
+    "candidate_depth": 100,
+    "top_k": 100,
+    "metric_k": 10,
+    "same_candidate_pool": true,
+    "base_first_stage_metrics": {
+      "ndcg_at_10": 0.7888288154070898,
+      "map_at_10": 0.7222252645502644,
+      "mrr_at_10": 0.8108115079365079,
+      "recall_at_10": 0.8825158730158731,
+      "precision_at_10": 0.18000000000000005,
+      "hit_rate_at_10": 0.94,
+      "main_score": 0.7888288154070898
+    }
+  },
+  "runs": [
+    {
+      "version": "v52",
+      "remote_output_dir": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/training-smoke-bge-m3-head-distill-v52",
+      "train_rows": 128,
+      "expanded_triples": 512,
+      "learning_rate": 0.0001,
+      "target_margin_scale": 1.0,
+      "head_l2_anchor_weight": 0.0,
+      "train_loss_first": 0.6658742427825928,
+      "train_loss_last": 0.0610138438642025,
+      "train_loss_mean": 0.44640013307798654,
+      "train_elapsed_seconds": 6.287339157424867,
+      "sample_metrics": {
+        "ndcg_at_10": 0.7075744036664479,
+        "map_at_10": 0.62879666005291,
+        "mrr_at_10": 0.733345238095238,
+        "recall_at_10": 0.8214285714285714,
+        "precision_at_10": 0.16399999999999998,
+        "hit_rate_at_10": 0.92,
+        "main_score": 0.7075744036664479
+      },
+      "delta_vs_base_main_score": -0.08125441174064196,
+      "decision": "rejected; teacher margin scale was too aggressive and damaged the hybrid ordering"
+    },
+    {
+      "version": "v53",
+      "remote_output_dir": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/training-smoke-bge-m3-head-distill-v53",
+      "train_rows": 128,
+      "expanded_triples": 512,
+      "learning_rate": 0.00001,
+      "target_margin_scale": 0.1,
+      "head_l2_anchor_weight": 1.0,
+      "train_loss_first": 0.008238029666244984,
+      "train_loss_last": 0.008662553504109383,
+      "train_loss_mean": 0.004705344158992375,
+      "train_elapsed_seconds": 6.235474550165236,
+      "sample_metrics": {
+        "ndcg_at_10": 0.789180855197925,
+        "map_at_10": 0.7223744378306879,
+        "mrr_at_10": 0.8066805555555555,
+        "recall_at_10": 0.8870992063492062,
+        "precision_at_10": 0.18050000000000005,
+        "hit_rate_at_10": 0.94,
+        "main_score": 0.789180855197925
+      },
+      "delta_vs_base_main_score": 0.0003520397908352013,
+      "decision": "borderline; tiny same-candidate gain but below scaling threshold"
+    },
+    {
+      "version": "v54",
+      "remote_output_dir": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/training-smoke-bge-m3-head-distill-v54",
+      "train_rows": 512,
+      "expanded_triples": 2048,
+      "learning_rate": 0.00001,
+      "target_margin_scale": 0.1,
+      "head_l2_anchor_weight": 1.0,
+      "train_loss_first": 0.0004095202893950045,
+      "train_loss_last": 0.0011012583272531629,
+      "train_loss_mean": 0.002301057807073903,
+      "train_elapsed_seconds": 24.213289151899517,
+      "sample_metrics": {
+        "ndcg_at_10": 0.7870018005203684,
+        "map_at_10": 0.72227208994709,
+        "mrr_at_10": 0.8043611111111111,
+        "recall_at_10": 0.8804325396825396,
+        "precision_at_10": 0.17950000000000002,
+        "hit_rate_at_10": 0.935,
+        "main_score": 0.7870018005203684
+      },
+      "delta_vs_base_main_score": -0.0018270148867214342,
+      "decision": "rejected; larger conservative training did not preserve the v53 tiny gain"
+    }
+  ],
+  "conclusion": "Head-only sparse/ColBERT distillation is technically viable but not yet a robust improvement. Do not scale v52, v53, or v54 to full MIRACL dev and do not publish their checkpoints.",
+  "next_decision": "Use the v47 BGE-reranker teacher for training-data construction or a separate dense student only after adding a stronger validation loop. For the current retrieval system, keep BGE-M3 hybrid r100 plus BGE-reranker-v2-m3 as the best completed Arabic MIRACL path.",
+  "artifacts_policy": {
+    "committed": "small derived experiment record only",
+    "not_committed": [
+      "teacher JSONL rows",
+      "head checkpoints",
+      "reranked run files",
+      "logs",
+      "model caches"
+    ]
+  }
+}

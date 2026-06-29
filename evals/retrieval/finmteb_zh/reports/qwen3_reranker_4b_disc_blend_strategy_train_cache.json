@@ -1,0 +1,178 @@
+{
+  "model": "Qwen/Qwen3-Reranker-4B",
+  "adapter": null,
+  "split": "train",
+  "average_map": 0.9940476190476191,
+  "tasks": [
+    {
+      "dataset": "FinanceMTEB/DISCFinLLM-reranking",
+      "leaderboard_name": "DISCFinLLMReranking",
+      "split": "train",
+      "num_queries": 42,
+      "num_pairs": 536,
+      "instruction": "Given a finance question, retrieve and rank passages that directly answer it. Prioritize exact entities, numbers, dates, formulas, and financial terminology.",
+      "best": {
+        "method": "rrf",
+        "feature": "title_trigram",
+        "alpha": 1.0,
+        "metrics": {
+          "map": 0.9940476190476191,
+          "mrr": 1.0,
+          "ndcg@10": 0.9973140183961275
+        }
+      },
+      "candidates": [
+        {
+          "method": "rrf",
+          "feature": "title_trigram",
+          "alpha": 1.0,
+          "metrics": {
+            "map": 0.9940476190476191,
+            "mrr": 1.0,
+            "ndcg@10": 0.9973140183961275
+          }
+        },
+        {
+          "method": "rrf",
+          "feature": "head_lexical",
+          "alpha": 0.5,
+          "metrics": {
+            "map": 0.9900793650793651,
+            "mrr": 0.9880952380952381,
+            "ndcg@10": 0.992700628657554
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "doc_bigram",
+          "alpha": 0.01,
+          "metrics": {
+            "map": 0.9900793650793651,
+            "mrr": 1.0,
+            "ndcg@10": 0.9957073777283852
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "doc_bigram",
+          "alpha": 0.02,
+          "metrics": {
+            "map": 0.9900793650793651,
+            "mrr": 1.0,
+            "ndcg@10": 0.9957073777283852
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "doc_bigram",
+          "alpha": 0.05,
+          "metrics": {
+            "map": 0.9900793650793651,
+            "mrr": 1.0,
+            "ndcg@10": 0.9957073777283852
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "doc_bigram",
+          "alpha": 0.08,
+          "metrics": {
+            "map": 0.9900793650793651,
+            "mrr": 1.0,
+            "ndcg@10": 0.9957073777283852
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "doc_bigram",
+          "alpha": 0.1,
+          "metrics": {
+            "map": 0.9900793650793651,
+            "mrr": 1.0,
+            "ndcg@10": 0.9957073777283852
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "title_trigram",
+          "alpha": 0.005,
+          "metrics": {
+            "map": 0.9900793650793651,
+            "mrr": 1.0,
+            "ndcg@10": 0.9954026086139416
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "title_trigram",
+          "alpha": 0.01,
+          "metrics": {
+            "map": 0.9900793650793651,
+            "mrr": 1.0,
+            "ndcg@10": 0.9954026086139416
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "title_trigram",
+          "alpha": 0.02,
+          "metrics": {
+            "map": 0.9900793650793651,
+            "mrr": 1.0,
+            "ndcg@10": 0.9954026086139416
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "title_trigram",
+          "alpha": 0.05,
+          "metrics": {
+            "map": 0.9900793650793651,
+            "mrr": 1.0,
+            "ndcg@10": 0.9954026086139416
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "title_trigram",
+          "alpha": 0.08,
+          "metrics": {
+            "map": 0.9900793650793651,
+            "mrr": 1.0,
+            "ndcg@10": 0.9954026086139416
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "title_trigram",
+          "alpha": 0.1,
+          "metrics": {
+            "map": 0.9900793650793651,
+            "mrr": 1.0,
+            "ndcg@10": 0.9954026086139416
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "title_trigram",
+          "alpha": 0.15,
+          "metrics": {
+            "map": 0.9900793650793651,
+            "mrr": 1.0,
+            "ndcg@10": 0.9954026086139416
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "title_trigram",
+          "alpha": 0.2,
+          "metrics": {
+            "map": 0.9900793650793651,
+            "mrr": 1.0,
+            "ndcg@10": 0.9954026086139416
+          }
+        }
+      ]
+    }
+  ]
+}

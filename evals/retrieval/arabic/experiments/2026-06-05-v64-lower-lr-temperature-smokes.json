@@ -1,0 +1,185 @@
+{
+  "date": "2026-06-05",
+  "experiment_id": "2026-06-05-v64-lower-lr-temperature-smokes",
+  "status": "completed_rejected_for_scaling",
+  "goal": "Test whether a lower official FlagEmbedding BGE-M3 head-only learning rate and training score temperature can preserve the base-best/model-card surface while keeping the sparse+ColBERT local gains seen in v63.",
+  "source_records": [
+    "experiments/2026-06-05-v63-research-and-controlled-diagnostic-plan.json",
+    "experiments/2026-06-05-v63-bge-m3-weight-diagnostic-result.json",
+    "experiments/2026-06-05-official-m3-no-ddp-student-smokes-v61-v62.json"
+  ],
+  "fresh_sources_checked": [
+    {
+      "source": "BGE-M3 model card",
+      "url": "https://huggingface.co/BAAI/bge-m3",
+      "implication": "BGE-M3 is a dense+sparse+ColBERT model; a standalone student should preserve all three modes rather than optimize dense-only behavior."
+    },
+    {
+      "source": "FlagEmbedding M3 modeling source documentation",
+      "url": "https://bge-model.com/_modules/FlagEmbedding/finetune/embedder/encoder_only/m3/modeling.html",
+      "implication": "Official M3 unified finetuning trains sparse and ColBERT heads and combines dense, sparse, and ColBERT scores; fusion surface mismatch can hide or exaggerate progress."
+    },
+    {
+      "source": "BGE-M3 paper",
+      "url": "https://arxiv.org/abs/2402.03216",
+      "implication": "The original method uses self-knowledge distillation across retrieval functionalities and large-batch training, so head-only small-data KD is a limited approximation."
+    },
+    {
+      "source": "SentenceTransformers loss documentation",
+      "url": "https://sbert.net/docs/package_reference/sentence_transformer/losses.html",
+      "implication": "For student retrievers, cached large-batch and guide-model losses are plausible alternatives when simple MarginMSE or small head-only KD is too weak."
+    },
+    {
+      "source": "Beyond Hard Negatives: The Importance of Score Distribution in Knowledge Distillation for Dense Retrieval",
+      "url": "https://arxiv.org/abs/2604.04734",
+      "implication": "The next data design should preserve teacher score distribution and not only feed top hard negatives, because top-only hard negatives can underrepresent teacher preferences."
+    },
+    {
+      "source": "MTEB repository",
+      "url": "https://github.com/embeddings-benchmark/mteb",
+      "implication": "Any later public standalone-model claim needs standard benchmark result files and same-task/same-split evidence, not a private diagnostic alone."
+    }
+  ],
+  "remote_artifacts": {
+    "v64a_training_output": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/training-smoke-bge-m3-official-no-ddp-v64a-lr3e-6-t002",
+    "v64a_diagnostic_summary": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/v64a-lr3e-6-t002-weight-diagnostic/summary.json",
+    "v64b_training_output": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/training-smoke-bge-m3-official-no-ddp-v64b-lr3e-6-t005",
+    "v64b_diagnostic_summary": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/v64b-lr3e-6-t005-weight-diagnostic/summary.json",
+    "raw_outputs_committed": false,
+    "logs_committed": false,
+    "checkpoints_committed": false
+  },
+  "common_training_config": {
+    "base_model": "BAAI/bge-m3",
+    "teacher_rows": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/teacher-miracl-ar-train-bge-reranker-v2-m3-v50/teacher_train_reranker.jsonl",
+    "max_example_num_per_dataset": 2048,
+    "train_group_size": 9,
+    "per_device_train_batch_size": 4,
+    "num_train_epochs": 1,
+    "knowledge_distillation": true,
+    "kd_loss_type": "m3_kd_loss",
+    "unified_finetuning": true,
+    "fix_encoder": true,
+    "trainable_parameters": [
+      "sparse_linear",
+      "colbert_linear"
+    ],
+    "use_self_distill": false,
+    "query_max_len": 64,
+    "passage_max_len": 128
+  },
+  "diagnostic_surface": {
+    "candidate_run_file": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/miracl-official-ar-bge-m3-hybrid-r100-v43/runfiles/ar_dev.txt",
+    "query_count": 200,
+    "candidate_depth": 100,
+    "same_candidate_pool": true,
+    "metric": "main_score/ndcg_at_10",
+    "required_best_vs_best_delta": 0.005,
+    "required_model_card_delta": 0.005,
+    "weights_checked": {
+      "model_card": [
+        0.4,
+        0.2,
+        0.4
+      ],
+      "base_colbert_heavy": [
+        0.25,
+        0.15,
+        0.6
+      ],
+      "colbert_70": [
+        0.15,
+        0.15,
+        0.7
+      ],
+      "sparse_40_balanced": [
+        0.3,
+        0.4,
+        0.3
+      ],
+      "sparse_45": [
+        0.275,
+        0.45,
+        0.275
+      ],
+      "sparse_50_colbert": [
+        0.15,
+        0.5,
+        0.35
+      ],
+      "sparse_colbert_even": [
+        0.0,
+        0.5,
+        0.5
+      ],
+      "sparse_colbert_high": [
+        0.0,
+        0.4,
+        0.6
+      ]
+    }
+  },
+  "runs": [
+    {
+      "name": "v64a-lr3e-6-t002",
+      "learning_rate": 0.000003,
+      "temperature": 0.02,
+      "train_runtime_seconds": 99.8958,
+      "train_loss": 0.6489996118471026,
+      "base_best": {
+        "weight_label": "base_colbert_heavy",
+        "main_score": 0.7924189216587174
+      },
+      "student_best": {
+        "weight_label": "base_colbert_heavy",
+        "main_score": 0.7930576378317291
+      },
+      "best_vs_best_delta": 0.0006387161730116997,
+      "model_card_delta": 0.001917673725076341,
+      "best_same_weight_delta": {
+        "weight_label": "sparse_50_colbert",
+        "base_main_score": 0.7765794737243236,
+        "student_main_score": 0.7871362156623419,
+        "delta": 0.010556741938018366
+      },
+      "gate": "fail"
+    },
+    {
+      "name": "v64b-lr3e-6-t005",
+      "learning_rate": 0.000003,
+      "temperature": 0.05,
+      "train_runtime_seconds": 100.8005,
+      "train_loss": 0.701290556229651,
+      "base_best": {
+        "weight_label": "base_colbert_heavy",
+        "main_score": 0.7924189216587174
+      },
+      "student_best": {
+        "weight_label": "model_card",
+        "main_score": 0.7914062728748249
+      },
+      "best_vs_best_delta": -0.0010126487838925113,
+      "model_card_delta": 0.002202270016130159,
+      "best_same_weight_delta": {
+        "weight_label": "sparse_colbert_even",
+        "base_main_score": 0.7740961155314829,
+        "student_main_score": 0.7765281127979478,
+        "delta": 0.0024319972664648137
+      },
+      "gate": "fail"
+    }
+  ],
+  "interpretation": [
+    "Lowering the head-only learning rate from v62's 1e-5 to 3e-6 reduced damage on the ColBERT-heavy best surface but did not produce a robust student improvement.",
+    "v64a preserved the base-best surface with only +0.000639 best-vs-best nDCG@10 and improved a weaker sparse-heavy surface by +0.010557, which repeats the v63 pattern of localized sparse/ColBERT correction without a strong standalone gain.",
+    "v64b's higher training temperature did not help: the best student surface trailed the best base surface by -0.001013 and several high-ColBERT or sparse-heavy weights degraded.",
+    "The evidence argues against blindly scaling v62/v64 with more rows or nearby temperatures. The next attempt should redesign the teacher-data distribution and validation loop before using more GPU."
+  ],
+  "decision": {
+    "scale_v64": false,
+    "publish_checkpoint": false,
+    "upload_checkpoint": false,
+    "full_dev_evaluation": false,
+    "next_action": "Build a v65 data-distribution diagnostic before the next training run: inspect teacher score histograms, query-level entropy, positive/negative strata, and held-out coverage; then generate stratified teacher rows that mix positives, hard negatives, middle-score negatives, and easy negatives. Only after this should another official M3 head or broader student run be launched."
+  }
+}

@@ -1,0 +1,111 @@
+{
+  "experiment_id": "2026-06-03-retrieval-miracl-ar-baseline-v17",
+  "created_utc": "2026-06-03T03:09:11Z",
+  "source": {
+    "remote_host": "hhai-zijun",
+    "remote_output_source": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/arabic-embedding-retrieval-miracl-ar-baseline",
+    "local_parse_source": "/tmp/arabic-miracl-retrieval-v17",
+    "raw_outputs_committed": false,
+    "kaggle_context": "Kaggle GPU quota was exhausted, so this retrieval baseline used the approved remote L20 GPU."
+  },
+  "scope": {
+    "purpose": "High-signal Arabic retrieval baseline on MIRACLRetrieval after compact Sadeem retrieval.",
+    "batch_size": 8,
+    "max_seq_length": 256,
+    "tasks": [
+      "MIRACLRetrieval"
+    ],
+    "eval_subsets": [
+      "ar"
+    ],
+    "models": [
+      "BAAI/bge-m3",
+      "intfloat/multilingual-e5-large-instruct",
+      "Omartificial-Intelligence-Space/Arabic-Triplet-Matryoshka-V2"
+    ],
+    "hardware": "NVIDIA L20",
+    "torch": "2.6.0+cu124",
+    "mteb": "2.12.30"
+  },
+  "results": [
+    {
+      "model": "BAAI/bge-m3",
+      "task": "MIRACLRetrieval",
+      "status": "complete",
+      "family": "retrieval",
+      "mteb_version": "2.12.30",
+      "dataset_revision": "9c09abc13478308c27598f350e31d8f06b9b5481",
+      "evaluation_time_sec": 6789.774,
+      "primary_metric": "main_score/ndcg_at_10",
+      "primary_score": 0.78523,
+      "ndcg_at_10": 0.78523,
+      "map_at_10": 0.7207,
+      "mrr_at_10": 0.808149,
+      "recall_at_10": 0.87622,
+      "precision_at_10": 0.16502,
+      "hit_rate_at_10": 0.94199,
+      "languages": [
+        "ara-Arab"
+      ],
+      "subset": "ar"
+    },
+    {
+      "model": "intfloat/multilingual-e5-large-instruct",
+      "task": "MIRACLRetrieval",
+      "status": "complete",
+      "family": "retrieval",
+      "mteb_version": "2.12.30",
+      "dataset_revision": "9c09abc13478308c27598f350e31d8f06b9b5481",
+      "evaluation_time_sec": 3495.004,
+      "primary_metric": "main_score/ndcg_at_10",
+      "primary_score": 0.76456,
+      "ndcg_at_10": 0.76456,
+      "map_at_10": 0.69556,
+      "mrr_at_10": 0.794536,
+      "recall_at_10": 0.85782,
+      "precision_at_10": 0.16022,
+      "hit_rate_at_10": 0.93612,
+      "languages": [
+        "ara-Arab"
+      ],
+      "subset": "ar"
+    },
+    {
+      "model": "Omartificial-Intelligence-Space/Arabic-Triplet-Matryoshka-V2",
+      "task": "MIRACLRetrieval",
+      "status": "complete",
+      "family": "retrieval",
+      "mteb_version": "2.12.30",
+      "dataset_revision": "9c09abc13478308c27598f350e31d8f06b9b5481",
+      "evaluation_time_sec": 2482.29,
+      "primary_metric": "main_score/ndcg_at_10",
+      "primary_score": 0.61307,
+      "ndcg_at_10": 0.61307,
+      "map_at_10": 0.53295,
+      "mrr_at_10": 0.640482,
+      "recall_at_10": 0.73209,
+      "precision_at_10": 0.13567,
+      "hit_rate_at_10": 0.84565,
+      "languages": [
+        "ara-Arab"
+      ],
+      "subset": "ar"
+    }
+  ],
+  "comparison": {
+    "winner": "BAAI/bge-m3",
+    "winner_primary_score": 0.78523,
+    "delta_vs_e5": 0.02067,
+    "delta_vs_arabic_triplet": 0.17216,
+    "fastest_model": "Omartificial-Intelligence-Space/Arabic-Triplet-Matryoshka-V2",
+    "fastest_evaluation_time_sec": 2482.29
+  },
+  "interpretation": [
+    "BGE-M3 wins the high-signal MIRACLRetrieval Arabic subset with main_score/ndcg_at_10 0.785230.",
+    "BGE-M3 beats E5 by +0.020670 nDCG@10 and Arabic Triplet by +0.172160 on the same task, subset, batch size, and max sequence length.",
+    "This reinforces BGE-M3 as the current dense retrieval/reranking teacher for MIRACL-style Arabic tasks.",
+    "Arabic Triplet is much faster but not competitive as a broad retrieval model.",
+    "Because BGE-M3 supports dense, sparse, and multi-vector retrieval, this dense-only MTEB result may still understate its best retrieval configuration."
+  ],
+  "next_experiment": "Do a research-backed next step rather than blindly launching another run: either add Qwen3-Embedding-4B/8B as a strong multilingual leaderboard baseline on MIRACLRetrieval ar, run MKQARetrieval ar for BGE/E5/Qwen, or begin training-data construction using BGE-M3 as the MIRACL-style teacher."
+}

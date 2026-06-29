@@ -1,0 +1,73 @@
+{
+  "experiment_id": "2026-06-04-qwen3-8b-miracl-ar-full-cache-v32",
+  "status": "completed",
+  "purpose": "Full Arabic MIRACLRetrieval dense evaluation for Qwen3-Embedding-8B using a resumable corpus embedding cache and chunked top-k scoring.",
+  "model": "Qwen/Qwen3-Embedding-8B",
+  "task": "MIRACLRetrieval",
+  "dataset": "mteb/MIRACLRetrieval",
+  "dataset_revision": "9c09abc13478308c27598f350e31d8f06b9b5481",
+  "subset": "ar",
+  "split": "dev",
+  "evaluator": {
+    "script": "scripts/run_miracl_cached_retrieval.py",
+    "method": "direct SentenceTransformer encode_queries/encode_corpus, float16 corpus memmap cache, torch chunked exact top-k scoring",
+    "top_k": 10,
+    "cache_output_dir": "remote_outputs/miracl-ar-qwen3-8b-full-cache-v32",
+    "note": "This is a full-corpus cached dense run, not the earlier 10k diagnostic sample."
+  },
+  "runtime_config": {
+    "device": "NVIDIA L20",
+    "batch_size": 62,
+    "max_seq_length": 256,
+    "encode_chunk_size": 1000,
+    "score_corpus_chunk_size": 50000,
+    "corpus_count": 2061414,
+    "query_count": 2896,
+    "positive_count": 5658,
+    "embedding_dim": 4096,
+    "cache_storage_dtype": "float16"
+  },
+  "metrics": {
+    "main_score": 0.7001642645001055,
+    "ndcg_at_10": 0.7001642645001055,
+    "map_at_10": 0.6238639495693663,
+    "mrr_at_10": 0.7192861801718846,
+    "recall_at_10": 0.8175611681136543,
+    "precision_at_10": 0.14982734806629835,
+    "hit_rate_at_10": 0.9074585635359116
+  },
+  "timings": {
+    "query_encode_seconds": 9.845033036544919,
+    "query_texts_per_second": 294.15848471508446,
+    "corpus_encode_seconds": 45686.46950725,
+    "corpus_encode_hours": 12.690685974236112,
+    "corpus_texts_per_second": 45.1208863856918,
+    "score_elapsed_seconds": 83.3535988861695,
+    "total_measured_seconds": 45779.66813917272,
+    "total_measured_hours": 12.716574483103532
+  },
+  "comparison_context": {
+    "full_miracl_ar_dense_results": {
+      "BAAI/bge-m3": {
+        "ndcg_at_10": 0.78523,
+        "delta_vs_qwen3_8b": -0.08506573549989449
+      },
+      "intfloat/multilingual-e5-large-instruct": {
+        "ndcg_at_10": 0.76456,
+        "delta_vs_qwen3_8b": -0.06439573549989452
+      },
+      "Omartificial-Intelligence-Space/Arabic-Triplet-Matryoshka-V2": {
+        "ndcg_at_10": 0.61307,
+        "delta_vs_qwen3_8b": 0.08709426450010549
+      }
+    }
+  },
+  "interpretation": [
+    "Qwen3-Embedding-8B completed the full Arabic MIRACLRetrieval corpus under the cached direct dense evaluator with main_score/ndcg_at_10 0.700164.",
+    "This does not beat the completed BGE-M3 or multilingual-e5-large-instruct full MIRACL Arabic dense baselines in this repo.",
+    "The run validates the cache workflow: full corpus encoding completed in about 12.69 hours and scoring took about 83 seconds.",
+    "Because Qwen3 is instruction-aware and this is a direct dense evaluator, future Qwen work should check prompt/template control before treating this as the model family's best possible MIRACL Arabic result.",
+    "For immediate full MIRACL Arabic dense teacher selection, BGE-M3 remains the strongest completed baseline."
+  ],
+  "next_experiment": "Do prompt/template research for Qwen3 retrieval or move to BGE-M3 hybrid retrieval; do not claim Qwen3-Embedding-8B as SOTA from this direct dense run."
+}

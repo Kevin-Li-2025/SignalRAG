@@ -1,0 +1,101 @@
+{
+  "date": "2026-06-05",
+  "experiment_id": "2026-06-05-flagembedding-m3-no-ddp-v60-probe",
+  "status": "completed_probe_only",
+  "goal": "Recover the official FlagEmbedding BGE-M3 teacher-score training path for a standalone hybrid-aware Arabic student by isolating the v41/v60 SIGSEGV blocker.",
+  "remote_environment": {
+    "host": "hhai-zijun",
+    "device": "NVIDIA L20",
+    "workdir": "/home/hhai/arabic-embedding-sota-lab",
+    "overlay_venv": "/home/hhai/arabic-embedding-sota-lab/.venv-flag-ft-v60",
+    "python": "3.12.3",
+    "torch": "2.6.0+cu124",
+    "cuda_available": true,
+    "flagembedding": "1.3.5 from the existing project venv",
+    "transformers": "4.44.2",
+    "accelerate": "0.34.2",
+    "datasets": "2.21.0",
+    "tokenizers": "0.19.1"
+  },
+  "research_basis": [
+    {
+      "source": "https://arxiv.org/abs/2402.03216",
+      "implication": "BGE-M3 is designed around dense, sparse, and multi-vector retrieval, so the next standalone student should preserve the official M3 retrieval surface."
+    },
+    {
+      "source": "https://bge-model.com/tutorial/7_Finetuning/7.1.2.html",
+      "implication": "The official FlagEmbedding finetuning path supports teacher-score distillation data with query, pos, neg, pos_scores, and neg_scores fields."
+    },
+    {
+      "source": "https://bge-model.com/API/finetune/embedder/encoder_only/m3/modeling.html",
+      "implication": "The official M3 training implementation exposes unified dense/sparse/ColBERT losses and head-only training via fix_encoder."
+    }
+  ],
+  "teacher_data": {
+    "source": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/teacher-miracl-ar-train-bge-reranker-v2-m3-v50/teacher_train_reranker.jsonl",
+    "rows_available": 3495,
+    "teacher": "BAAI/bge-reranker-v2-m3 over MIRACL Arabic train rows from BGE-M3 hybrid r100 candidates",
+    "raw_data_committed": false
+  },
+  "probes": [
+    {
+      "name": "v60-overlay-torchrun-unified",
+      "launcher": "python -m torch.distributed.run --nproc_per_node=1",
+      "unified_finetuning": true,
+      "fix_encoder": true,
+      "kd_loss_type": "m3_kd_loss",
+      "max_steps": 1,
+      "result": "failed",
+      "failure": "SIGSEGV before completing the first training step under torchrun/DDP."
+    },
+    {
+      "name": "v60b-overlay-torchrun-dense",
+      "launcher": "python -m torch.distributed.run --nproc_per_node=1",
+      "unified_finetuning": false,
+      "fix_encoder": false,
+      "kd_loss_type": "kl_div",
+      "max_steps": 1,
+      "result": "failed",
+      "failure": "SIGSEGV in torch.nn.parallel.DistributedDataParallel parameter-shape verification via Accelerate prepare_model."
+    },
+    {
+      "name": "v60c-no-ddp-dense",
+      "launcher": "scripts/run_flagembedding_m3_no_ddp.py",
+      "unified_finetuning": false,
+      "fix_encoder": false,
+      "kd_loss_type": "kl_div",
+      "max_steps": 1,
+      "result": "completed",
+      "train_loss": 1.3408616781234741,
+      "train_runtime_seconds": 0.6209
+    },
+    {
+      "name": "v60d-no-ddp-unified-head-only",
+      "launcher": "scripts/run_flagembedding_m3_no_ddp.py",
+      "unified_finetuning": true,
+      "fix_encoder": true,
+      "kd_loss_type": "m3_kd_loss",
+      "max_steps": 1,
+      "result": "completed",
+      "train_loss": 0.011696870438754559,
+      "train_runtime_seconds": 0.6383
+    }
+  ],
+  "interpretation": [
+    "The official FlagEmbedding M3 trainer is not inherently blocked on this remote GPU.",
+    "The v41/v60 blocker is the torchrun/DDP path on the current L20 binary stack; faulthandler places the crash in DDP parameter-shape verification, before model-quality evidence is produced.",
+    "A single-process wrapper that only patches uninitialized torch.distributed get_rank/get_world_size is sufficient to run both dense KD and unified dense+sparse+ColBERT head-only KD for one step.",
+    "This is an engineering unblock, not a model improvement. No v60 checkpoint should be uploaded or claimed."
+  ],
+  "decision": {
+    "scale_now": false,
+    "publish_checkpoint": false,
+    "next_experiment": "Run a gated official FlagEmbedding M3 no-DDP head-only smoke using the v50 teacher rows and the existing v52-v54 same-candidate diagnostic. It must beat the frozen BGE-M3 hybrid base by at least +0.005 nDCG@10 before any larger standalone-student training."
+  },
+  "artifact_policy": {
+    "raw_outputs_committed": false,
+    "logs_committed": false,
+    "checkpoints_committed": false,
+    "credentials_committed": false
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "id": "likevin2005/arabic-retrieval-lab",
+  "title": "Arabic Retrieval Lab",
+  "code_file": "kaggle_entrypoint.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": true,
+  "enable_gpu": true,
+  "enable_tpu": false,
+  "enable_internet": true,
+  "machine_shape": "NvidiaTeslaT4",
+  "keywords": [
+    "nlp",
+    "transformers",
+    "arabic",
+    "embeddings",
+    "mteb"
+  ],
+  "dataset_sources": [],
+  "kernel_sources": [],
+  "competition_sources": [],
+  "model_sources": []
+}

@@ -1,0 +1,28 @@
+{
+  "experiment_id": "2026-06-02-reranking-miracl-full-v12-failed",
+  "kernel": "likevin2005/arabic-embedding-sota-lab",
+  "kaggle_version": 12,
+  "status": "cancel_acknowledged",
+  "failure_message": "Your notebook was stopped because it exceeded the max allowed execution duration.",
+  "purpose": "Full MIRACLReranking baseline across all MIRACL subsets and three tracked models.",
+  "models": [
+    "intfloat/multilingual-e5-large-instruct",
+    "BAAI/bge-m3",
+    "Omartificial-Intelligence-Space/Arabic-Triplet-Matryoshka-V2"
+  ],
+  "tasks": [
+    "MIRACLReranking"
+  ],
+  "outputs": {
+    "miracl_outputs_published": false,
+    "latest_downloadable_files": "Only prior v11 Namaa reranking artifacts were listed after cancellation."
+  },
+  "log_summary": [
+    "Dependencies installed successfully.",
+    "The run loaded model weights and reached MTEB task selection.",
+    "MTEB selected MIRACLReranking with 18 / 18 multilingual subsets.",
+    "No MIRACL result files or summary were published before the max-duration stop."
+  ],
+  "conclusion": "The full all-subset MIRACL reranking batch is too large for the current Kaggle T4 workflow.",
+  "next_step": "Use the prepared v13 Arabic-only E5 run once Kaggle GPU quota is available."
+}

@@ -1,0 +1,72 @@
+{
+  "experiment_id": "2026-06-05-bge-reranker-v2-gemma-full-v57",
+  "created_utc": "2026-06-05T03:50:00Z",
+  "status": "completed",
+  "purpose": "Run the full MIRACL Arabic dev evaluation for BGE reranker v2 Gemma after the v55b 200-query gate was promising.",
+  "source": {
+    "remote_host": "hhai-zijun",
+    "remote_output_source": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/miracl-ar-bge-reranker-v2-gemma-flagllm-full-v57",
+    "raw_outputs_committed": false
+  },
+  "first_stage": {
+    "experiment_id": "2026-06-04-miracl-official-ar-bge-m3-hybrid-r100-v43",
+    "candidate_depth": 100,
+    "metrics_on_same_queries": {
+      "main_score": 0.8011099981276549,
+      "ndcg_at_10": 0.8011099981276549,
+      "map_at_10": 0.7380213421214864,
+      "mrr_at_10": 0.8198457916776286,
+      "recall_at_10": 0.89322341160221
+    }
+  },
+  "reranker": {
+    "model": "BAAI/bge-reranker-v2-gemma",
+    "backend": "FlagEmbedding FlagLLMReranker",
+    "script": "scripts/rerank_miracl_candidates.py",
+    "batch_size": 8,
+    "max_length": 512
+  },
+  "dataset": {
+    "name": "mteb/MIRACLRetrieval",
+    "revision": "9c09abc13478308c27598f350e31d8f06b9b5481",
+    "subset": "ar",
+    "split": "dev",
+    "query_count": 2896,
+    "positive_count": 5015,
+    "candidate_depth": 100,
+    "top_k": 100,
+    "metric_k": 10
+  },
+  "metrics": {
+    "main_score": 0.8237583477619825,
+    "ndcg_at_10": 0.8237583477619825,
+    "map_at_10": 0.7640167418544306,
+    "mrr_at_10": 0.839830527054284,
+    "recall_at_10": 0.9121789496185215,
+    "precision_at_10": 0.1734806629834254,
+    "hit_rate_at_10": 0.960635359116022
+  },
+  "comparisons": {
+    "delta_vs_first_stage_v43": 0.02264834963432759,
+    "delta_vs_bge_reranker_v2_m3_v47": 0.006027587867841514,
+    "delta_vs_bge_reranker_v2_m3_score_blend_v56": -0.004846181449560207
+  },
+  "timings": {
+    "rerank_elapsed_seconds": 4842.642504370771,
+    "rerank_pairs": 289600,
+    "pairs_per_second": 59.80412170102047
+  },
+  "run_file": {
+    "path": "remote_outputs/miracl-ar-bge-reranker-v2-gemma-flagllm-full-v57/ar_dev_bge-reranker-v2-gemma-flagllm-full-v57.txt",
+    "queries": 2896,
+    "depth": 100,
+    "lines": 289600,
+    "raw_output_committed": false
+  },
+  "interpretation": [
+    "The full Gemma reranker run beats the v43 BGE-M3 hybrid first stage and the v47 BGE-reranker-v2-m3 reranker-only system.",
+    "It does not beat the current v56 score-blended system, trailing by 0.004846 nDCG@10, so v56 remains the strongest completed retrieval-system result.",
+    "Gemma remains useful as a possible teacher-diversity or ensemble signal, but it should not replace v56 as the current teacher without a held-out blend or ensemble improvement."
+  ],
+  "next_experiment": "Prioritize the v58 standalone student smoke now that the GPU is free. Consider a disciplined Gemma score-blend/ensemble only after v58 is evaluated or if teacher diversity is needed for the next distillation round."
+}

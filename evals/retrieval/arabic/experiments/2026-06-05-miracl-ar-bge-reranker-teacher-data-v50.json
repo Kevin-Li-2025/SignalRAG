@@ -1,0 +1,69 @@
+{
+  "experiment_id": "2026-06-05-miracl-ar-bge-reranker-teacher-data-v50",
+  "date": "2026-06-05",
+  "purpose": "Upgrade the MIRACL Arabic train teacher JSONL by replacing BGE-M3 hybrid teacher scores with the stronger v47 BGE reranker teacher scores, while preserving original hybrid scores for analysis.",
+  "status": "completed",
+  "remote_output_source": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/teacher-miracl-ar-train-bge-reranker-v2-m3-v50",
+  "local_parse_source": "/tmp/v50-teacher-reranker-summary/summary.json",
+  "input_teacher_data": {
+    "source": "remote_outputs/teacher-miracl-ar-train-bge-m3-hybrid-r100-v1/teacher_train.jsonl",
+    "raw_training_data_committed": false,
+    "source_experiment": "2026-06-04-miracl-ar-bge-m3-hybrid-teacher-data-v38",
+    "source_teacher": "BAAI/bge-m3 hybrid r100 [0.4, 0.2, 0.4]"
+  },
+  "reranker_teacher": {
+    "model": "BAAI/bge-reranker-v2-m3",
+    "backend": "sequence-classification",
+    "source_experiment": "2026-06-05-bge-reranker-v2-m3-miracl-ar-v47",
+    "batch_size": 32,
+    "score_chunk_size": 2048,
+    "max_length": 512
+  },
+  "research_refresh": [
+    "BGE-M3 official documentation emphasizes dense, sparse, and multi-vector retrieval plus hybrid ranking, so distillation targets should preserve richer ranking signals rather than only dense embeddings.",
+    "BGE fine-tuning documentation treats pos_scores and neg_scores as first-class knowledge-distillation inputs.",
+    "SentenceTransformers MarginMSELoss documentation supports teacher-score margin distillation, but previous dense-only BGE-M3 smokes showed that the student/evaluation surface must match the teacher surface.",
+    "The MIRACL official repository confirms Arabic train/dev scale: 3,495 train queries, 2,896 dev queries, and a 2.06M-passage Arabic corpus.",
+    "Qwen3-Embedding-8B remains a strong public multilingual reference, but the completed same-task dense and reranker gates in this repo do not displace the BGE-M3 hybrid plus BGE reranker path."
+  ],
+  "outputs": {
+    "summary_json": "summary.json",
+    "teacher_train_reranker_jsonl": "teacher_train_reranker.jsonl",
+    "raw_training_data_committed": false,
+    "note": "The generated JSONL contains raw query and passage text and is intentionally not committed."
+  },
+  "counts": {
+    "query_count": 3495,
+    "rows_with_scores": 3495,
+    "positive_pairs": 4949,
+    "negative_pairs": 27960,
+    "selected_negative_sources": {
+      "judged_negative": 12889,
+      "unjudged_candidate": 15071
+    }
+  },
+  "score_stats": {
+    "mean_positive_score": 6.251401389818236,
+    "mean_negative_score": 0.7512604843222873,
+    "mean_positive_minus_negative": 5.5001409054959485,
+    "mean_best_positive_minus_best_negative": 2.466470378117159,
+    "mean_row_mean_positive_minus_mean_negative": 5.653496841555501,
+    "positive_above_max_negative_rows": 2653,
+    "positive_above_max_negative_rate": 0.7590844062947067,
+    "all_positives_above_all_negatives_rows": 2178,
+    "all_positives_above_all_negatives_rate": 0.623175965665236,
+    "hybrid_margin_vs_reranker_margin_pearson": 0.8291772449035898
+  },
+  "timings": {
+    "elapsed_seconds": 130.37985114753246,
+    "pairs_scored": 32909,
+    "pairs_per_second": 252.4086330084971
+  },
+  "conclusions": [
+    "The reranker teacher gives a much stronger positive-vs-hard-negative separation than the v38 hybrid scores: mean margin +5.500141 versus v38 +0.080411, with the caveat that the score scales are different.",
+    "The reranker still exposes hard/ambiguous training cases: in 24.1% of rows, at least one selected hard negative scores above the best positive, so those rows should be downweighted, filtered, or used carefully in distillation.",
+    "This is a training-data upgrade, not a benchmark result and not a standalone embedding-model SOTA claim.",
+    "The generated JSONL is now the best available local teacher target for a student, because it uses official MIRACL train queries and the current strongest same-task v47 reranker teacher without dev-text leakage."
+  ],
+  "next_experiment": "Run a conservative student-training smoke from v50: either a dense student distilled from reranker margins with filtered high-confidence rows, or a custom BGE-M3 sparse/ColBERT head-only distillation loop that uses v50 reranker scores while preserving the hybrid retrieval surface."
+}

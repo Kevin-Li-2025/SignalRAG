@@ -1,0 +1,90 @@
+{
+  "experiment_id": "2026-06-05-student-distill-v58-result",
+  "created_utc": "2026-06-05T04:00:00Z",
+  "status": "completed_negative",
+  "purpose": "Gate the first standalone BGE-M3 student retriever smoke trained from v50 teacher margins before any larger distillation.",
+  "source": {
+    "remote_host": "hhai-zijun",
+    "remote_output_source": "/home/hhai/arabic-embedding-sota-lab/outputs/student-distill-v58/model",
+    "raw_training_data_committed": false,
+    "checkpoint_committed": false,
+    "logs_committed": false
+  },
+  "training": {
+    "setup_record": "experiments/2026-06-05-student-distill-v58-setup.json",
+    "base_model": "BAAI/bge-m3",
+    "loss": "MarginMSELoss",
+    "train_rows": 1000,
+    "train_triples": 4000,
+    "heldout_rows": 200,
+    "heldout_triples": 800,
+    "query_overlap": 0,
+    "num_train_epochs": 1.0,
+    "learning_rate": 1e-06,
+    "effective_batch_size": 16,
+    "max_seq_length": 256,
+    "train_runtime_seconds": 287.2963,
+    "train_samples_per_second": 13.923,
+    "train_steps_per_second": 0.87,
+    "train_loss": 0.5357764492034912,
+    "epoch": 1.0,
+    "restart_note": "The first queue launch failed before training because PYTHONPATH did not include src on the remote host. It was restarted with PYTHONPATH=/home/hhai/arabic-embedding-sota-lab/src:/home/hhai/arabic-embedding-sota-lab/scripts."
+  },
+  "eval_sample": {
+    "dataset": "mteb/MIRACLRetrieval",
+    "dataset_revision": "9c09abc13478308c27598f350e31d8f06b9b5481",
+    "subset": "ar",
+    "split": "dev",
+    "sample": "200 queries / 5000 docs positive-plus-negatives sample; not comparable to full MIRACL results.",
+    "seed": 20260603,
+    "corpus_size": 5000,
+    "query_count": 200,
+    "positive_doc_count": 381,
+    "base_model": "BAAI/bge-m3",
+    "base_main_score": 0.9747897936644648,
+    "final_main_score": 0.831359136258766,
+    "delta_final_minus_base": -0.1434306574056988,
+    "base_metrics": {
+      "ndcg_at_10": 0.9747897936644648,
+      "map_at_10": 0.9653660714285714,
+      "mrr_at_10": 0.98375,
+      "recall_at_10": 0.983,
+      "precision_at_10": 0.19,
+      "hit_rate_at_10": 0.99,
+      "main_score": 0.9747897936644648
+    },
+    "final_metrics": {
+      "ndcg_at_10": 0.831359136258766,
+      "map_at_10": 0.7917037698412699,
+      "mrr_at_10": 0.9002499999999999,
+      "recall_at_10": 0.8422083333333333,
+      "precision_at_10": 0.15400000000000003,
+      "hit_rate_at_10": 0.93,
+      "main_score": 0.831359136258766
+    }
+  },
+  "research_refresh": [
+    {
+      "source": "SentenceTransformers MarginMSELoss documentation",
+      "url": "https://sbert.net/docs/package_reference/sentence_transformer/losses.html",
+      "implication": "MarginMSELoss is appropriate for teacher-score distillation, but this result shows that the dense-only BGE-M3 student objective still regresses on the current MIRACL diagnostic."
+    },
+    {
+      "source": "BGE-M3 paper",
+      "url": "https://arxiv.org/abs/2402.03216",
+      "implication": "BGE-M3's strength comes from dense, sparse, and multi-vector retrieval; dense-only checkpoint training is likely discarding the retrieval surface that made the teacher strong."
+    },
+    {
+      "source": "FlagEmbedding BGE-M3 modeling documentation",
+      "url": "https://bge-model.com/_modules/FlagEmbedding/finetune/embedder/encoder_only/m3/modeling.html",
+      "implication": "The next training attempt should use teacher_scores with BGE-M3's dense, sparse, ColBERT, or ensemble losses rather than another plain SentenceTransformer dense-only checkpoint."
+    }
+  ],
+  "interpretation": [
+    "v58 is less catastrophic than v51 but still fails the gate by a large margin.",
+    "The checkpoint should not be scaled, uploaded, or described as an improved standalone Arabic retriever.",
+    "The repeated dense-only failures suggest the teacher signal is fundamentally hybrid/reranker-shaped; the next student design must preserve sparse and multi-vector behavior or use a different validation-aware distillation target."
+  ],
+  "decision": "Reject v58 for scaling and publication.",
+  "next_experiment": "Design a stronger standalone-student route before more GPU training: either fix the FlagEmbedding BGE-M3 unified teacher-score path, train/evaluate sparse+ColBERT heads with a full validation gate, or distill to a model whose inference path includes the retrieval modes being supervised."
+}

@@ -1,0 +1,88 @@
+{
+  "experiment_id": "2026-06-04-bge-m3-hybrid-miracl-ar-r50-v33",
+  "created_utc": "2026-06-04T13:33:53Z",
+  "status": "completed",
+  "purpose": "Full Arabic MIRACLRetrieval evaluation for BGE-M3 hybrid dense+sparse candidate generation plus dense+sparse+ColBERT reranking.",
+  "source": {
+    "remote_host": "hhai-zijun",
+    "remote_output_source": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/bge-m3-hybrid-miracl-ar-r50-v33",
+    "local_parse_source": "/tmp/bge-m3-hybrid-v33",
+    "raw_outputs_committed": false
+  },
+  "model": "BAAI/bge-m3",
+  "task": "MIRACLRetrieval",
+  "dataset": "mteb/MIRACLRetrieval",
+  "dataset_revision": "9c09abc13478308c27598f350e31d8f06b9b5481",
+  "subset": "ar",
+  "split": "dev",
+  "evaluator": {
+    "script": "scripts/run_miracl_bge_m3_hybrid.py",
+    "method": "Full-corpus dense+sparse candidate generation followed by FlagEmbedding BGEM3FlagModel.compute_score dense+sparse+ColBERT reranking.",
+    "candidate_top_k": 50,
+    "rerank_limit": 50,
+    "top_k": 10,
+    "weights_for_different_modes": [
+      0.4,
+      0.2,
+      0.4
+    ],
+    "note": "This is a full-corpus hybrid run, not the earlier dense-only MTEB baseline."
+  },
+  "runtime_config": {
+    "device": "NVIDIA L20",
+    "batch_size": 32,
+    "rerank_batch_size": 32,
+    "max_length": 256,
+    "max_passage_length": 256,
+    "encode_chunk_size": 1000,
+    "corpus_count": 2061414,
+    "query_count": 2896,
+    "positive_count": 5658
+  },
+  "metrics": {
+    "main_score": 0.800790742096028,
+    "ndcg_at_10": 0.800790742096028,
+    "map_at_10": 0.7377279617245147,
+    "mrr_at_10": 0.8197992030605981,
+    "recall_at_10": 0.8925985760326228,
+    "precision_at_10": 0.16888812154696134,
+    "hit_rate_at_10": 0.9488950276243094
+  },
+  "timings": {
+    "candidate_elapsed_seconds": 3352.6797511084005,
+    "candidate_elapsed_hours": 0.9312999308634446,
+    "candidate_docs_per_second": 614.8556238687854,
+    "rerank_elapsed_seconds": 500.32814776338637,
+    "rerank_pairs": 144800,
+    "total_measured_seconds": 3853.007898871787,
+    "total_measured_hours": 1.0702799719088298
+  },
+  "comparison_context": {
+    "full_miracl_ar_results": {
+      "BAAI/bge-m3 dense": {
+        "ndcg_at_10": 0.78523,
+        "delta_vs_hybrid": 0.015560742096028067
+      },
+      "intfloat/multilingual-e5-large-instruct dense": {
+        "ndcg_at_10": 0.76456,
+        "delta_vs_hybrid": 0.036230742096027994
+      },
+      "Qwen/Qwen3-Embedding-8B direct dense": {
+        "ndcg_at_10": 0.7001642645001055,
+        "delta_vs_hybrid": 0.10062647759592253
+      },
+      "Omartificial-Intelligence-Space/Arabic-Triplet-Matryoshka-V2 dense": {
+        "ndcg_at_10": 0.61307,
+        "delta_vs_hybrid": 0.18772074209602802
+      }
+    }
+  },
+  "interpretation": [
+    "BGE-M3 hybrid r50 is now the strongest completed full Arabic MIRACLRetrieval result in this repo, with main_score/ndcg_at_10 0.800791.",
+    "The hybrid run beats dense BGE-M3 by +0.015561 nDCG@10 on the same dataset revision, subset, split, and top-k metric.",
+    "It also beats E5 by +0.036231, Qwen3-Embedding-8B direct dense by +0.100626, and Arabic Triplet by +0.187721 nDCG@10.",
+    "This validates the practical pivot to BGE-M3 dense+sparse+multi-vector retrieval before model training.",
+    "The claim should remain scoped to this repo's full MIRACL Arabic harness until public same-task leaderboard or ArabicMTEB/Swan comparisons are reproduced."
+  ],
+  "next_experiment": "Run BGE-M3 hybrid r100 on the same full Arabic MIRACL split. If the gain is stable, run a small dense/sparse/ColBERT weight ablation and use the best hybrid setup as the teacher for Arabic retrieval training-data construction."
+}

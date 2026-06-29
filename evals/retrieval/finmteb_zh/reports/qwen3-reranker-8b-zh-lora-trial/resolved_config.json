@@ -1,0 +1,43 @@
+{
+  "seed": 20260526,
+  "base_model": "Qwen/Qwen3-Reranker-8B",
+  "output_dir": "outputs/qwen3-reranker-8b-zh-lora-trial",
+  "target_tasks": [
+    "FinanceMTEB/FinEvaRetrieval-reranking",
+    "FinanceMTEB/DISCFinLLM-reranking"
+  ],
+  "train_tasks": [
+    "FinanceMTEB/FinEvaRetrieval-reranking",
+    "FinanceMTEB/DISCFinLLM-reranking"
+  ],
+  "instruction": "Given a finance question, retrieve and rank passages that directly answer it. Prioritize exact entities, numbers, dates, formulas, and financial terminology.",
+  "max_length": 2048,
+  "per_device_batch_size": 1,
+  "gradient_accumulation_steps": 8,
+  "epochs": 2,
+  "learning_rate": 1e-05,
+  "warmup_ratio": 0.05,
+  "weight_decay": 0.01,
+  "max_train_examples": 512,
+  "negatives_per_query": 8,
+  "validation_ratio": 0.2,
+  "eval_steps": 8,
+  "save_steps": 16,
+  "log_steps": 2,
+  "bf16": true,
+  "load_in_4bit": true,
+  "lora": {
+    "r": 16,
+    "alpha": 32,
+    "dropout": 0.05,
+    "target_modules": [
+      "q_proj",
+      "k_proj",
+      "v_proj",
+      "o_proj",
+      "gate_proj",
+      "up_proj",
+      "down_proj"
+    ]
+  }
+}

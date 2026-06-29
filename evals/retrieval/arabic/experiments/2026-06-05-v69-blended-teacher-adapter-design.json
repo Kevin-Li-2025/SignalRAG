@@ -1,0 +1,123 @@
+{
+  "date": "2026-06-05",
+  "experiment_id": "2026-06-05-v69-blended-teacher-adapter-design",
+  "status": "design_completed_v69a_recorded_separately",
+  "goal": "Move beyond small head-only BGE-M3 curricula by preparing calibrated blended teacher scores and a validation-first full-encoder/adapter student path.",
+  "source_records": [
+    "experiments/2026-06-05-v68-curriculum-split-and-smoke.json",
+    "experiments/2026-06-05-bge-reranker-score-blend-v56.json",
+    "experiments/2026-06-05-miracl-ar-bge-reranker-teacher-data-v50.json"
+  ],
+  "fresh_sources_checked": [
+    {
+      "source": "BGE-M3 model card",
+      "url": "https://huggingface.co/BAAI/bge-m3",
+      "implication": "The model is explicitly multi-function dense+sparse+multi-vector, so a student must be judged on hybrid fusion surfaces."
+    },
+    {
+      "source": "BGE-M3 technical report",
+      "url": "https://arxiv.org/abs/2402.03216",
+      "implication": "The original training relies on multi-function self-knowledge distillation; our next teacher target should combine retrieval functions rather than only reranker logits."
+    },
+    {
+      "source": "FlagEmbedding M3 modeling documentation",
+      "url": "https://bge-model.com/_modules/FlagEmbedding/finetune/embedder/encoder_only/m3/modeling.html",
+      "implication": "Official M3 training exposes dense, sparse, and ColBERT scoring plus unified_finetuning and m3_kd_loss."
+    },
+    {
+      "source": "FlagEmbedding M3 training arguments",
+      "url": "https://bge-model.com/_modules/FlagEmbedding/finetune/embedder/encoder_only/m3/arguments.html",
+      "implication": "The official path supports fix_encoder=False for a full-encoder smoke, but does not expose a first-class BGE-M3 LoRA flag."
+    },
+    {
+      "source": "FlagEmbedding fine-tuning tutorial",
+      "url": "https://bge-model.com/tutorial/7_Finetuning/7.1.2.html",
+      "implication": "Teacher-score JSONL with pos_scores and neg_scores remains the compatible training interface."
+    },
+    {
+      "source": "PEFT LoRA documentation",
+      "url": "https://github.com/huggingface/peft/blob/main/docs/source/developer_guides/lora.md",
+      "implication": "LoRA is a plausible adapter path, but it needs explicit integration into the BGE-M3 runner before use."
+    },
+    {
+      "source": "Curriculum Learning for Dense Retrieval Distillation",
+      "url": "https://arxiv.org/abs/2204.13679",
+      "implication": "Difficulty-aware training remains useful, but v68 showed the current hard bands are too sparse."
+    },
+    {
+      "source": "Beyond Hard Negatives: The Importance of Score Distribution in Knowledge Distillation for Dense Retrieval",
+      "url": "https://arxiv.org/abs/2604.04734",
+      "implication": "The next teacher rows should preserve a smoother score distribution and not rely only on near-tie hard negatives."
+    }
+  ],
+  "local_plumbing": {
+    "script_added": "scripts/prepare_blended_teacher_scores.py",
+    "tests_added": "tests/test_prepare_blended_teacher_scores.py",
+    "purpose": "Create train-split teacher JSONL where pos_scores/neg_scores are row-level min-max blends of reranker scores and BGE-M3 hybrid scores.",
+    "default_reranker_weight": 0.65,
+    "rationale": "v56 selected min-max alpha 0.65 on a tune/holdout split for the dev retrieval system; v69 uses the same blend idea on MIRACL train teacher rows as a distribution-shaping target, not as a benchmark claim.",
+    "raw_training_data_committed": false,
+    "generated_outputs_committed": false
+  },
+  "v69_plan": {
+    "stage_0_blended_teacher_diagnostic": {
+      "input_jsonl": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/teacher-miracl-ar-train-bge-reranker-v2-m3-v50/teacher_train_reranker.jsonl",
+      "output_dir": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/student-distill-v69-blended-teacher",
+      "script": "scripts/prepare_blended_teacher_scores.py",
+      "reranker_weight": 0.65,
+      "missing_hybrid": "skip",
+      "required_before_training": [
+        "written rows should remain close to v50 row count",
+        "teacher entropy at temperature 0.2 should be materially higher than v68d if the target is less one-hot",
+        "positive-above-max-negative should remain high enough to avoid v66-style adversarial drift",
+        "no dev rows or raw outputs committed"
+      ]
+    },
+    "stage_1_full_encoder_smoke_candidate": {
+      "launcher": "scripts/run_flagembedding_m3_no_ddp.py",
+      "base_model": "BAAI/bge-m3",
+      "objective": "official FlagEmbedding M3 unified teacher-score distillation",
+      "fix_encoder": false,
+      "train_rows": 128,
+      "train_group_size": 5,
+      "per_device_train_batch_size": 1,
+      "gradient_accumulation_steps": 8,
+      "learning_rate_candidates": [
+        0.0000002,
+        0.0000005
+      ],
+      "temperature_candidates": [
+        0.05,
+        0.1
+      ],
+      "memory_guard": "Run only after confirming L20 memory with batch size 1 and short max lengths; abort on OOM rather than scale.",
+      "reason": "Head-only training repeatedly moved weak sparse surfaces but could not move the strongest ColBERT-heavy base surface. A tiny full-encoder smoke tests whether the encoder needs to move."
+    },
+    "stage_2_adapter_probe_candidate": {
+      "status": "research_and_local_integration_required",
+      "reason": "FlagEmbedding M3 does not expose a simple LoRA CLI flag. PEFT/LoRA is plausible but should be integrated and unit-tested locally before any GPU run.",
+      "allowed_only_after": [
+        "stage 0 blended teacher diagnostics are healthy",
+        "a tiny full-encoder smoke shows either useful movement or unacceptable memory/runtime",
+        "LoRA trainable parameter accounting is locally testable"
+      ]
+    }
+  },
+  "diagnostic_gate": {
+    "candidate_run_file": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/miracl-official-ar-bge-m3-hybrid-r100-v43/runfiles/ar_dev.txt",
+    "query_count": 200,
+    "candidate_depth": 100,
+    "same_candidate_pool": true,
+    "metric": "main_score/ndcg_at_10",
+    "required_best_vs_best_delta": 0.005,
+    "required_model_card_delta": 0.005,
+    "full_dev_evaluation_allowed_if_gate_passes": true
+  },
+  "decision": {
+    "start_gpu_now": false,
+    "reason": "v68d failed and the next attempt changes teacher target and trainable surface. The blended teacher distribution was generated and inspected in the v69 diagnostic, and the first tiny full-encoder smoke is recorded separately as v69a.",
+    "publish_checkpoint": false,
+    "upload_checkpoint": false,
+    "next_action": "See experiments/2026-06-05-v69-blended-teacher-diagnostic.json and experiments/2026-06-05-v69a-full-encoder-smoke.json. Do not launch another nearby full-encoder smoke without a larger design change."
+  }
+}

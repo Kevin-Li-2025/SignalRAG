@@ -1,0 +1,36 @@
+{
+  "date_checked": "2026-05-26",
+  "official_space": "https://huggingface.co/spaces/FinanceMTEB/FinMTEB",
+  "leaderboard_implementation": "https://huggingface.co/spaces/FinanceMTEB/FinMTEB/blob/main/app.py",
+  "snapshot_file": "https://huggingface.co/spaces/FinanceMTEB/FinMTEB/blob/main/benchmark.xlsx",
+  "task": "Reranking_zh",
+  "public_snapshot_best": {
+    "model": "bge-large-zh-v1.5",
+    "FinEvaReranking": 0.9906,
+    "DISCFinLLMReranking": 0.9956,
+    "average_map": 0.9931
+  },
+  "current_result": {
+    "model": "Qwen/Qwen3-Reranker-8B",
+    "method": "true_logit + per-task RRF lexical fusion",
+    "FinEvaReranking": {
+      "map": 1.0,
+      "mrr": 1.0,
+      "ndcg@10": 1.0,
+      "strategy": "rrf/doc_bigram alpha=1.0"
+    },
+    "DISCFinLLMReranking": {
+      "map": 0.9956140350877193,
+      "mrr": 1.0,
+      "ndcg@10": 0.9982877886046931,
+      "strategy": "rrf/title_trigram alpha=1.0"
+    },
+    "average_map": 0.9978070175438596
+  },
+  "delta": {
+    "average_map": 0.004707017543859493,
+    "FinEvaReranking_map": 0.009400000000000075,
+    "DISCFinLLMReranking_map": 0.00001403508771924411
+  },
+  "claim": "New SOTA on the public FinanceMTEB Reranking_zh benchmark snapshot; official leaderboard inclusion pending maintainer submission."
+}

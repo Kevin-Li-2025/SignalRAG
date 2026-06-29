@@ -1,0 +1,215 @@
+{
+  "experiment_id": "2026-06-01-kaggle-baseline-smoke-v4",
+  "created_utc": "2026-06-01T16:41:46Z",
+  "source": {
+    "kaggle_kernel": "likevin2005/arabic-embedding-sota-lab",
+    "kernel_status": "COMPLETE",
+    "kernel_url": "https://www.kaggle.com/code/likevin2005/arabic-embedding-sota-lab",
+    "local_output_source": "/tmp/arabic-embedding-smoke-check/arabic-embedding-baseline-smoke",
+    "raw_outputs_committed": false
+  },
+  "scope": {
+    "purpose": "memory-safe smoke baseline; not a leaderboard or SOTA claim",
+    "batch_size": 1,
+    "max_seq_length": 256,
+    "tasks": [
+      "ArEntail",
+      "STS17",
+      "STS22.v2"
+    ],
+    "models": [
+      "BAAI/bge-m3",
+      "Omartificial-Intelligence-Space/Arabic-Triplet-Matryoshka-V2"
+    ]
+  },
+  "results": [
+    {
+      "model": "BAAI/bge-m3",
+      "task": "ArEntail",
+      "status": "complete",
+      "mteb_version": "2.12.30",
+      "dataset_revision": "4da4316c6e3287746ab74ff67dd252ad128fceff",
+      "evaluation_time_sec": 10.496,
+      "test_subset_count": 1,
+      "primary_metric": "main_score/max_ap",
+      "primary_score": 0.891028,
+      "all_subset_main_score_mean": 0.891028,
+      "arabic_subsets": [
+        {
+          "subset": "default",
+          "languages": [
+            "ara-Arab"
+          ],
+          "main_score": 0.891028,
+          "cosine_spearman": null,
+          "max_ap": 0.891028,
+          "similarity_ap": 0.891028
+        }
+      ]
+    },
+    {
+      "model": "BAAI/bge-m3",
+      "task": "STS17",
+      "status": "complete",
+      "mteb_version": "2.12.30",
+      "dataset_revision": "faeb762787bd10488a50c8b5be4a3b82e411949c",
+      "evaluation_time_sec": 43.219,
+      "test_subset_count": 11,
+      "primary_metric": "mean main_score across all test subsets",
+      "primary_score": 0.796679,
+      "all_subset_main_score_mean": 0.796679,
+      "arabic_subsets": [
+        {
+          "subset": "ar-ar",
+          "languages": [
+            "ara-Arab"
+          ],
+          "main_score": 0.807459,
+          "cosine_spearman": 0.807459,
+          "max_ap": null,
+          "similarity_ap": null
+        },
+        {
+          "subset": "en-ar",
+          "languages": [
+            "eng-Latn",
+            "ara-Arab"
+          ],
+          "main_score": 0.694256,
+          "cosine_spearman": 0.694256,
+          "max_ap": null,
+          "similarity_ap": null
+        }
+      ]
+    },
+    {
+      "model": "BAAI/bge-m3",
+      "task": "STS22.v2",
+      "status": "complete",
+      "mteb_version": "2.12.30",
+      "dataset_revision": "d31f33a128469b20e357535c39b82fb3c3f6f2bd",
+      "evaluation_time_sec": 349.798,
+      "test_subset_count": 18,
+      "primary_metric": "mean main_score across all test subsets",
+      "primary_score": 0.687026,
+      "all_subset_main_score_mean": 0.687026,
+      "arabic_subsets": [
+        {
+          "subset": "ar",
+          "languages": [
+            "ara-Arab"
+          ],
+          "main_score": 0.628047,
+          "cosine_spearman": 0.628047,
+          "max_ap": null,
+          "similarity_ap": null
+        }
+      ]
+    },
+    {
+      "model": "Omartificial-Intelligence-Space/Arabic-Triplet-Matryoshka-V2",
+      "task": "ArEntail",
+      "status": "complete",
+      "mteb_version": "2.12.30",
+      "dataset_revision": "4da4316c6e3287746ab74ff67dd252ad128fceff",
+      "evaluation_time_sec": 3.096,
+      "test_subset_count": 1,
+      "primary_metric": "main_score/max_ap",
+      "primary_score": 0.922311,
+      "all_subset_main_score_mean": 0.922311,
+      "arabic_subsets": [
+        {
+          "subset": "default",
+          "languages": [
+            "ara-Arab"
+          ],
+          "main_score": 0.922311,
+          "cosine_spearman": null,
+          "max_ap": 0.922311,
+          "similarity_ap": 0.915675
+        }
+      ]
+    },
+    {
+      "model": "Omartificial-Intelligence-Space/Arabic-Triplet-Matryoshka-V2",
+      "task": "STS17",
+      "status": "complete",
+      "mteb_version": "2.12.30",
+      "dataset_revision": "faeb762787bd10488a50c8b5be4a3b82e411949c",
+      "evaluation_time_sec": 15.538,
+      "test_subset_count": 11,
+      "primary_metric": "mean main_score across all test subsets",
+      "primary_score": 0.299716,
+      "all_subset_main_score_mean": 0.299716,
+      "arabic_subsets": [
+        {
+          "subset": "ar-ar",
+          "languages": [
+            "ara-Arab"
+          ],
+          "main_score": 0.853052,
+          "cosine_spearman": 0.853052,
+          "max_ap": null,
+          "similarity_ap": null
+        },
+        {
+          "subset": "en-ar",
+          "languages": [
+            "eng-Latn",
+            "ara-Arab"
+          ],
+          "main_score": 0.258296,
+          "cosine_spearman": 0.258296,
+          "max_ap": null,
+          "similarity_ap": null
+        }
+      ]
+    },
+    {
+      "model": "Omartificial-Intelligence-Space/Arabic-Triplet-Matryoshka-V2",
+      "task": "STS22.v2",
+      "status": "complete",
+      "mteb_version": "2.12.30",
+      "dataset_revision": "d31f33a128469b20e357535c39b82fb3c3f6f2bd",
+      "evaluation_time_sec": 125.181,
+      "test_subset_count": 18,
+      "primary_metric": "mean main_score across all test subsets",
+      "primary_score": 0.345622,
+      "all_subset_main_score_mean": 0.345622,
+      "arabic_subsets": [
+        {
+          "subset": "ar",
+          "languages": [
+            "ara-Arab"
+          ],
+          "main_score": 0.642056,
+          "cosine_spearman": 0.642056,
+          "max_ap": null,
+          "similarity_ap": null
+        }
+      ]
+    }
+  ],
+  "aggregates": [
+    {
+      "model": "BAAI/bge-m3",
+      "task_primary_score_mean": 0.791578,
+      "arabic_only_mean": 0.775511,
+      "arabic_involving_mean": 0.755197,
+      "note": "arabic_only_mean uses ArEntail default, STS17 ar-ar, and STS22.v2 ar; arabic_involving_mean also includes STS17 en-ar."
+    },
+    {
+      "model": "Omartificial-Intelligence-Space/Arabic-Triplet-Matryoshka-V2",
+      "task_primary_score_mean": 0.52255,
+      "arabic_only_mean": 0.805806,
+      "arabic_involving_mean": 0.668929,
+      "note": "arabic_only_mean uses ArEntail default, STS17 ar-ar, and STS22.v2 ar; arabic_involving_mean also includes STS17 en-ar."
+    }
+  ],
+  "interpretation": [
+    "Arabic-Triplet-Matryoshka-V2 is stronger than BGE-M3 on the pure Arabic smoke slices tested here.",
+    "BGE-M3 is much stronger on multilingual and cross-lingual average scores in STS17 and STS22.v2.",
+    "The next useful experiment is Qwen/Qwen3-Embedding-0.6B on the same smoke set before spending GPU hours on full Arabic text-task baselines or training."
+  ],
+  "next_experiment": "Qwen/Qwen3-Embedding-0.6B smoke baseline on ArEntail, STS17, and STS22.v2 with batch_size=1 and max_seq_length=256."
+}

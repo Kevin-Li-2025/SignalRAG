@@ -1,0 +1,155 @@
+{
+  "date": "2026-06-05",
+  "experiment_id": "2026-06-05-v70a-lora-smoke",
+  "status": "completed_failed_standalone_student_gate",
+  "goal": "Test whether a minimal attention q/value LoRA adapter can move BGE-M3's strong dense+sparse+ColBERT fusion surface when trained with official FlagEmbedding M3 teacher-score distillation on v69 blended teacher rows.",
+  "source_records": [
+    "experiments/2026-06-05-v70-lora-adapter-plumbing.json",
+    "experiments/2026-06-05-v69-blended-teacher-diagnostic.json",
+    "experiments/2026-06-05-v69a-full-encoder-smoke.json",
+    "experiments/2026-06-05-bge-reranker-score-blend-v56.json"
+  ],
+  "fresh_sources_checked": [
+    {
+      "source": "BGE-M3 model card",
+      "url": "https://huggingface.co/BAAI/bge-m3",
+      "implication": "Keep evaluation on BGE-M3's dense+sparse+multi-vector surfaces; dense-only improvements are not enough for this model family."
+    },
+    {
+      "source": "BGE-M3 technical report",
+      "url": "https://arxiv.org/abs/2402.03216",
+      "implication": "The adapter smoke should use multi-function distillation rather than a dense-only objective."
+    },
+    {
+      "source": "FlagEmbedding M3 modeling documentation",
+      "url": "https://bge-model.com/_modules/FlagEmbedding/finetune/embedder/encoder_only/m3/modeling.html",
+      "implication": "The official unified M3 objective can train dense, sparse, and ColBERT behavior with teacher scores."
+    },
+    {
+      "source": "FlagEmbedding fine-tuning tutorial",
+      "url": "https://bge-model.com/tutorial/7_Finetuning/7.1.2.html",
+      "implication": "The v69 blended teacher rows remain compatible with the official pos_scores/neg_scores JSONL format."
+    },
+    {
+      "source": "PEFT LoRA documentation",
+      "url": "https://huggingface.co/docs/peft/main/developer_guides/lora",
+      "implication": "A small q/value LoRA adapter is a plausible first trainable surface, but it still needs the same held-out diagnostic gate before scaling."
+    }
+  ],
+  "local_code_changes": {
+    "scripts_updated": [
+      "scripts/run_flagembedding_m3_no_ddp.py",
+      "scripts/sweep_bge_m3_hybrid_weights.py"
+    ],
+    "tests_updated": [
+      "tests/test_run_flagembedding_m3_no_ddp.py",
+      "tests/test_sweep_bge_m3_hybrid_weights.py"
+    ],
+    "capabilities": [
+      "Use a real torch.distributed.tensor import when available before falling back to a minimal DTensor placeholder for PEFT compatibility.",
+      "Patch the same PEFT/DTensor compatibility path before loading a full student adapter model in the BGE-M3 hybrid weight diagnostic."
+    ]
+  },
+  "remote_artifacts": {
+    "host": "hhai-zijun",
+    "train_jsonl": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/student-distill-v69-blended-teacher/teacher_train_blended.jsonl",
+    "training_output_dir": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/training-smoke-bge-m3-official-no-ddp-v70a-lora-qv-r16-lr5e-5-t005",
+    "diagnostic_output_dir": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/v70a-lora-qv-r16-lr5e-5-t005-weight-diagnostic",
+    "training_log": "/home/hhai/arabic-embedding-sota-lab/logs/v70a-lora-qv-r16-lr5e-5-t005-bg.log",
+    "diagnostic_log": "/home/hhai/arabic-embedding-sota-lab/logs/v70a-lora-qv-r16-lr5e-5-t005-eval-rerun.log",
+    "raw_outputs_committed": false,
+    "logs_committed": false,
+    "checkpoints_committed": false
+  },
+  "training": {
+    "launcher": "scripts/run_flagembedding_m3_no_ddp.py",
+    "base_model": "BAAI/bge-m3",
+    "objective": "official FlagEmbedding M3 unified teacher-score distillation",
+    "loss": "m3_kd_loss",
+    "unified_finetuning": true,
+    "fix_encoder": false,
+    "lora": {
+      "preset": "attention_qv",
+      "rank": 16,
+      "alpha": 32,
+      "dropout": 0.05,
+      "task_type": "FEATURE_EXTRACTION",
+      "selected_modules": 48,
+      "trainable_parameters": 1572864,
+      "total_parameters_after_wrapping": 569327616
+    },
+    "train_rows": 128,
+    "train_group_size": 5,
+    "per_device_train_batch_size": 1,
+    "gradient_accumulation_steps": 8,
+    "learning_rate": 0.00005,
+    "temperature": 0.05,
+    "query_max_len": 64,
+    "passage_max_len": 128,
+    "gradient_checkpointing": true,
+    "train_runtime_seconds": 22.9605,
+    "train_samples_per_second": 5.575,
+    "train_steps_per_second": 0.697,
+    "train_loss": 0.7174019515514374,
+    "epoch": 1.0,
+    "oom": false
+  },
+  "diagnostic": {
+    "candidate_pool": "MIRACL Arabic dev fixed 200-query / top-100 same-candidate pool from v43",
+    "candidate_run_file": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/miracl-official-ar-bge-m3-hybrid-r100-v43/runfiles/ar_dev.txt",
+    "query_count": 200,
+    "candidate_depth": 100,
+    "pair_count_per_model": 20000,
+    "metric": "main_score/ndcg_at_10",
+    "base_best": {
+      "weight_label": "colbert_heavy",
+      "ndcg_at_10": 0.7927487998390927,
+      "map_at_10": 0.7263270502645502,
+      "mrr_at_10": 0.8084702380952382
+    },
+    "student_best": {
+      "weight_label": "training_default",
+      "ndcg_at_10": 0.7919617551861599,
+      "map_at_10": 0.7254496693121691,
+      "mrr_at_10": 0.8096805555555555
+    },
+    "best_vs_best_delta": -0.0007870446529328889,
+    "model_card_delta": 0.003129127350601113,
+    "best_same_weight_delta": {
+      "weight_label": "sparse_heavy",
+      "base_main_score": 0.7809244682331499,
+      "student_main_score": 0.7871810606039611,
+      "delta": 0.00625659237081122
+    },
+    "selected_surface_deltas": {
+      "model_card": 0.003129127350601113,
+      "training_default": 0.0009534121989530631,
+      "dense_heavy": -0.0002522019311889112,
+      "sparse_heavy": 0.00625659237081122,
+      "colbert_heavy": -0.0010276087744545137,
+      "dense_sparse": -0.002737450599265223,
+      "dense_colbert": 0.0009666770951317627,
+      "sparse_colbert": 0.0013288575823462434,
+      "colbert_only": -0.0007937718977123476
+    },
+    "base_pairs_per_second": 244.02004303600452,
+    "student_pairs_per_second": 210.87401283876972,
+    "required_best_vs_best_delta": 0.005,
+    "required_model_card_delta": 0.005,
+    "gate": "fail"
+  },
+  "interpretation": [
+    "The attention q/value LoRA path is now an end-to-end engineering success: train, save adapter, load adapter, and evaluate on the same fixed BGE-M3 hybrid diagnostic.",
+    "The model improved a weak sparse-heavy same-weight surface by +0.006257 nDCG@10, but it did not improve the strongest base surface; best-vs-best was -0.000787.",
+    "The model-card surface improved by +0.003129, which is directionally useful but below the required +0.005 gate.",
+    "This is not a standalone retriever success and does not justify full-dev evaluation, scaling, upload, publication, or SOTA wording."
+  ],
+  "decision": {
+    "scale_training": false,
+    "full_dev_evaluation": false,
+    "publish_checkpoint": false,
+    "upload_checkpoint": false,
+    "sota_claim": false,
+    "next_action": "Do not scale the exact v70a recipe. The next attempt must change a larger factor such as richer train rows, a tune/held-out adapter sweep, qkv/all-linear LoRA only with explicit regularization and gates, or a stronger objective that targets the model-card/base-best surfaces directly."
+  }
+}

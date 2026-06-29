@@ -7,12 +7,10 @@ repo group. New work on web search, source extraction, provider routing,
 browser integration, citation verification, and extractive fallback should land
 here.
 
-Related repos are intentionally narrower:
-[CodeGraph](https://github.com/Kevin-Li-2025/CodeGraph) is for codebase AST and
-dependency-graph retrieval, while
-[SciTrace-RL](https://github.com/Kevin-Li-2025/scitrace-rl) is for scientific
-agent trace validation and reward-data generation. SignalRAG should not absorb
-those specialized benchmark and provenance scopes.
+Code retrieval and retrieval-evaluation work now lives in this repository as
+isolated subprojects. [SciTrace-RL](https://github.com/Kevin-Li-2025/scitrace-rl)
+remains separate because it focuses on scientific agent trace validation and
+reward-data generation rather than retrieval.
 
 ## Integrated Evaluation Work
 
@@ -22,6 +20,12 @@ those specialized benchmark and provenance scopes.
   Keeping it here ties benchmark evidence to SignalRAG's broader retrieval,
   citation, and claim-verification story while preserving it as an isolated
   subproject.
+- [`evals/retrieval/`](evals/retrieval/) contains migrated retrieval benchmark
+  snapshots for Chinese finance reranking, CoREB code retrieval, and Arabic
+  retrieval/embedding experiments.
+- [`tools/codegraph/`](tools/codegraph/) contains the migrated `CodeGraph`
+  code-structure GraphRAG prototype for AST, import, call, dependency, and
+  hybrid code retrieval experiments.
 
 A fast web-search RAG workbench inspired by ChatGPT Search:
 

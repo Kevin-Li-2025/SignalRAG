@@ -1,0 +1,241 @@
+{
+  "experiment_id": "2026-06-05-v78-v77-failure-analysis",
+  "status": "completed_no_training_failure_analysis",
+  "goal": "Add query-level diagnostic outputs and analyze why v77 failed the four-slice standalone-student gate before launching any further GPU training.",
+  "depends_on": [
+    "experiments/2026-06-05-v77-multisurface-lora-smoke.json",
+    "experiments/2026-06-05-v76-multisurface-teacher-selector.json",
+    "experiments/2026-06-05-v73-multisplit-stability-gate.json",
+    "experiments/2026-06-05-v74-v72a-stride4-stability.json"
+  ],
+  "current_best_system_reference": {
+    "version": "v56",
+    "method": "BGE-M3 hybrid r100 plus BGE-reranker-v2-m3 min-max score blend",
+    "benchmark": "MIRACL Arabic dev",
+    "main_score_ndcg_at_10": 0.8286045292115427,
+    "claim_scope": "retrieval-system teacher/reference, not standalone embedding model SOTA"
+  },
+  "fresh_research_2026_06_05": [
+    {
+      "source": "BAAI/bge-m3 model card",
+      "url": "https://huggingface.co/BAAI/bge-m3",
+      "finding": "BGE-M3 exposes dense, sparse, and multi-vector retrieval modes.",
+      "implication": "Failure analysis must inspect the model-card and strong hybrid surfaces, not just one sparse or ColBERT-heavy ablation."
+    },
+    {
+      "source": "FlagEmbedding finetune embedder documentation",
+      "url": "https://github.com/FlagOpen/FlagEmbedding/tree/master/examples/finetune/embedder",
+      "finding": "The official M3 fine-tuning path consumes teacher-score rows through pos_scores and neg_scores.",
+      "implication": "The next training-data redesign can remain compatible with the official no-DDP FlagEmbedding route."
+    },
+    {
+      "source": "BGE-M3 technical report",
+      "url": "https://arxiv.org/abs/2402.03216",
+      "finding": "BGE-M3's strength is multi-function retrieval plus distillation.",
+      "implication": "A standalone student needs stable multi-surface movement, not isolated gains from one mode."
+    },
+    {
+      "source": "MIRACL official repository",
+      "url": "https://github.com/project-miracl/miracl",
+      "finding": "MIRACL Arabic remains the high-signal diagnostic benchmark for these same-task checks.",
+      "implication": "The v73/v74 query-disjoint stride slices remain the right gate before full-dev evaluation or public claims."
+    }
+  ],
+  "implemented_changes": [
+    {
+      "file": "scripts/sweep_bge_m3_hybrid_weights.py",
+      "change": "Added --write-per-query and helpers to persist per_query_metrics.jsonl with query-level base/student metrics and top doc ids for every weight surface."
+    },
+    {
+      "file": "scripts/analyze_student_surface_failures.py",
+      "change": "Added a no-GPU failure analyzer that aggregates per-query deltas across split JSONL files and reports surface pass/regression rates plus worst/best focus queries."
+    },
+    {
+      "file": "tests/test_sweep_bge_m3_hybrid_weights.py",
+      "change": "Added tests for query-level metric extraction and per-query student/base delta reporting."
+    },
+    {
+      "file": "tests/test_analyze_student_surface_failures.py",
+      "change": "Added tests for labeled path parsing, pass/regression counting, focus-label handling, and aggregate failure analysis."
+    }
+  ],
+  "remote_analysis": {
+    "host": "hhai-zijun",
+    "repo_path": "/home/hhai/arabic-embedding-sota-lab",
+    "script": "logs/v78-v77-per-query-failure-analysis.sh",
+    "log": "logs/v78-v77-per-query-failure-analysis.log",
+    "output_root": "remote_outputs/v78-v77-per-query-failure-analysis",
+    "student_model_path": "remote_outputs/training-smoke-bge-m3-official-no-ddp-v77-multisurface-lora-qkv-r16-lr1e-5-t005-g9/model",
+    "candidate_run_file": "remote_outputs/miracl-official-ar-bge-m3-hybrid-r100-v43/runfiles/ar_dev.txt",
+    "new_training_launched": false,
+    "query_slices": [
+      {
+        "label": "slice0",
+        "query_count": 50,
+        "query_offset": 0,
+        "query_stride": 4
+      },
+      {
+        "label": "slice1",
+        "query_count": 50,
+        "query_offset": 1,
+        "query_stride": 4
+      },
+      {
+        "label": "slice2",
+        "query_count": 50,
+        "query_offset": 2,
+        "query_stride": 4
+      },
+      {
+        "label": "slice3",
+        "query_count": 50,
+        "query_offset": 3,
+        "query_stride": 4
+      }
+    ],
+    "generated_files": {
+      "failure_analysis_json": "70K",
+      "gate_summary_json": "10K",
+      "slice0_per_query_metrics_jsonl": "350K",
+      "slice1_per_query_metrics_jsonl": "342K",
+      "slice2_per_query_metrics_jsonl": "344K",
+      "slice3_per_query_metrics_jsonl": "347K"
+    },
+    "gpu_state_after_run": "NVIDIA L20 idle, 692 MiB / 46068 MiB, 0 percent utilization"
+  },
+  "aggregate_query_level_surface_stats": {
+    "model_card": {
+      "query_count": 200,
+      "mean_delta": 0.0030814489210519934,
+      "min_delta": -0.13092975357145753,
+      "max_delta": 0.18457569677956814,
+      "pass_count_at_delta_0p005": 22,
+      "pass_fraction": 0.11,
+      "regression_count": 15,
+      "regression_fraction": 0.075
+    },
+    "sparse_colbert": {
+      "query_count": 200,
+      "mean_delta": 0.004748328351794966,
+      "min_delta": -0.36907024642854247,
+      "max_delta": 0.5,
+      "pass_count_at_delta_0p005": 27,
+      "pass_fraction": 0.135,
+      "regression_count": 11,
+      "regression_fraction": 0.055
+    },
+    "training_default": {
+      "query_count": 200,
+      "mean_delta": 0.0001585468747319141,
+      "min_delta": -0.22629438553091674,
+      "max_delta": 0.14126697285982903,
+      "pass_count_at_delta_0p005": 10,
+      "pass_fraction": 0.05,
+      "regression_count": 7,
+      "regression_fraction": 0.035
+    },
+    "dense_sparse": {
+      "query_count": 200,
+      "mean_delta": -0.0029302718354560307,
+      "pass_fraction": 0.1,
+      "regression_fraction": 0.08
+    },
+    "dense_heavy": {
+      "query_count": 200,
+      "mean_delta": -0.00262397990869492,
+      "pass_fraction": 0.05,
+      "regression_fraction": 0.06
+    }
+  },
+  "split_query_level_findings": {
+    "slice0": {
+      "model_card_mean_delta": 0.0014468124307105857,
+      "model_card_pass_fraction": 0.08,
+      "sparse_colbert_mean_delta": 0.0034778709026691366,
+      "sparse_colbert_pass_fraction": 0.12,
+      "training_default_mean_delta": 0.00031778862855463055
+    },
+    "slice1": {
+      "model_card_mean_delta": 0.0046795156089958125,
+      "model_card_pass_fraction": 0.14,
+      "sparse_colbert_mean_delta": 0.014940341358700064,
+      "sparse_colbert_pass_fraction": 0.08,
+      "training_default_mean_delta": -0.0025541072897221286
+    },
+    "slice2": {
+      "model_card_mean_delta": 0.00048561128696938293,
+      "model_card_pass_fraction": 0.08,
+      "sparse_colbert_mean_delta": 0.00010445500060697443,
+      "sparse_colbert_pass_fraction": 0.12,
+      "training_default_mean_delta": -0.0001132321341507192
+    },
+    "slice3": {
+      "model_card_mean_delta": 0.005713856357532193,
+      "model_card_pass_fraction": 0.14,
+      "sparse_colbert_mean_delta": 0.0004706461452036903,
+      "sparse_colbert_pass_fraction": 0.22,
+      "training_default_mean_delta": 0.0029837382942458734
+    }
+  },
+  "worst_focus_queries": {
+    "model_card": [
+      {
+        "query_id": "10527",
+        "delta": -0.13092975357145753,
+        "base_score": 0.6309297535714575,
+        "student_score": 0.5
+      },
+      {
+        "query_id": "10590",
+        "delta": -0.0874717141014082,
+        "base_score": 0.7773228980348948,
+        "student_score": 0.6898511839334867
+      },
+      {
+        "query_id": "10717",
+        "delta": -0.0874717141014082,
+        "base_score": 0.7322962005285631,
+        "student_score": 0.644824486427155
+      }
+    ],
+    "sparse_colbert": [
+      {
+        "query_id": "10899",
+        "delta": -0.36907024642854247,
+        "base_score": 1.0,
+        "student_score": 0.6309297535714575
+      },
+      {
+        "query_id": "10444",
+        "delta": -0.17319681505689122,
+        "base_score": 0.46927872602275644,
+        "student_score": 0.2960819109658652
+      },
+      {
+        "query_id": "0",
+        "delta": -0.08340092284311101,
+        "base_score": 0.5249810332008933,
+        "student_score": 0.4415801103577823
+      }
+    ]
+  },
+  "interpretation": {
+    "main_finding": "v77's aggregate gains are sparse and unstable. Only 11 percent of model-card query-level comparisons and 13.5 percent of sparse_colbert comparisons clear +0.005, while several queries regress sharply.",
+    "why_v77_should_not_scale": "The multi-split gate failure is not just noise from one bad split. Query-level analysis shows that most queries do not improve, and a few large positive outliers pull up the mean.",
+    "next_design_signal": "The next student attempt should directly optimize stability on model-card and base-best surfaces, possibly by emphasizing queries with high model-card/base-best regressions and penalizing sparse_colbert-only movement."
+  },
+  "decision": {
+    "launch_training": false,
+    "scale_v77": false,
+    "full_dev_evaluation": false,
+    "publish_checkpoint": false,
+    "upload_checkpoint": false,
+    "sota_claim": false,
+    "next_action": "Design v79 data/objective changes from the v78 query-level failure analysis before any new GPU training. Prioritize model-card/base-best stability and explicitly guard against improvements concentrated in one sparse_colbert slice."
+  },
+  "raw_outputs_committed": false,
+  "model_checkpoints_committed": false,
+  "generated_embeddings_committed": false,
+  "credentials_committed": false
+}

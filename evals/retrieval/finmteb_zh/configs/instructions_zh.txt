@@ -1,0 +1,6 @@
+Given a finance question, retrieve and rank passages that directly answer it. Prioritize exact entities, numbers, dates, formulas, and financial terminology.
+Given a Chinese finance question, judge whether the document contains the exact answer. Prefer passages with matching company names, stock codes, dates, amounts, ratios, and event descriptions.
+Given a question from Chinese financial news or reports, rank the document by answer completeness and factual match. Penalize topic-only matches that do not answer the question.
+Determine whether the document is the best evidence for answering the financial query. Entity, time, numeric value, and causal relation mismatches should be treated as non-relevant.
+For Chinese finance QA retrieval, return yes only when the passage directly supports the answer with precise facts, not just a related topic.
+

@@ -1,0 +1,27 @@
+{
+  "model": "Qwen/Qwen3-Reranker-4B",
+  "adapter": null,
+  "average_map": 0.9880952380952381,
+  "tasks": [
+    {
+      "dataset": "FinanceMTEB/DISCFinLLM-reranking",
+      "leaderboard_name": "DISCFinLLMReranking",
+      "split": "train",
+      "num_queries": 42,
+      "num_pairs": 536,
+      "instruction": "Given a finance question, retrieve and rank passages that directly answer it. Prioritize exact entities, numbers, dates, formulas, and financial terminology.",
+      "alpha": 0.01,
+      "alpha_source": "tuned",
+      "metrics": {
+        "map": 0.9880952380952381,
+        "mrr": 0.9880952380952381,
+        "ndcg@10": 0.9919260568358677
+      },
+      "tuned_metrics": {
+        "map": 0.9880952380952381,
+        "mrr": 0.9880952380952381,
+        "ndcg@10": 0.9919260568358677
+      }
+    }
+  ]
+}

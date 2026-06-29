@@ -1,0 +1,39 @@
+{
+  "model": "Qwen/Qwen3-Reranker-8B",
+  "adapter": null,
+  "average_map": 0.9956140350877193,
+  "tasks": [
+    {
+      "dataset": "FinanceMTEB/FinEvaRetrieval-reranking",
+      "leaderboard_name": "FinEvaReranking",
+      "split": "test",
+      "num_queries": 53,
+      "num_pairs": 582,
+      "instruction": "Given a finance question, retrieve and rank passages that directly answer it. Prioritize exact entities, numbers, dates, formulas, and financial terminology.",
+      "alpha": 0.0,
+      "alpha_source": "override",
+      "metrics": {
+        "map": 1.0,
+        "mrr": 1.0,
+        "ndcg@10": 1.0
+      },
+      "tuned_metrics": null
+    },
+    {
+      "dataset": "FinanceMTEB/DISCFinLLM-reranking",
+      "leaderboard_name": "DISCFinLLMReranking",
+      "split": "test",
+      "num_queries": 19,
+      "num_pairs": 242,
+      "instruction": "Given a finance question, retrieve and rank passages that directly answer it. Prioritize exact entities, numbers, dates, formulas, and financial terminology.",
+      "alpha": 0.2,
+      "alpha_source": "override",
+      "metrics": {
+        "map": 0.9912280701754386,
+        "mrr": 1.0,
+        "ndcg@10": 0.9965755772093863
+      },
+      "tuned_metrics": null
+    }
+  ]
+}

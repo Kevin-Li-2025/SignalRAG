@@ -1,0 +1,81 @@
+{
+  "experiment_id": "2026-06-04-miracl-ar-bge-m3-hybrid-teacher-data-v38",
+  "created_utc": "2026-06-04T20:06:34Z",
+  "status": "completed",
+  "purpose": "Build MIRACL Arabic train teacher data using the frozen BGE-M3 hybrid r100 retrieval teacher.",
+  "source": {
+    "remote_host": "hhai-zijun",
+    "remote_output_source": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/teacher-miracl-ar-train-bge-m3-hybrid-r100-v1",
+    "local_parse_source": "/tmp/v38-teacher-summary/summary.json",
+    "raw_training_data_committed": false
+  },
+  "model": "BAAI/bge-m3",
+  "task_family": "training-data-construction",
+  "query_dataset": "miracl/miracl",
+  "corpus_dataset": "mteb/MIRACLRetrieval",
+  "mteb_dataset_revision": "9c09abc13478308c27598f350e31d8f06b9b5481",
+  "subset": "ar",
+  "split": "train",
+  "corpus_split": "dev",
+  "teacher": {
+    "method": "BGE-M3 full-corpus dense+sparse candidate generation plus dense+sparse+ColBERT teacher scoring.",
+    "weights_for_different_modes": [
+      0.4,
+      0.2,
+      0.4
+    ],
+    "candidate_top_k": 100,
+    "rerank_limit": 100,
+    "negatives_per_query": 8,
+    "positives_per_query": 2
+  },
+  "runtime_config": {
+    "device": "NVIDIA L20",
+    "batch_size": 32,
+    "rerank_batch_size": 32,
+    "max_length": 256,
+    "max_passage_length": 256,
+    "corpus_count": 2061414,
+    "query_count": 3495,
+    "positive_qrel_count": 6217,
+    "judged_negative_qrel_count": 19165
+  },
+  "outputs": {
+    "teacher_train_jsonl": "teacher_train.jsonl",
+    "teacher_train_jsonl_bytes": 46156280,
+    "summary_json": "summary.json",
+    "raw_training_data_committed": false,
+    "note": "The generated JSONL contains query and passage text and remains only in remote_outputs."
+  },
+  "counts": {
+    "rows_written": 3495,
+    "skipped_no_positive": 0,
+    "skipped_no_negative": 0,
+    "missing_positive_doc_ids": 0,
+    "selected_negatives": 27960,
+    "selected_negative_sources": {
+      "judged_negative": 12889,
+      "unjudged_candidate": 15071
+    }
+  },
+  "teacher_score_stats": {
+    "mean_positive_score": 0.6081194639880384,
+    "mean_negative_score": 0.5277083449225569,
+    "mean_positive_minus_negative": 0.08041111906548148
+  },
+  "timings": {
+    "candidate_elapsed_seconds": 3603.8066259138286,
+    "candidate_docs_per_second": 572.0101586963704,
+    "teacher_scoring_elapsed_seconds": 1318.9402607874945,
+    "teacher_scoring_pairs": 349546,
+    "total_measured_seconds": 4922.746886701323,
+    "total_measured_hours": 1.3674296907503675
+  },
+  "interpretation": [
+    "The full MIRACL Arabic train teacher-data build completed without skipped queries or missing positives.",
+    "It produced one JSONL row for each of 3,495 train queries and selected 27,960 hard negatives.",
+    "The selected negatives are intentionally hard: the mean BGE-M3 hybrid positive-minus-negative teacher margin is +0.080411.",
+    "The JSONL is generated training data with raw text and must stay out of git; only this derived summary is committed."
+  ],
+  "next_experiment": "Run a small training smoke from the generated teacher JSONL, then evaluate on MIRACL Arabic dev before scaling training."
+}

@@ -1,0 +1,264 @@
+{
+  "experiment_id": "2026-06-05-v79-failure-aware-teacher-selector",
+  "status": "completed_selector_ready_no_training",
+  "goal": "Use the v78 query-level failure analysis to build failure-aware teacher-row selectors before any new standalone-student GPU training.",
+  "depends_on": [
+    "experiments/2026-06-05-v78-v77-failure-analysis.json",
+    "experiments/2026-06-05-v77-multisurface-lora-smoke.json",
+    "experiments/2026-06-05-v76-multisurface-teacher-selector.json",
+    "experiments/2026-06-05-v75-bge-m3-component-teacher-augmentation.json"
+  ],
+  "current_best_system_reference": {
+    "version": "v56",
+    "method": "BGE-M3 hybrid r100 plus BGE-reranker-v2-m3 min-max score blend",
+    "benchmark": "MIRACL Arabic dev",
+    "main_score_ndcg_at_10": 0.8286045292115427,
+    "claim_scope": "retrieval-system teacher/reference, not standalone embedding model SOTA"
+  },
+  "fresh_research_2026_06_05": [
+    {
+      "source": "BAAI/bge-m3 model card",
+      "url": "https://huggingface.co/BAAI/bge-m3",
+      "finding": "BGE-M3 exposes dense, sparse, and multi-vector retrieval modes.",
+      "implication": "The next selector should bias both negative selection and target scores toward the public model-card/base-best surfaces that failed robustly."
+    },
+    {
+      "source": "FlagEmbedding finetune embedder documentation",
+      "url": "https://github.com/FlagOpen/FlagEmbedding/tree/master/examples/finetune/embedder",
+      "finding": "The official M3 fine-tuning path consumes teacher-score JSONL rows through pos_scores and neg_scores.",
+      "implication": "The v79 selector keeps the same compatible JSONL format for a later tiny no-DDP smoke."
+    },
+    {
+      "source": "BGE-M3 technical report",
+      "url": "https://arxiv.org/abs/2402.03216",
+      "finding": "BGE-M3's published strength comes from unified dense, sparse, and multi-vector retrieval plus distillation.",
+      "implication": "The selector should not overfit to sparse_colbert-only local gains."
+    },
+    {
+      "source": "MIRACL official repository",
+      "url": "https://github.com/project-miracl/miracl",
+      "finding": "MIRACL Arabic remains the same-task high-signal gate, but dev queries must not be used as train rows.",
+      "implication": "v79 converts dev-slice failures into surface-level train-row weights, not dev-query training examples."
+    }
+  ],
+  "implemented_changes": [
+    {
+      "file": "scripts/prepare_multisurface_teacher_rows.py",
+      "change": "Added optional --surface-average-source-weights so multi-surface targets can weight BGE-M3 surfaces instead of averaging them equally. The default remains equal weights."
+    },
+    {
+      "file": "scripts/prepare_failure_aware_teacher_rows.py",
+      "change": "Added a no-training wrapper that reads v78 failure_analysis.json, computes surface risk from pass fraction, regression fraction, and mean-delta shortfall, allocates negative-selection quotas, and passes weighted surface targets into the multisurface selector."
+    },
+    {
+      "file": "tests/test_prepare_multisurface_teacher_rows.py",
+      "change": "Added tests for weighted surface-average target support."
+    },
+    {
+      "file": "tests/test_prepare_failure_aware_teacher_rows.py",
+      "change": "Added tests for failure surface planning, quota allocation, and formatting."
+    }
+  ],
+  "failure_plan_formula": {
+    "risk": "(1 - pass_fraction) + regression_fraction + max(0, required_delta - mean_delta) / required_delta",
+    "weighted_risk": "risk * surface_priority",
+    "quota_allocation": "one slot per positive-risk surface, then largest-remainder allocation over remaining negatives",
+    "reason": "Increase query-level pass fraction on weak surfaces rather than chase sparse_colbert-only mean gains."
+  },
+  "remote_selector_sweep": {
+    "host": "hhai-zijun",
+    "input_jsonl": "remote_outputs/student-distill-v75-component-teacher/teacher_train_component_augmented.jsonl",
+    "failure_analysis_json": "remote_outputs/v78-v77-per-query-failure-analysis/failure_analysis.json",
+    "new_training_launched": false,
+    "variants": {
+      "v79_default": {
+        "output_dir": "remote_outputs/student-distill-v79-failure-aware-teacher",
+        "candidate_rows": 1327,
+        "train_rows": 512,
+        "heldout_rows": 96,
+        "query_overlap": 0,
+        "surface_negative_counts": {
+          "model_card": 2,
+          "training_default": 3,
+          "sparse_colbert": 1,
+          "colbert_heavy": 2
+        },
+        "surface_average_source_weights": {
+          "model_card": 2.157936345263362,
+          "training_default": 2.734606875075064,
+          "sparse_colbert": 0.8247841801948558,
+          "colbert_heavy": 1.620022221652592
+        },
+        "train_selected_surface_counts": {
+          "model_card": 1696,
+          "training_default": 765,
+          "sparse_colbert": 1808,
+          "colbert_heavy": 1654
+        },
+        "train_primary_surface_counts": {
+          "sparse_colbert": 1163,
+          "training_default": 135,
+          "colbert_heavy": 196,
+          "model_card": 410
+        },
+        "train_mix_fraction": 0.1328125,
+        "train_target_best_margin_mean": 0.1419982785632075,
+        "decision": "usable but not preferred because training_default coverage did not improve over v76"
+      },
+      "v79b_three_surface_relaxed": {
+        "output_dir": "remote_outputs/student-distill-v79b-failure-aware-teacher",
+        "surfaces": [
+          "model_card",
+          "training_default",
+          "sparse_colbert"
+        ],
+        "surface_hard_margin": 0.08,
+        "teacher_separation_margin": 0.01,
+        "candidate_rows": 1983,
+        "train_rows": 512,
+        "heldout_rows": 96,
+        "query_overlap": 0,
+        "surface_negative_counts": {
+          "model_card": 3,
+          "training_default": 4,
+          "sparse_colbert": 1
+        },
+        "train_selected_surface_counts": {
+          "model_card": 2367,
+          "training_default": 1062,
+          "sparse_colbert": 2509
+        },
+        "train_primary_surface_counts": {
+          "training_default": 137,
+          "model_card": 741,
+          "sparse_colbert": 1697
+        },
+        "train_mix_fraction": 0.15625,
+        "train_target_best_margin_mean": 0.12344157847832923,
+        "decision": "improves model_card/training_default coverage but drops colbert-heavy coverage entirely"
+      },
+      "v79c_dense_surface_guard": {
+        "output_dir": "remote_outputs/student-distill-v79c-failure-aware-teacher",
+        "surfaces": [
+          "model_card",
+          "training_default",
+          "dense_sparse",
+          "dense_heavy",
+          "sparse_colbert"
+        ],
+        "surface_hard_margin": 0.05,
+        "teacher_separation_margin": 0.02,
+        "candidate_rows": 1406,
+        "train_rows": 512,
+        "heldout_rows": 96,
+        "query_overlap": 0,
+        "surface_negative_counts": {
+          "model_card": 1,
+          "training_default": 2,
+          "dense_sparse": 2,
+          "dense_heavy": 2,
+          "sparse_colbert": 1
+        },
+        "train_selected_surface_counts": {
+          "model_card": 1702,
+          "training_default": 770,
+          "dense_sparse": 1759,
+          "dense_heavy": 1685,
+          "sparse_colbert": 1817
+        },
+        "train_primary_surface_counts": {
+          "dense_sparse": 665,
+          "sparse_colbert": 999,
+          "training_default": 114,
+          "model_card": 76,
+          "dense_heavy": 137
+        },
+        "train_mix_fraction": 0.3203125,
+        "train_target_best_margin_mean": 0.14073291104736,
+        "decision": "good dense-surface guard variant, but less focused on model_card/training_default than v79d"
+      },
+      "v79d_relaxed_four_surface": {
+        "output_dir": "remote_outputs/student-distill-v79d-failure-aware-teacher",
+        "surfaces": [
+          "model_card",
+          "training_default",
+          "sparse_colbert",
+          "colbert_heavy"
+        ],
+        "surface_hard_margin": 0.1,
+        "teacher_separation_margin": 0.01,
+        "candidate_rows": 2311,
+        "train_rows": 512,
+        "heldout_rows": 96,
+        "query_overlap": 0,
+        "surface_negative_counts": {
+          "model_card": 2,
+          "training_default": 3,
+          "sparse_colbert": 1,
+          "colbert_heavy": 2
+        },
+        "surface_average_source_weights": {
+          "model_card": 2.157936345263362,
+          "training_default": 2.734606875075064,
+          "sparse_colbert": 0.8247841801948558,
+          "colbert_heavy": 1.620022221652592
+        },
+        "train_selected_surface_counts": {
+          "model_card": 2825,
+          "training_default": 1234,
+          "sparse_colbert": 2949,
+          "colbert_heavy": 2786
+        },
+        "heldout_selected_surface_counts": {
+          "model_card": 546,
+          "training_default": 234,
+          "sparse_colbert": 577,
+          "colbert_heavy": 534
+        },
+        "train_primary_surface_counts": {
+          "sparse_colbert": 1918,
+          "training_default": 125,
+          "colbert_heavy": 311,
+          "model_card": 666
+        },
+        "train_mix_fraction": 0.341796875,
+        "heldout_mix_fraction": 0.3645833333333333,
+        "train_target_best_margin_mean": 0.11853157803673853,
+        "heldout_target_best_margin_mean": 0.1264961242783902,
+        "decision": "preferred no-training input for the next tiny v80 smoke because it has the broadest candidate pool and materially higher model_card/training_default coverage than v76"
+      }
+    },
+    "artifact_policy": "All generated teacher JSONL files remain remote-only and are not committed."
+  },
+  "comparison_to_v76c": {
+    "v76c_train_selected_surface_counts": {
+      "model_card": 1685,
+      "colbert_heavy": 1639,
+      "sparse_colbert": 1797,
+      "training_default": 771
+    },
+    "v76c_train_mix_fraction": 0.3125,
+    "v79d_train_selected_surface_counts": {
+      "model_card": 2825,
+      "training_default": 1234,
+      "sparse_colbert": 2949,
+      "colbert_heavy": 2786
+    },
+    "v79d_train_mix_fraction": 0.341796875,
+    "interpretation": "v79d substantially increases model_card and training_default surface coverage while preserving query-disjoint splits. It is still only a data-design result."
+  },
+  "decision": {
+    "launch_training": false,
+    "preferred_next_training_input": "remote_outputs/student-distill-v79d-failure-aware-teacher/teacher_train_failure_aware.jsonl",
+    "scale_training": false,
+    "full_dev_evaluation": false,
+    "publish_checkpoint": false,
+    "upload_checkpoint": false,
+    "sota_claim": false,
+    "next_action": "After fresh research and state checks, run at most one tiny v80 smoke over v79d rows, then evaluate with the existing v73/v74 four-slice gate. Reject unless model-card and best-vs-best query-level pass fractions improve materially."
+  },
+  "raw_outputs_committed": false,
+  "model_checkpoints_committed": false,
+  "generated_embeddings_committed": false,
+  "credentials_committed": false
+}

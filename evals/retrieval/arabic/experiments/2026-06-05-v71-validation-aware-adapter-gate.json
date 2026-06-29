@@ -1,0 +1,88 @@
+{
+    "experiment_id": "2026-06-05-v71-validation-aware-adapter-gate",
+    "status": "gate_plumbing_ready_no_gpu_training_started",
+    "goal": "Prevent the next standalone BGE-M3 adapter/student attempt from being selected on the same MIRACL Arabic diagnostic queries used for the final smoke decision.",
+    "current_best_system_reference": {
+        "version": "v56",
+        "method": "BGE-M3 hybrid r100 plus BGE-reranker-v2-m3 min-max score blend",
+        "benchmark": "MIRACL Arabic dev",
+        "main_score_ndcg_at_10": 0.8286045292115427,
+        "claim_scope": "retrieval-system teacher/reference, not standalone embedding model SOTA"
+    },
+    "fresh_research_2026_06_05": [
+        {
+            "source": "BAAI/bge-m3 model card",
+            "url": "https://huggingface.co/BAAI/bge-m3",
+            "finding": "BGE-M3 is explicitly multi-function: dense retrieval, sparse lexical matching, and multi-vector/ColBERT retrieval. The card recommends hybrid retrieval plus re-ranking for stronger retrieval pipelines.",
+            "implication": "A standalone student must be validated on BGE-M3's hybrid fusion surfaces, not only on dense-only or weak sparse-heavy ablations."
+        },
+        {
+            "source": "FlagEmbedding finetune embedder documentation",
+            "url": "https://github.com/FlagOpen/FlagEmbedding/tree/master/examples/finetune/embedder",
+            "finding": "The official fine-tuning schema supports pos_scores/neg_scores for knowledge distillation, m3_kd_loss, unified_finetuning, use_self_distill, and fix_encoder controls for BGE-M3.",
+            "implication": "The existing official no-DDP M3 path is aligned with the intended teacher-score training surface; the missing piece is a stricter validation loop, not another unchecked parameter sweep."
+        },
+        {
+            "source": "M3-Embedding technical report",
+            "url": "https://arxiv.org/abs/2402.03216",
+            "finding": "The paper highlights self-knowledge distillation from different retrieval functionalities and efficient large-batch training as core technical ingredients behind BGE-M3 performance.",
+            "implication": "Tiny single-split smokes should not be over-interpreted; any scalable student attempt must preserve multi-mode signals and require robust held-out evidence."
+        },
+        {
+            "source": "MIRACL official repository",
+            "url": "https://github.com/project-miracl/miracl",
+            "finding": "MIRACL Arabic has 2,061,414 passages, 3,495 train queries, and 2,896 dev queries with 29,197 dev judgments.",
+            "implication": "MIRACL Arabic is a serious benchmark, but dev-set student selection still needs query-disjoint tune and held-out gates before any full-dev or public claim."
+        }
+    ],
+    "implemented_changes": [
+        {
+            "file": "scripts/sweep_bge_m3_hybrid_weights.py",
+            "change": "Added --query-id-file, --query-offset, and --query-stride so the fixed MIRACL Arabic candidate-pool diagnostic can be split into deterministic query-disjoint tune and held-out subsets. Summary JSON now records selected query ids and split parameters."
+        },
+        {
+            "file": "scripts/check_student_diagnostic_gate.py",
+            "change": "Added a strict tune-plus-heldout gate that combines two weight-sweep summaries. It requires tune and held-out best-vs-best deltas, model-card deltas, and held-out performance of the tune-selected same-weight surface to all clear the required threshold."
+        },
+        {
+            "file": "tests/test_sweep_bge_m3_hybrid_weights.py",
+            "change": "Added coverage for deterministic query splitting, query-id files, and missing query-id rejection."
+        },
+        {
+            "file": "tests/test_check_student_diagnostic_gate.py",
+            "change": "Added coverage proving tune-only gains are rejected when held-out criteria fail."
+        }
+    ],
+    "v71_gate_policy": {
+        "required_delta_ndcg_at_10": 0.005,
+        "must_pass": [
+            "tune best-vs-best delta >= +0.005",
+            "tune model-card-surface delta >= +0.005",
+            "held-out best-vs-best delta >= +0.005",
+            "held-out model-card-surface delta >= +0.005",
+            "held-out delta for the same-weight surface selected on tune >= +0.005"
+        ],
+        "blocked_if_fail": [
+            "full MIRACL dev evaluation",
+            "larger training",
+            "checkpoint upload/publication",
+            "standalone SOTA wording"
+        ]
+    },
+    "recommended_next_gpu_experiment_after_this_commit": {
+        "name": "v71a validation-aware LoRA smoke",
+        "allowed_only_after": "this gate plumbing is committed and synced to the remote L20",
+        "candidate_recipe": "Try a materially different adapter surface from v70a, such as attention_qkv rank16 or all_linear rank8 with stronger dropout/regularization, trained on v69 blended teacher rows, then evaluate both tune and held-out query splits with scripts/check_student_diagnostic_gate.py.",
+        "why_not_scale_v70a": "v70a improved sparse-heavy by +0.006257 but regressed best-vs-best by -0.000787, so it only repaired a weaker ablation surface and did not move the strongest frozen BGE-M3 fusion surface."
+    },
+    "decision": {
+        "start_gpu_training_in_this_record": false,
+        "publish_checkpoint": false,
+        "upload_checkpoint": false,
+        "sota_claim": false,
+        "next_action": "Sync the new gate scripts to the remote L20 and run only a small v71a adapter smoke if it uses tune and held-out diagnostics; do not accept a tune-only gain."
+    },
+    "raw_outputs_committed": false,
+    "model_checkpoints_committed": false,
+    "credentials_committed": false
+}

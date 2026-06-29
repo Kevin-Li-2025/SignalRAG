@@ -1,0 +1,127 @@
+{
+  "date": "2026-06-05",
+  "experiment_id": "2026-06-05-v65-teacher-score-distribution",
+  "status": "completed_no_training_started",
+  "goal": "Diagnose the v50 BGE-reranker-v2-m3 teacher rows before launching another standalone BGE-M3 student run, focusing on score distribution, entropy, margin strata, and BGE-M3 hybrid alignment.",
+  "source_records": [
+    "experiments/2026-06-05-v64-lower-lr-temperature-smokes.json",
+    "experiments/2026-06-05-miracl-ar-bge-reranker-teacher-data-v50.json"
+  ],
+  "script_added": "scripts/analyze_teacher_score_distribution.py",
+  "remote_artifacts": {
+    "input_teacher_jsonl": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/teacher-miracl-ar-train-bge-reranker-v2-m3-v50/teacher_train_reranker.jsonl",
+    "summary_json": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/student-distill-v65-score-distribution/score_distribution_summary.json",
+    "raw_outputs_committed": false,
+    "logs_committed": false,
+    "training_rows_generated": false,
+    "checkpoints_committed": false
+  },
+  "rows": {
+    "rows_seen": 3495,
+    "rows_with_scores": 3495,
+    "positive_pairs": 4949,
+    "negative_pairs": 27960,
+    "negative_source_counts": {
+      "judged_negative": 12889,
+      "unjudged_candidate": 15071
+    }
+  },
+  "teacher_quality": {
+    "positives_above_max_negative_fraction": 0.7590844062947067,
+    "all_positives_above_all_negatives_fraction": 0.623175965665236,
+    "best_pos_minus_max_neg": {
+      "mean": 2.466470378117159,
+      "min": -12.681640625,
+      "p05": -3.8445312499999997,
+      "p25": 0.1201171875,
+      "p50": 2.61328125,
+      "p75": 4.91015625,
+      "p95": 8.30875549316406,
+      "max": 16.07421875
+    },
+    "best_pos_minus_each_neg": {
+      "mean": 6.273635596557066,
+      "min": -12.681640625,
+      "p05": -0.708056640625,
+      "p25": 3.39453125,
+      "p50": 6.341796875,
+      "p75": 9.23846435546875,
+      "p95": 13.123144531249999,
+      "max": 19.203125
+    }
+  },
+  "margin_bins": {
+    "best_pos_minus_max_neg_rows": {
+      "negative": 840,
+      "0_to_0.5": 154,
+      "0.5_to_1": 132,
+      "1_to_2": 387,
+      "2_to_4": 784,
+      "4_plus": 1198
+    },
+    "best_pos_minus_each_neg_pairs": {
+      "negative": 1933,
+      "0_to_0.5": 491,
+      "0.5_to_1": 537,
+      "1_to_2": 1375,
+      "2_to_4": 3953,
+      "4_plus": 19671
+    }
+  },
+  "teacher_distribution_by_temperature": {
+    "1.0": {
+      "mean_pos_probability": 0.6994602244851971,
+      "mean_max_negative_probability": 0.21086101930684967,
+      "mean_normalized_entropy": 0.23826091681616007,
+      "pos_probability_p50": 0.8949200709924743,
+      "normalized_entropy_p50": 0.16656764300240315
+    },
+    "0.5": {
+      "mean_pos_probability": 0.7445916735670929,
+      "mean_max_negative_probability": 0.2204061747419985,
+      "mean_normalized_entropy": 0.10309670687286974,
+      "pos_probability_p50": 0.9932371994886768,
+      "normalized_entropy_p50": 0.013326564720261572
+    },
+    "0.2": {
+      "mean_pos_probability": 0.756271816827391,
+      "mean_max_negative_probability": 0.23138236793622868,
+      "mean_normalized_entropy": 0.03794053028924374,
+      "pos_probability_p50": 0.9999974274310613,
+      "normalized_entropy_p50": 0.00000504149359579185
+    },
+    "0.1": {
+      "mean_pos_probability": 0.7583769197441543,
+      "mean_max_negative_probability": 0.23550178848755368,
+      "mean_normalized_entropy": 0.018865200614173905,
+      "pos_probability_p50": 0.9999999999951628,
+      "normalized_entropy_p50": 0.0000000000060140256665641725
+    }
+  },
+  "teacher_vs_bge_m3_hybrid_margin": {
+    "paired_rows": 3495,
+    "pearson": 0.8291772449035898,
+    "teacher_margin_mean": 2.466470378117159,
+    "bge_m3_hybrid_margin_mean": 0.03505889706857215
+  },
+  "interpretation": [
+    "The teacher is not uniformly weak: 75.9% of rows have the best positive above the max negative, and teacher margin correlates strongly with BGE-M3 hybrid margin.",
+    "The pair-level distribution is too easy/top-heavy for distillation: 19,671 of 27,960 negative pairs are in the 4_plus margin bin, while middle-score negatives are much less common.",
+    "At low distillation temperatures, the teacher target becomes nearly one-hot. Temperature 0.2 has median normalized entropy near 0.000005, and temperature 0.1 is effectively zero for the median row.",
+    "This explains why v62/v64 head-only KD mainly learned narrow sparse/ColBERT repairs: the rows do not expose enough calibrated score spectrum for a robust standalone student."
+  ],
+  "decision": {
+    "start_training_now": false,
+    "publish_checkpoint": false,
+    "next_action": "Implement a stratified teacher-row builder that samples across negative margin bins and uses a softer teacher target, then run a small official M3 no-DDP smoke only after the generated split is query-disjoint and has healthier entropy/margin coverage.",
+    "candidate_v66_design": {
+      "teacher_temperature": "start around 1.0 or use score rescaling before softmax",
+      "negative_mix": {
+        "hard_or_negative_margin": "include borderline and teacher-disagreement negatives",
+        "middle_margin": "increase 1_to_2 and 2_to_4 bins",
+        "easy_margin": "retain a smaller number of 4_plus negatives as anchors"
+      },
+      "validation": "keep query-disjoint held-out rows and require +0.005 best-vs-best plus +0.005 model-card gain before scaling"
+    }
+  }
+}

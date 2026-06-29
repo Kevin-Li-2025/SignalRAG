@@ -1,0 +1,93 @@
+{
+  "date": "2026-06-05",
+  "experiment_id": "2026-06-05-v63-research-and-controlled-diagnostic-plan",
+  "status": "research_complete_no_gpu_training_started",
+  "goal": "Convert the latest research into a controlled next step for training a standalone Arabic retriever without blindly scaling the below-gate v62 recipe.",
+  "current_best_system_reference": {
+    "experiment": "v56 BGE-M3 hybrid r100 + BGE-reranker-v2-m3 min-max blend",
+    "benchmark": "MIRACL Arabic dev",
+    "main_score_ndcg_at_10": 0.8286045292115427,
+    "claim_boundary": "retrieval-system result, not standalone embedding-model SOTA"
+  },
+  "current_best_standalone_student_diagnostic": {
+    "experiment": "v62 official no-DDP BGE-M3 unified head-only student smoke",
+    "diagnostic": "fixed v52-v54 same-candidate MIRACL Arabic gate",
+    "base_main_score": 0.7888288154070898,
+    "student_main_score": 0.7924035999885117,
+    "delta": 0.003574784581421908,
+    "required_delta": 0.005,
+    "decision": "below gate; do not scale or publish"
+  },
+  "fresh_sources_checked": [
+    {
+      "source": "BGE-M3 paper",
+      "url": "https://arxiv.org/abs/2402.03216",
+      "implication": "Standalone student should preserve dense, sparse, and multi-vector modes and use teacher-score distillation rather than dense-only training."
+    },
+    {
+      "source": "BGE-M3 model card",
+      "url": "https://huggingface.co/BAAI/bge-m3",
+      "implication": "Official inference example fuses dense, sparse, and ColBERT scores with weights [0.4, 0.2, 0.4]."
+    },
+    {
+      "source": "BGE fine-tuning tutorial",
+      "url": "https://bge-model.com/tutorial/7_Finetuning/7.1.2.html",
+      "implication": "Official fine-tuning supports knowledge distillation from pos_scores and neg_scores, exposes score temperature, and supports m3_kd_loss."
+    },
+    {
+      "source": "FlagEmbedding M3 modeling API",
+      "url": "https://bge-model.com/API/finetune/embedder/encoder_only/m3/modeling.html",
+      "implication": "Training-time M3 compute_score defaults to dense=1.0, sparse=0.3, ColBERT=1.0, which may not match the current evaluation fusion surface."
+    },
+    {
+      "source": "Qwen3 Embedding official repository",
+      "url": "https://github.com/QwenLM/Qwen3-Embedding",
+      "implication": "Qwen3 remains a mandatory instruction-aware high-end baseline and teacher/reranker reference, but not a replacement for a self-owned student checkpoint."
+    },
+    {
+      "source": "Swan and ArabicMTEB paper",
+      "url": "https://arxiv.org/abs/2411.01192",
+      "implication": "ArabicMTEB is the best Arabic-centric SOTA target, but reproducible artifacts still need verification before same-harness claims."
+    },
+    {
+      "source": "Swan and ArabicMTEB Hugging Face paper page",
+      "url": "https://huggingface.co/papers/2411.01192",
+      "implication": "Community comments indicate users still struggle to find the Swan model and ArabicMTEB benchmark artifacts, so current claims must stay conservative."
+    },
+    {
+      "source": "MTEB organization and results repository",
+      "url": "https://huggingface.co/mteb",
+      "implication": "A public standalone-model claim should produce standard MTEB result files and model metadata; the current v56 stack should not be submitted as an embedding checkpoint."
+    }
+  ],
+  "research_findings": [
+    "The strongest public Arabic-centric target is Swan/ArabicMTEB, but it is currently a paper-level reference rather than a clean reproducible baseline for this repo.",
+    "BGE-M3 remains the best practical student base because its paper and official model card align with the teacher system's dense+sparse+multi-vector structure.",
+    "The immediate technical uncertainty is not row count; it is whether v62 was trained and evaluated on mismatched score-weight and temperature surfaces.",
+    "A checkpoint improvement must be measured against the base model under the same candidate pool and same fusion weights; otherwise the result is only a scoring-system ablation."
+  ],
+  "next_controlled_diagnostic": {
+    "name": "v63 weight-and-temperature alignment diagnostic",
+    "launch_training_first": false,
+    "stage_a_no_training": [
+      "Re-evaluate base BGE-M3 and v62 head checkpoint on the fixed same-candidate MIRACL Arabic gate under identical fusion weights.",
+      "Include [0.4, 0.2, 0.4], normalized [1.0, 0.3, 1.0], sparse-heavy, dense-heavy, and ColBERT-heavy grids.",
+      "Require the student to beat the base under the same weights by at least +0.005 nDCG@10 before treating it as a model gain."
+    ],
+    "stage_b_training_only_if_stage_a_supports_it": [
+      "Run a small lower-learning-rate official no-DDP M3 smoke.",
+      "Align training score temperature with the best diagnostic surface.",
+      "Prefer staged sparse-then-ColBERT or base-anchored training over simply increasing row count."
+    ],
+    "stage_c_broader_validation": [
+      "If the gate passes, evaluate on a held-out candidate-pool split before full MIRACL dev.",
+      "Then expand to MKQA/Mr.TyDi/Namaa/ArabicMTEB-reproducible tasks before any SOTA wording."
+    ]
+  },
+  "decision": {
+    "start_gpu_training_now": false,
+    "commit_checkpoint": false,
+    "publish_checkpoint": false,
+    "next_action": "Implement or run the v63 same-candidate fusion-weight diagnostic before any new training."
+  }
+}

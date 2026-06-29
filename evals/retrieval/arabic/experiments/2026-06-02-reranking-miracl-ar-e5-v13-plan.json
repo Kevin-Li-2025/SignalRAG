@@ -1,0 +1,40 @@
+{
+  "experiment_id": "2026-06-02-reranking-miracl-ar-e5-v13-plan",
+  "kernel": "likevin2005/arabic-embedding-sota-lab",
+  "kaggle_version": 13,
+  "status": "prepared_not_launched",
+  "reason": "Kaggle rejected the push because the weekly GPU quota of 30.00 hours was reached.",
+  "purpose": "Recover from the long-running v12 all-subset MIRACL reranking run by narrowing to the Arabic subset and the strongest reranking baseline.",
+  "models": [
+    "intfloat/multilingual-e5-large-instruct"
+  ],
+  "tasks": [
+    "MIRACLReranking"
+  ],
+  "eval_subsets": [
+    "ar"
+  ],
+  "settings": {
+    "batch_size": 1,
+    "max_seq_length": 256,
+    "encode_kwargs_batch_size": 1,
+    "machine_shape": "NvidiaTeslaT4"
+  },
+  "blocker": {
+    "type": "quota_exhausted",
+    "message": "Maximum weekly GPU quota of 30.00 hours reached."
+  },
+  "launch_attempts": [
+    {
+      "date": "2026-06-02",
+      "result": "rejected",
+      "message": "Maximum weekly GPU quota of 30.00 hours reached."
+    },
+    {
+      "date": "2026-06-02",
+      "result": "rejected_after_v12_cancelled",
+      "message": "Maximum weekly GPU quota of 30.00 hours reached."
+    }
+  ],
+  "next_step": "Relaunch this prepared v13 configuration when Kaggle GPU quota resets or run it from another account with available GPU quota."
+}

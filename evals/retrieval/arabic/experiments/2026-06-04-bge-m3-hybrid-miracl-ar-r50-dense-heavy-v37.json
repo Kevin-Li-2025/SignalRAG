@@ -1,0 +1,89 @@
+{
+  "experiment_id": "2026-06-04-bge-m3-hybrid-miracl-ar-r50-dense-heavy-v37",
+  "created_utc": "2026-06-04T18:10:00Z",
+  "status": "completed",
+  "purpose": "Full Arabic MIRACLRetrieval BGE-M3 hybrid weight ablation with a dense-heavier scoring mix.",
+  "source": {
+    "remote_host": "hhai-zijun",
+    "remote_output_source": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/bge-m3-hybrid-miracl-ar-r50-dense-heavy-v37",
+    "local_parse_source": "/tmp/bge-m3-hybrid-v37",
+    "raw_outputs_committed": false
+  },
+  "model": "BAAI/bge-m3",
+  "task": "MIRACLRetrieval",
+  "dataset": "mteb/MIRACLRetrieval",
+  "dataset_revision": "9c09abc13478308c27598f350e31d8f06b9b5481",
+  "subset": "ar",
+  "split": "dev",
+  "evaluator": {
+    "script": "scripts/run_miracl_bge_m3_hybrid.py",
+    "method": "Full-corpus dense+sparse candidate generation followed by FlagEmbedding BGEM3FlagModel.compute_score dense+sparse+ColBERT reranking.",
+    "candidate_top_k": 50,
+    "rerank_limit": 50,
+    "top_k": 10,
+    "weights_for_different_modes": [
+      0.5,
+      0.2,
+      0.3
+    ],
+    "note": "Dense-heavier ablation relative to the default [0.4, 0.2, 0.4] mix."
+  },
+  "runtime_config": {
+    "device": "NVIDIA L20",
+    "batch_size": 32,
+    "rerank_batch_size": 32,
+    "max_length": 256,
+    "max_passage_length": 256,
+    "encode_chunk_size": 1000,
+    "corpus_count": 2061414,
+    "query_count": 2896,
+    "positive_count": 5658
+  },
+  "metrics": {
+    "main_score": 0.8005829771740617,
+    "ndcg_at_10": 0.8005829771740617,
+    "map_at_10": 0.7376233709317828,
+    "mrr_at_10": 0.8191739564149785,
+    "recall_at_10": 0.8923102747084101,
+    "precision_at_10": 0.168853591160221,
+    "hit_rate_at_10": 0.9488950276243094
+  },
+  "timings": {
+    "candidate_elapsed_seconds": 3359.4123381832615,
+    "candidate_elapsed_hours": 0.9331700939397949,
+    "candidate_docs_per_second": 613.62339376142,
+    "rerank_elapsed_seconds": 501.68542569316924,
+    "rerank_pairs": 144800,
+    "total_measured_seconds": 3861.0977638764306,
+    "total_measured_hours": 1.0725271566323419
+  },
+  "comparison_context": {
+    "bge_m3_hybrid_r100_default_weights": {
+      "ndcg_at_10": 0.8010252064432427,
+      "delta_vs_dense_heavy": -0.0004422292691810065
+    },
+    "bge_m3_hybrid_r50_default_weights": {
+      "ndcg_at_10": 0.800790742096028,
+      "delta_vs_dense_heavy": -0.00020776492196632043
+    },
+    "bge_m3_hybrid_r50_colbert_heavy": {
+      "ndcg_at_10": 0.800816481360365,
+      "delta_vs_dense_heavy": -0.0002335041863032772
+    },
+    "bge_m3_hybrid_r50_sparse_heavy": {
+      "ndcg_at_10": 0.7981178440393024,
+      "delta_vs_dense_heavy": 0.0024651331347592416
+    },
+    "bge_m3_dense": {
+      "ndcg_at_10": 0.78523,
+      "delta_vs_dense_heavy": 0.01535297717406173
+    }
+  },
+  "interpretation": [
+    "The dense-heavy [0.5, 0.2, 0.3] r50 ablation scored 0.800583 nDCG@10.",
+    "This is below default r50 by -0.000208 and below default r100 by -0.000442.",
+    "Dense-heavy weighting still beats the dense BGE-M3 baseline by +0.015353, but it is not the best hybrid configuration.",
+    "The r50/r100 default mix remains the practical teacher setup; v34 r100 is the best tracked full Arabic MIRACLRetrieval result in this repo."
+  ],
+  "next_experiment": "Stop BGE-M3 hybrid weight search for now and use default BGE-M3 hybrid r100 [0.4, 0.2, 0.4] as the teacher setup for Arabic retrieval training-data construction."
+}

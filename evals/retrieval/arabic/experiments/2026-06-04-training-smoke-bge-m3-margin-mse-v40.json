@@ -1,0 +1,72 @@
+{
+  "experiment_id": "2026-06-04-training-smoke-bge-m3-margin-mse-v40",
+  "created_utc": "2026-06-04T20:26:49Z",
+  "status": "completed",
+  "purpose": "Test teacher-score-aware MarginMSE distillation on a small BGE-M3 hybrid MIRACL Arabic teacher-data sample.",
+  "source": {
+    "remote_host": "hhai-zijun",
+    "remote_output_source": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/training-smoke-bge-m3-margin-mse-v40",
+    "local_parse_source": "/tmp/v40-margin-mse/smoke_summary.json",
+    "raw_training_data_committed": false,
+    "checkpoint_committed": false
+  },
+  "base_model": "BAAI/bge-m3",
+  "base_model_path": "/home/hhai/hf-models/BAAI-bge-m3",
+  "train_data": {
+    "source": "remote_outputs/teacher-miracl-ar-train-bge-m3-hybrid-r100-v1/teacher_train.jsonl",
+    "smoke_file": "remote_outputs/training-smoke-bge-m3-margin-mse-v40/teacher_train_smoke64.jsonl",
+    "source_rows": 64,
+    "expanded_margin_mse_triples": 512,
+    "teacher": "BAAI/bge-m3 hybrid r100 [0.4, 0.2, 0.4]",
+    "raw_text_committed": false
+  },
+  "training": {
+    "loss": "MarginMSELoss",
+    "label": "pos_score - neg_score",
+    "matryoshka_dims": [],
+    "num_train_epochs": 1.0,
+    "train_batch_size": 4,
+    "learning_rate": 0.00002,
+    "max_seq_length": 256,
+    "train_runtime_seconds": 44.5209,
+    "train_samples_per_second": 11.5,
+    "train_steps_per_second": 2.875,
+    "train_loss": 0.0012805153746739961,
+    "epoch": 1.0
+  },
+  "environment": {
+    "device": "NVIDIA L20",
+    "sentence_transformers": "5.5.1",
+    "transformers": "4.57.6",
+    "tokenizers": "0.22.2",
+    "accelerate": "1.13.0",
+    "torch": "2.6.0+cu124"
+  },
+  "eval_sample": {
+    "dataset": "mteb/MIRACLRetrieval",
+    "dataset_revision": "9c09abc13478308c27598f350e31d8f06b9b5481",
+    "subset": "ar",
+    "split": "dev",
+    "sample": "50 queries / 1000 docs positive-plus-negatives sample; not comparable to full MIRACL results.",
+    "base_main_score": 0.9854023627273953,
+    "final_main_score": 0.9734962360475109,
+    "delta_final_minus_base": -0.011906126679884443,
+    "delta_final_minus_v39_mnr": -0.003383290712007603,
+    "final_metrics": {
+      "ndcg_at_10": 0.9734962360475109,
+      "map_at_10": 0.9613888888888888,
+      "mrr_at_10": 0.9691666666666667,
+      "recall_at_10": 1.0,
+      "precision_at_10": 0.18599999999999997,
+      "hit_rate_at_10": 1.0,
+      "main_score": 0.9734962360475109
+    }
+  },
+  "interpretation": [
+    "The MarginMSE data path is now implemented and verified: 64 teacher rows expanded to 512 scored triples.",
+    "The smoke converged to a low training loss, but the same fixed MIRACL Arabic sample regressed by -0.011906 nDCG@10 versus base BGE-M3.",
+    "It also trailed the plain MNR v39 smoke by -0.003383 on the same sample.",
+    "This suggests dense-only SentenceTransformer fine-tuning of BGE-M3 is the wrong route for preserving the hybrid dense/sparse/ColBERT teacher behavior."
+  ],
+  "next_experiment": "Stop dense-only BGE-M3 smoke training for now. Move to the official FlagEmbedding BGE-M3 distillation path or train a separate student model that is evaluated as dense-only, rather than trying to improve BGE-M3 hybrid via a SentenceTransformer dense checkpoint."
+}

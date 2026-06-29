@@ -1,0 +1,89 @@
+{
+  "experiment_id": "2026-06-05-v73-multisplit-stability-gate",
+  "status": "gate_plumbing_ready_no_gpu_training_started",
+  "goal": "Add a stricter multi-split stability gate after v72a showed promising held-out gains but failed on the tune split.",
+  "depends_on": [
+    "experiments/2026-06-05-v71-validation-aware-adapter-gate.json",
+    "experiments/2026-06-05-v72-surface-aware-teacher-and-smoke.json"
+  ],
+  "fresh_research_2026_06_05": [
+    {
+      "source": "BAAI/bge-m3 model card",
+      "url": "https://huggingface.co/BAAI/bge-m3",
+      "finding": "BGE-M3 is explicitly dense+sparse+multi-vector, and strong retrieval use is based on hybrid surfaces rather than a single dense score.",
+      "implication": "Student gates should require stable improvement on hybrid/model-card surfaces, not only one alternate fusion label."
+    },
+    {
+      "source": "FlagEmbedding finetune embedder documentation",
+      "url": "https://github.com/FlagOpen/FlagEmbedding/tree/master/examples/finetune/embedder",
+      "finding": "Official M3 KD uses teacher scores through pos_scores/neg_scores.",
+      "implication": "The data objective can keep changing, but the acceptance gate must stay independent and split-stable."
+    },
+    {
+      "source": "BGE-M3 technical report",
+      "url": "https://arxiv.org/abs/2402.03216",
+      "finding": "BGE-M3's strength comes from multi-function retrieval and distillation.",
+      "implication": "A student should not be accepted unless improvements survive across multiple query slices and retrieval-mode weight surfaces."
+    },
+    {
+      "source": "MIRACL official repository",
+      "url": "https://github.com/project-miracl/miracl",
+      "finding": "MIRACL Arabic has enough train and dev queries to support query-disjoint diagnostics.",
+      "implication": "A two-way split is useful but still weak; next validation should support multiple slices before full-dev evaluation."
+    }
+  ],
+  "implemented_changes": [
+    {
+      "file": "scripts/check_student_multisplit_gate.py",
+      "change": "Added a multi-split stability gate that reads repeated weight-sweep summaries, selects the same-weight label with highest mean delta across splits, and requires best-vs-best, model-card, and selected same-weight deltas to clear both pass-fraction and mean-delta criteria."
+    },
+    {
+      "file": "tests/test_check_student_multisplit_gate.py",
+      "change": "Added unit tests for split argument parsing, mean-based same-weight label selection, stable pass behavior, and rejection of single-split instability."
+    }
+  ],
+  "v73_sanity_check_on_v72a": {
+    "input_summaries": [
+      "/home/hhai/arabic-embedding-sota-lab/remote_outputs/v72a-surface-aware-lora-qkv-r16-lr2e-5-t005-g9-tune-diagnostic/summary.json",
+      "/home/hhai/arabic-embedding-sota-lab/remote_outputs/v72a-surface-aware-lora-qkv-r16-lr2e-5-t005-g9-heldout-diagnostic/summary.json"
+    ],
+    "output_summary": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/v73-v72a-two-split-stability-gate/summary.json",
+    "required_delta": 0.005,
+    "min_pass_fraction": 1.0,
+    "selected_same_weight_label": "sparse_colbert",
+    "aggregate": {
+      "best_vs_best": {
+        "mean_delta": 0.002592628459208768,
+        "min_delta": -0.0012927352885554466,
+        "max_delta": 0.006477992206972982,
+        "pass_fraction": 0.5
+      },
+      "model_card": {
+        "mean_delta": 0.0041248365951505606,
+        "min_delta": 0.002021299172374147,
+        "max_delta": 0.006228374017926974,
+        "pass_fraction": 0.5
+      },
+      "selected_same_weight": {
+        "mean_delta": 0.005880758862752633,
+        "min_delta": 0.0024325395435883523,
+        "max_delta": 0.009328978181916914,
+        "pass_fraction": 0.5
+      }
+    },
+    "gate_pass": false
+  },
+  "decision": {
+    "start_gpu_training": false,
+    "full_dev_evaluation": false,
+    "publish_checkpoint": false,
+    "upload_checkpoint": false,
+    "sota_claim": false,
+    "reason": "v73 confirms v72a has a real but unstable sparse_colbert/model-card signal. It must not be scaled until the signal passes multiple query slices, not only one held-out half.",
+    "next_action": "Before another training run, either evaluate the existing v72a checkpoint on four stride-4 diagnostic slices or design a richer surface-aware teacher corpus, then require the multi-split gate to pass."
+  },
+  "raw_outputs_committed": false,
+  "model_checkpoints_committed": false,
+  "generated_embeddings_committed": false,
+  "credentials_committed": false
+}

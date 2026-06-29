@@ -1,0 +1,112 @@
+{
+  "experiment_id": "2026-06-05-bge-reranker-score-blend-v56",
+  "created_utc": "2026-06-05T10:05:00Z",
+  "status": "completed",
+  "purpose": "Test whether a disciplined score-level blend of frozen BGE-M3 hybrid first-stage scores and BGE-reranker-v2-m3 cross-encoder scores improves Arabic MIRACL dev retrieval.",
+  "research_basis": [
+    "MIRACL Arabic nDCG@10 is the strongest current retrieval benchmark signal in this repo.",
+    "The current v47 system uses a strong two-stage stack but discards first-stage score information after reranking.",
+    "A tune/holdout split is required because score blending on the same dev set can overfit."
+  ],
+  "source": {
+    "remote_host": "hhai-zijun",
+    "remote_output_source": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/miracl-ar-bge-reranker-v2-m3-score-blend-v56",
+    "ranked_by_query_source": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/miracl-ar-bge-reranker-v2-m3-seqcls-full-v47/ranked_by_query.json",
+    "local_summary_copy": "/tmp/miracl-ar-bge-reranker-v2-m3-score-blend-v56-summary.json",
+    "raw_outputs_committed": false
+  },
+  "method": {
+    "script": "scripts/sweep_reranker_score_blend.py",
+    "candidate_source": "v47 BGE-M3 hybrid r100 plus BAAI/bge-reranker-v2-m3 ranked_by_query.json",
+    "candidate_depth": 100,
+    "grid": {
+      "modes": [
+        "minmax",
+        "zscore",
+        "rrf"
+      ],
+      "alpha_step": 0.05,
+      "alpha_definition": "alpha * reranker_score + (1 - alpha) * first_stage_score after per-query normalization for minmax/zscore; alpha=1.0 is reranker-only."
+    },
+    "selection": {
+      "split": "deterministic alternating query split",
+      "tune_query_count": 1448,
+      "holdout_query_count": 1448,
+      "selected_mode": "minmax",
+      "selected_alpha": 0.65
+    }
+  },
+  "dataset": {
+    "name": "mteb/MIRACLRetrieval",
+    "revision": "9c09abc13478308c27598f350e31d8f06b9b5481",
+    "subset": "ar",
+    "split": "dev",
+    "query_count": 2896,
+    "top_k": 100,
+    "metric_k": 10
+  },
+  "baselines": {
+    "first_stage_v43_on_same_queries": {
+      "main_score": 0.8011099981276549,
+      "ndcg_at_10": 0.8011099981276549,
+      "map_at_10": 0.7380213421214864,
+      "mrr_at_10": 0.8198457916776286,
+      "recall_at_10": 0.89322341160221
+    },
+    "reranker_v47_on_same_queries": {
+      "main_score": 0.817730759894141,
+      "ndcg_at_10": 0.817730759894141,
+      "map_at_10": 0.756479882254339,
+      "mrr_at_10": 0.8351301466719284,
+      "recall_at_10": 0.9089436442164344
+    }
+  },
+  "best_by_tune": {
+    "mode": "minmax",
+    "alpha": 0.65,
+    "tune": {
+      "main_score": 0.8268799526095661,
+      "ndcg_at_10": 0.8268799526095661,
+      "map_at_10": 0.7673510953197016,
+      "mrr_at_10": 0.8410495045163554,
+      "recall_at_10": 0.9175011510128914
+    },
+    "holdout": {
+      "main_score": 0.8303291058135192,
+      "ndcg_at_10": 0.8303291058135192,
+      "map_at_10": 0.7720230695869508,
+      "mrr_at_10": 0.8443216697360344,
+      "recall_at_10": 0.918559260720863
+    },
+    "full": {
+      "main_score": 0.8286045292115427,
+      "ndcg_at_10": 0.8286045292115427,
+      "map_at_10": 0.769687082453326,
+      "mrr_at_10": 0.8426855871261948,
+      "recall_at_10": 0.9180302058668772
+    },
+    "delta_vs_reranker_v47": {
+      "tune": 0.008298787751342629,
+      "holdout": 0.013448750883460536,
+      "full": 0.010873769317401694
+    },
+    "delta_vs_first_stage_v43": {
+      "tune": 0.026646853851964747,
+      "holdout": 0.02834220831581058,
+      "full": 0.027494531083887774
+    }
+  },
+  "run_file": {
+    "path": "remote_outputs/miracl-ar-bge-reranker-v2-m3-score-blend-v56/ar_dev_bge-m3-hybrid-r100-bge-v2m3-minmax-a065-v56.txt",
+    "queries": 2896,
+    "depth": 100,
+    "lines": 289600,
+    "raw_output_committed": false
+  },
+  "interpretation": [
+    "The selected min-max blend improves on the v47 reranker-only system on both tune and holdout halves, so the gain is not limited to the tuned half.",
+    "The full-dev score is the strongest completed Arabic MIRACLRetrieval dev result in this repo: 0.828605 nDCG@10.",
+    "This remains a retrieval-system result over MIRACL dev, not a standalone Arabic embedding model and not a formal hidden-test SOTA claim."
+  ],
+  "next_experiment": "Run full-dev BGE-reranker-v2-gemma over the same v43 candidate pool, then repeat the blend sweep with Gemma scores if the full run beats or approaches v56."
+}

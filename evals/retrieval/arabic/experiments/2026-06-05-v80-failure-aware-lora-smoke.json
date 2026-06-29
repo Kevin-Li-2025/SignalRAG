@@ -1,0 +1,278 @@
+{
+  "experiment_id": "2026-06-05-v80-failure-aware-lora-smoke",
+  "status": "completed_failed_multisplit_gate",
+  "goal": "Run one tiny attention-qkv LoRA standalone-student smoke over the v79d failure-aware teacher rows, then evaluate with the four-slice MIRACL Arabic multi-split gate and query-level failure analysis.",
+  "depends_on": [
+    "experiments/2026-06-05-v79-failure-aware-teacher-selector.json",
+    "experiments/2026-06-05-v78-v77-failure-analysis.json",
+    "experiments/2026-06-05-v77-multisurface-lora-smoke.json",
+    "experiments/2026-06-05-v73-multisplit-stability-gate.json",
+    "experiments/2026-06-05-v74-v72a-stride4-stability.json"
+  ],
+  "current_best_system_reference": {
+    "version": "v56",
+    "method": "BGE-M3 hybrid r100 plus BGE-reranker-v2-m3 min-max score blend",
+    "benchmark": "MIRACL Arabic dev",
+    "main_score_ndcg_at_10": 0.8286045292115427,
+    "claim_scope": "retrieval-system teacher/reference, not standalone embedding model SOTA"
+  },
+  "fresh_research_2026_06_05": [
+    {
+      "source": "BAAI/bge-m3 model card",
+      "url": "https://huggingface.co/BAAI/bge-m3",
+      "finding": "BGE-M3 is designed around dense, sparse, and multi-vector retrieval modes.",
+      "implication": "The v80 student must be judged on model-card/base-best hybrid surfaces, not only sparse_colbert local gains."
+    },
+    {
+      "source": "FlagEmbedding finetune embedder documentation",
+      "url": "https://github.com/FlagOpen/FlagEmbedding/tree/master/examples/finetune/embedder",
+      "finding": "The official M3 training path consumes teacher-score rows through pos_scores and neg_scores.",
+      "implication": "The v79d JSONL rows remain compatible with the official no-DDP M3 KD path."
+    },
+    {
+      "source": "BGE-M3 technical report",
+      "url": "https://arxiv.org/abs/2402.03216",
+      "finding": "BGE-M3's reported strength comes from unified dense, lexical, and multi-vector retrieval plus distillation.",
+      "implication": "A worthwhile student must move the robust fused surface, not just a single weak diagnostic surface."
+    },
+    {
+      "source": "MIRACL official repository",
+      "url": "https://github.com/project-miracl/miracl",
+      "finding": "MIRACL Arabic remains the same-task high-signal gate for these retrieval diagnostics.",
+      "implication": "The four query-disjoint stride slices remain the right smoke-test gate before any scale-up."
+    }
+  ],
+  "remote_training": {
+    "host": "hhai-zijun",
+    "repo_path": "/home/hhai/arabic-embedding-sota-lab",
+    "script": "logs/v80-failure-aware-lora-qkv-r16-lr1e-5-t005-g9.sh",
+    "log": "logs/v80-failure-aware-lora-qkv-r16-lr1e-5-t005-g9.log",
+    "output_dir": "remote_outputs/training-smoke-bge-m3-official-no-ddp-v80-failure-aware-lora-qkv-r16-lr1e-5-t005-g9",
+    "teacher_rows": "remote_outputs/student-distill-v79d-failure-aware-teacher/teacher_train_failure_aware.jsonl",
+    "base_model": "BAAI/bge-m3",
+    "trainer": "FlagEmbedding BGE-M3 no-DDP wrapper",
+    "loss": "m3_kd_loss",
+    "unified_finetuning": true,
+    "fix_encoder": false,
+    "knowledge_distillation": true,
+    "train_rows": 512,
+    "train_group_size": 9,
+    "per_device_train_batch_size": 1,
+    "gradient_accumulation_steps": 8,
+    "learning_rate": 0.00001,
+    "temperature": 0.05,
+    "num_train_epochs": 1.0,
+    "query_max_len": 64,
+    "passage_max_len": 128,
+    "train_runtime_seconds": 107.6007,
+    "train_samples_per_second": 4.758,
+    "train_steps_per_second": 0.595,
+    "train_loss": 1.2032042369246483,
+    "oom": false
+  },
+  "lora": {
+    "target_preset": "attention_qkv",
+    "target_modules": [
+      "query",
+      "key",
+      "value"
+    ],
+    "rank": 16,
+    "alpha": 32,
+    "dropout": 0.1,
+    "selected_module_count": 72,
+    "trainable_parameters": 2359296,
+    "estimated_lora_trainable_fraction_after_wrapping": 0.004138287783429606,
+    "total_parameters_after_wrapping": 570114048
+  },
+  "remote_evaluation": {
+    "output_root": "remote_outputs/v80-failure-aware-lora-qkv-r16-lr1e-5-t005-g9-stride4",
+    "gate_summary": "remote_outputs/v80-failure-aware-lora-qkv-r16-lr1e-5-t005-g9-stride4/gate/summary.json",
+    "failure_analysis": "remote_outputs/v80-failure-aware-lora-qkv-r16-lr1e-5-t005-g9-stride4/failure_analysis.json",
+    "candidate_run_file": "remote_outputs/miracl-official-ar-bge-m3-hybrid-r100-v43/runfiles/ar_dev.txt",
+    "candidate_depth": 100,
+    "batch_size": 16,
+    "max_passage_length": 256,
+    "offline_mode": true,
+    "query_slices": [
+      {
+        "label": "slice0",
+        "query_count": 50,
+        "query_offset": 0,
+        "query_stride": 4
+      },
+      {
+        "label": "slice1",
+        "query_count": 50,
+        "query_offset": 1,
+        "query_stride": 4
+      },
+      {
+        "label": "slice2",
+        "query_count": 50,
+        "query_offset": 2,
+        "query_stride": 4
+      },
+      {
+        "label": "slice3",
+        "query_count": 50,
+        "query_offset": 3,
+        "query_stride": 4
+      }
+    ]
+  },
+  "gate_result": {
+    "required_delta": 0.005,
+    "min_pass_fraction": 1.0,
+    "selected_same_weight_label": "sparse_colbert",
+    "gate_pass": false,
+    "aggregate": {
+      "best_vs_best": {
+        "mean_delta": 0.0010396872768939913,
+        "min_delta": 0.00009047312427068466,
+        "max_delta": 0.0017570410826308613,
+        "pass_count": 0,
+        "pass_fraction": 0.0
+      },
+      "model_card": {
+        "mean_delta": 0.003157161249787932,
+        "min_delta": 0.0015805850153937095,
+        "max_delta": 0.005236118437259907,
+        "pass_count": 1,
+        "pass_fraction": 0.25
+      },
+      "selected_same_weight": {
+        "mean_delta": 0.004703679905548763,
+        "min_delta": 0.0009523668823085973,
+        "max_delta": 0.013334757141663767,
+        "pass_count": 1,
+        "pass_fraction": 0.25
+      }
+    },
+    "criteria": {
+      "best_vs_best_pass_fraction": false,
+      "model_card_pass_fraction": false,
+      "selected_same_weight_pass_fraction": false,
+      "best_vs_best_mean_delta": false,
+      "model_card_mean_delta": false,
+      "selected_same_weight_mean_delta": false
+    },
+    "split_deltas": [
+      {
+        "label": "slice0",
+        "best_vs_best": 0.00009047312427068466,
+        "model_card": 0.0015805850153937095,
+        "selected_same_weight": 0.002131103704791637
+      },
+      {
+        "label": "slice1",
+        "best_vs_best": 0.001358868018365822,
+        "model_card": 0.002707735188099636,
+        "selected_same_weight": 0.013334757141663767
+      },
+      {
+        "label": "slice2",
+        "best_vs_best": 0.0017570410826308613,
+        "model_card": 0.003104206358398476,
+        "selected_same_weight": 0.002396491893431052
+      },
+      {
+        "label": "slice3",
+        "best_vs_best": 0.0009523668823085973,
+        "model_card": 0.005236118437259907,
+        "selected_same_weight": 0.0009523668823085973
+      }
+    ]
+  },
+  "query_level_failure_analysis": {
+    "query_count": 200,
+    "required_delta": 0.005,
+    "surface_stats": {
+      "model_card": {
+        "mean_delta": 0.00315716124978796,
+        "min_delta": -0.0874717141014082,
+        "max_delta": 0.17723928678404777,
+        "pass_count": 18,
+        "pass_fraction": 0.09,
+        "regression_count": 11,
+        "regression_fraction": 0.055
+      },
+      "sparse_colbert": {
+        "mean_delta": 0.004703679905548806,
+        "min_delta": -0.36907024642854247,
+        "max_delta": 0.5,
+        "pass_count": 23,
+        "pass_fraction": 0.115,
+        "regression_count": 12,
+        "regression_fraction": 0.06
+      },
+      "training_default": {
+        "mean_delta": -0.00034209070438440847,
+        "min_delta": -0.13092975357145753,
+        "max_delta": 0.13565197343244773,
+        "pass_count": 8,
+        "pass_fraction": 0.04,
+        "regression_count": 8,
+        "regression_fraction": 0.04
+      },
+      "colbert_heavy": {
+        "mean_delta": 0.0001505365086949764,
+        "min_delta": -0.13565197343244773,
+        "max_delta": 0.08027921085181244,
+        "pass_count": 11,
+        "pass_fraction": 0.055,
+        "regression_count": 9,
+        "regression_fraction": 0.045
+      }
+    }
+  },
+  "comparison_to_v77": {
+    "best_vs_best_mean_delta": {
+      "v77": 0.000727657885741334,
+      "v80": 0.0010396872768939913,
+      "absolute_change": 0.0003120293911526573,
+      "interpretation": "small improvement but still far below the +0.005 gate"
+    },
+    "model_card_mean_delta": {
+      "v77": 0.0030814489210519436,
+      "v80": 0.003157161249787932,
+      "absolute_change": 0.00007571232873598838,
+      "interpretation": "essentially unchanged"
+    },
+    "selected_sparse_colbert_mean_delta": {
+      "v77": 0.004748328351794923,
+      "v80": 0.004703679905548763,
+      "absolute_change": -0.00004464844624616019,
+      "interpretation": "no improvement on the selected weak surface"
+    },
+    "query_level_model_card_pass_count": {
+      "v77": 22,
+      "v80": 18,
+      "interpretation": "failure-aware rows did not raise query-level model-card pass coverage"
+    },
+    "query_level_sparse_colbert_pass_count": {
+      "v77": 27,
+      "v80": 23,
+      "interpretation": "failure-aware rows did not raise sparse_colbert pass coverage"
+    }
+  },
+  "interpretation": {
+    "engineering_result": "LoRA training and offline four-slice evaluation completed without OOM or dependency blockers.",
+    "model_result": "The checkpoint fails the strict standalone-student gate. v79d failure-aware rows slightly improved best-vs-best mean versus v77 but did not improve model-card coverage, query-level pass counts, or the selected sparse_colbert surface.",
+    "useful_signal": "Simple surface-risk-weighted row selection is insufficient. The training objective or data construction must more directly optimize model-card/base-best stability rather than indirectly reweighting examples."
+  },
+  "decision": {
+    "scale_training": false,
+    "full_dev_evaluation": false,
+    "publish_checkpoint": false,
+    "upload_checkpoint": false,
+    "sota_claim": false,
+    "reason": "v80 fails every predeclared multi-split gate criterion. Best-vs-best mean delta is only +0.001040 with 0/4 passing slices; model-card mean delta is +0.003157 with 1/4 passing slices; selected sparse_colbert mean delta is +0.004704 with 1/4 passing slices.",
+    "next_action": "Do not launch a nearby larger v80 run. The next standalone attempt needs an objective/data redesign that directly targets model-card/base-best rankings, such as pair/list construction from base-best failures with explicit anti-regression constraints or a broader teacher target, before any further GPU training."
+  },
+  "remote_state_after_run": "NVIDIA L20 idle",
+  "raw_outputs_committed": false,
+  "model_checkpoints_committed": false,
+  "generated_embeddings_committed": false,
+  "credentials_committed": false
+}

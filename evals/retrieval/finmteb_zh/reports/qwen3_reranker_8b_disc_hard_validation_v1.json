@@ -1,0 +1,198 @@
+{
+  "split": "train",
+  "tasks": [
+    {
+      "dataset": "FinanceMTEB/DISCFinLLM-reranking",
+      "leaderboard_name": "DISCFinLLMReranking",
+      "split": "train",
+      "num_queries": 42,
+      "hard_query_count": 4,
+      "hard_queries": [
+        {
+          "query_id": "21",
+          "query": "南京、沈阳、大连取消限购政策是否会对当地房地产市场产生什么样的影响？是否会刺激购房需求？",
+          "base_ap": 0.5833333333333333,
+          "baseline_ap": 0.5833333333333333,
+          "base_margin": -8.922815322875977e-05,
+          "baseline_margin": -0.34889237779670124,
+          "hard_reason": [
+            "base_ap_lt_1",
+            "baseline_ap_lt_1",
+            "low_margin"
+          ]
+        },
+        {
+          "query_id": "24",
+          "query": "存款利率下调可能对中小银行的盈利能力产生什么样的影响？",
+          "base_ap": 0.6388888888888888,
+          "baseline_ap": 1.0,
+          "base_margin": -0.023325741291046143,
+          "baseline_margin": 0.1280145943401274,
+          "hard_reason": [
+            "base_ap_lt_1",
+            "low_margin"
+          ]
+        },
+        {
+          "query_id": "27",
+          "query": "投资者似乎开始更注重长期盈利而非短期收益，这对光伏行业以及其他类似的资本密集型行业意味着什么？",
+          "base_ap": 0.7,
+          "baseline_ap": 1.0,
+          "base_margin": -0.0001238988625118509,
+          "baseline_margin": 0.39393063635083336,
+          "hard_reason": [
+            "base_ap_lt_1",
+            "low_margin"
+          ]
+        },
+        {
+          "query_id": "28",
+          "query": "春节新能源汽车降价潮将如何影响新能源汽车市场？",
+          "base_ap": 0.9166666666666666,
+          "baseline_ap": 1.0,
+          "base_margin": -0.08989071846008301,
+          "baseline_margin": 0.0,
+          "hard_reason": [
+            "base_ap_lt_1",
+            "low_margin"
+          ]
+        }
+      ],
+      "evaluations": [
+        {
+          "candidate": "doc_bigram_alpha_0.01",
+          "full_metrics": {
+            "map": 0.9920634920634921,
+            "mrr": 1.0,
+            "ndcg@10": 0.996539446574441
+          },
+          "hard_metrics": {
+            "map": 0.9166666666666666,
+            "mrr": 1.0,
+            "ndcg@10": 0.9636641890316315
+          },
+          "rest_metrics": {
+            "map": 1.0,
+            "mrr": 1.0,
+            "ndcg@10": 1.0
+          },
+          "score": 0.9583333333333333
+        },
+        {
+          "candidate": "doc_bigram_alpha_0.05",
+          "full_metrics": {
+            "map": 0.9920634920634921,
+            "mrr": 1.0,
+            "ndcg@10": 0.996539446574441
+          },
+          "hard_metrics": {
+            "map": 0.9166666666666666,
+            "mrr": 1.0,
+            "ndcg@10": 0.9636641890316315
+          },
+          "rest_metrics": {
+            "map": 1.0,
+            "mrr": 1.0,
+            "ndcg@10": 1.0
+          },
+          "score": 0.9583333333333333
+        },
+        {
+          "candidate": "lexical_alpha_0.2",
+          "full_metrics": {
+            "map": 0.9900793650793651,
+            "mrr": 0.9880952380952381,
+            "ndcg@10": 0.992700628657554
+          },
+          "hard_metrics": {
+            "map": 0.8958333333333333,
+            "mrr": 0.875,
+            "ndcg@10": 0.9233566009043177
+          },
+          "rest_metrics": {
+            "map": 1.0,
+            "mrr": 1.0,
+            "ndcg@10": 1.0
+          },
+          "score": 0.9479166666666666
+        },
+        {
+          "candidate": "title_lexical_alpha_0.05",
+          "full_metrics": {
+            "map": 0.9894179894179894,
+            "mrr": 1.0,
+            "ndcg@10": 0.995076528766001
+          },
+          "hard_metrics": {
+            "map": 0.8888888888888888,
+            "mrr": 1.0,
+            "ndcg@10": 0.9483035520430098
+          },
+          "rest_metrics": {
+            "map": 1.0,
+            "mrr": 1.0,
+            "ndcg@10": 1.0
+          },
+          "score": 0.9444444444444444
+        },
+        {
+          "candidate": "title_bigram_alpha_0.15",
+          "full_metrics": {
+            "map": 0.986904761904762,
+            "mrr": 1.0,
+            "ndcg@10": 0.9937508018612408
+          },
+          "hard_metrics": {
+            "map": 0.8624999999999999,
+            "mrr": 1.0,
+            "ndcg@10": 0.9343834195430278
+          },
+          "rest_metrics": {
+            "map": 1.0,
+            "mrr": 1.0,
+            "ndcg@10": 1.0
+          },
+          "score": 0.9312499999999999
+        },
+        {
+          "candidate": "model",
+          "full_metrics": {
+            "map": 0.9723544973544973,
+            "mrr": 0.9761904761904762,
+            "ndcg@10": 0.9820016169790234
+          },
+          "hard_metrics": {
+            "map": 0.7097222222222221,
+            "mrr": 0.75,
+            "ndcg@10": 0.8110169782797465
+          },
+          "rest_metrics": {
+            "map": 1.0,
+            "mrr": 1.0,
+            "ndcg@10": 1.0
+          },
+          "score": 0.8548611111111111
+        }
+      ],
+      "best": {
+        "candidate": "doc_bigram_alpha_0.01",
+        "full_metrics": {
+          "map": 0.9920634920634921,
+          "mrr": 1.0,
+          "ndcg@10": 0.996539446574441
+        },
+        "hard_metrics": {
+          "map": 0.9166666666666666,
+          "mrr": 1.0,
+          "ndcg@10": 0.9636641890316315
+        },
+        "rest_metrics": {
+          "map": 1.0,
+          "mrr": 1.0,
+          "ndcg@10": 1.0
+        },
+        "score": 0.9583333333333333
+      }
+    }
+  ]
+}

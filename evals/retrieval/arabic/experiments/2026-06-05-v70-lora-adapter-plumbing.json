@@ -1,0 +1,106 @@
+{
+  "date": "2026-06-05",
+  "experiment_id": "2026-06-05-v70-lora-adapter-plumbing",
+  "status": "adapter_plumbing_and_target_audit_ready_no_training_started",
+  "goal": "Prepare a locally and remotely validated PEFT/LoRA adapter path for BGE-M3 M3 distillation after v69a showed that tiny full-encoder movement did not pass the standalone-student gate.",
+  "source_records": [
+    "experiments/2026-06-05-v69a-full-encoder-smoke.json",
+    "experiments/2026-06-05-v69-blended-teacher-diagnostic.json",
+    "experiments/2026-06-05-bge-reranker-score-blend-v56.json"
+  ],
+  "fresh_sources_checked": [
+    {
+      "source": "BGE-M3 model card",
+      "url": "https://huggingface.co/BAAI/bge-m3",
+      "implication": "BGE-M3 is explicitly dense+sparse+multi-vector, and the model card recommends hybrid retrieval plus reranking; adapter work must preserve hybrid scoring surfaces."
+    },
+    {
+      "source": "BGE-M3 technical report",
+      "url": "https://arxiv.org/abs/2402.03216",
+      "implication": "The paper motivates multi-function self-knowledge distillation, so adapter training should stay on the M3 unified objective rather than dense-only loss."
+    },
+    {
+      "source": "FlagEmbedding M3 modeling documentation",
+      "url": "https://bge-model.com/_modules/FlagEmbedding/finetune/embedder/encoder_only/m3/modeling.html",
+      "implication": "Official M3 training exposes dense, sparse, and ColBERT modes under unified_finetuning and m3_kd_loss."
+    },
+    {
+      "source": "FlagEmbedding fine-tuning tutorial",
+      "url": "https://bge-model.com/tutorial/7_Finetuning/7.1.2.html",
+      "implication": "Teacher-score JSONL with pos_scores and neg_scores remains the compatible training interface."
+    },
+    {
+      "source": "PEFT LoRA documentation",
+      "url": "https://huggingface.co/docs/peft/main/developer_guides/lora",
+      "implication": "PEFT LoRA supports explicit target_modules; q/value attention adapters are a conservative first adapter surface, while all-linear is a larger QLoRA-style option."
+    }
+  ],
+  "local_code_changes": {
+    "scripts_added": [
+      "scripts/bge_m3_lora_utils.py",
+      "scripts/inspect_bge_m3_lora_targets.py"
+    ],
+    "scripts_updated": [
+      "scripts/run_flagembedding_m3_no_ddp.py"
+    ],
+    "tests_added_or_updated": [
+      "tests/test_bge_m3_lora_utils.py",
+      "tests/test_run_flagembedding_m3_no_ddp.py"
+    ],
+    "capabilities": [
+      "LoRA target preset resolution for attention_qv, attention_qkv, and all_linear.",
+      "Linear module discovery and LoRA trainable-parameter estimation without importing torch or peft at module import time.",
+      "Optional --lora-enable path in the no-DDP FlagEmbedding M3 wrapper that monkeypatches EncoderOnlyEmbedderM3Runner.get_model and wraps the returned encoder with PEFT.",
+      "Compatibility shim for PEFT versions that probe torch.distributed.tensor.DTensor when the installed torch.distributed module does not expose tensor."
+    ]
+  },
+  "remote_audit": {
+    "host": "hhai-zijun",
+    "model_path": "/home/hhai/.cache/huggingface/hub/models--BAAI--bge-m3/snapshots/5617a9f61b028005a4858fdac845db406aefb181",
+    "output_dir": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/v70-lora-target-audit",
+    "raw_outputs_committed": false,
+    "logs_committed": false,
+    "checkpoints_committed": false,
+    "target_audit": [
+      {
+        "preset": "attention_qv",
+        "selected_modules": 48,
+        "estimated_lora_trainable_parameters": 1572864,
+        "fraction_of_encoder_parameters": 0.002770322915764869
+      },
+      {
+        "preset": "attention_qkv",
+        "selected_modules": 72,
+        "estimated_lora_trainable_parameters": 2359296,
+        "fraction_of_encoder_parameters": 0.004155484373647303
+      },
+      {
+        "preset": "all_linear",
+        "selected_modules": 144,
+        "estimated_lora_trainable_parameters": 7077888,
+        "fraction_of_encoder_parameters": 0.01246645312094191
+      }
+    ],
+    "actual_peft_injection_smoke": {
+      "preset": "attention_qv",
+      "rank": 16,
+      "alpha": 32,
+      "dropout": 0.05,
+      "task_type": "FEATURE_EXTRACTION",
+      "wrapped_model_class": "PeftModelForFeatureExtraction",
+      "before_total_parameters": 567754752,
+      "before_trainable_parameters": 567754752,
+      "after_total_parameters": 569327616,
+      "after_trainable_parameters": 1572864,
+      "after_trainable_fraction": 0.002762669429336096,
+      "result": "pass"
+    }
+  },
+  "decision": {
+    "start_training_in_this_record": false,
+    "recommended_first_training_smoke": "v70a attention_qv LoRA rank16/alpha32/dropout0.05 over the v69 blended teacher rows, official M3 no-DDP m3_kd_loss, fix_encoder=False, unified_finetuning=True, 128 rows, group size 5, batch size 1, gradient accumulation 8, lr no higher than 5e-5 for the first adapter-only smoke, same fixed 200-query diagnostic gate.",
+    "why_attention_qv_first": "It is the smallest validated adapter surface: 48 modules and 1.57M trainable parameters, versus 2.36M for qkv and 7.08M for all-linear.",
+    "gate": "Do not full-dev evaluate, upload, publish, or call SOTA unless the adapter checkpoint beats frozen BGE-M3 by at least +0.005 nDCG@10 on both best-vs-best and model-card same-candidate diagnostics.",
+    "sota_claim": false
+  }
+}

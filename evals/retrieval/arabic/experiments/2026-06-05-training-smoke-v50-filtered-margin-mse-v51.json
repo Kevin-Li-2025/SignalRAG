@@ -1,0 +1,96 @@
+{
+  "experiment_id": "2026-06-05-training-smoke-v50-filtered-margin-mse-v51",
+  "date": "2026-06-05",
+  "status": "completed_negative",
+  "purpose": "Test whether filtered, score-normalized v50 reranker teacher margins can safely improve a dense-only SentenceTransformer BGE-M3 checkpoint before any larger distillation.",
+  "remote_output_source": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/training-smoke-v50-filtered-margin-mse-v51",
+  "raw_training_data_committed": false,
+  "checkpoint_committed": false,
+  "research_refresh": [
+    "SentenceTransformers supports MarginMSE teacher-score distillation, but the loss is slow and score-scale sensitive.",
+    "SentenceTransformers hard-negative utilities expose margin filters, reinforcing the decision to filter v50 rows instead of blindly using all selected hard negatives.",
+    "FlagEmbedding's BGE-M3 M3 model exposes sparse and ColBERT heads separately; after this dense-only failure, the next viable route is head-only hybrid distillation rather than more full-encoder dense fine-tuning."
+  ],
+  "teacher_subset": {
+    "source": "remote_outputs/teacher-miracl-ar-train-bge-reranker-v2-m3-v50/teacher_train_reranker.jsonl",
+    "total_rows": 3495,
+    "rows_with_scores": 3495,
+    "output_rows": 512,
+    "expanded_margin_mse_triples": 2048,
+    "filters": {
+      "max_rows": 512,
+      "negatives_per_query": 4,
+      "min_best_margin": 1.0,
+      "min_all_margin": 0.0,
+      "failed_best_margin": 1126,
+      "failed_all_margin_after_best_margin": 392
+    },
+    "label_transform": {
+      "name": "tanh",
+      "margin_temperature": 4.0
+    },
+    "selected_quality": {
+      "mean_best_margin": 7.958442337810993,
+      "mean_all_margin": 6.632727272808552,
+      "mean_mean_margin": 10.145974906161427,
+      "min_best_margin": 6.05859375,
+      "min_all_margin": 0.0234375
+    },
+    "target_margin_stats": {
+      "mean": 0.9723014402544491,
+      "min": 0.9077605009048335,
+      "max": 0.9996825081638767
+    }
+  },
+  "training": {
+    "base_model": "BAAI/bge-m3",
+    "base_model_path": "/home/hhai/hf-models/BAAI-bge-m3",
+    "loss": "MarginMSELoss",
+    "label": "tanh-scaled reranker positive-minus-negative margin",
+    "num_train_epochs": 1.0,
+    "train_batch_size": 4,
+    "learning_rate": 0.000005,
+    "max_seq_length": 256,
+    "train_runtime_seconds": 157.3351,
+    "train_samples_per_second": 13.017,
+    "train_steps_per_second": 3.254,
+    "train_loss": 0.3449342488311231,
+    "epoch": 1.0,
+    "environment_note": "The run initially failed because an earlier Deepspeed probe left deepspeed installed in the remote virtualenv; accelerate imported it and hit missing CUDA_HOME. Deepspeed was removed from the remote virtualenv and the same training command then completed."
+  },
+  "eval_sample": {
+    "dataset": "mteb/MIRACLRetrieval",
+    "dataset_revision": "9c09abc13478308c27598f350e31d8f06b9b5481",
+    "subset": "ar",
+    "split": "dev",
+    "sample": "200 queries / 5000 docs positive-plus-negatives sample; not comparable to full MIRACL results.",
+    "base_main_score": 0.976015142357476,
+    "final_main_score": 0.5868074667542109,
+    "delta_final_minus_base": -0.3892076756032651,
+    "base_metrics": {
+      "ndcg_at_10": 0.976015142357476,
+      "map_at_10": 0.9671339285714287,
+      "mrr_at_10": 0.985,
+      "recall_at_10": 0.983,
+      "precision_at_10": 0.19,
+      "hit_rate_at_10": 0.99,
+      "main_score": 0.976015142357476
+    },
+    "final_metrics": {
+      "ndcg_at_10": 0.5868074667542109,
+      "map_at_10": 0.5456291666666666,
+      "mrr_at_10": 0.7020416666666667,
+      "recall_at_10": 0.5659166666666667,
+      "precision_at_10": 0.09350000000000001,
+      "hit_rate_at_10": 0.73,
+      "main_score": 0.5868074667542109
+    }
+  },
+  "interpretation": [
+    "This decisively rejects scaling dense-only full-encoder BGE-M3 MarginMSE training from v50, even after aggressive high-confidence filtering and score normalization.",
+    "The failure is consistent with v39/v40: the training target is a hybrid/reranker ordering signal, while the saved SentenceTransformer checkpoint is evaluated as dense-only.",
+    "The result does not weaken v47 or v50. It narrows the training path: preserve the BGE-M3 hybrid surface and train sparse/ColBERT heads only, or use v50 to train a separate dense student evaluated as a dense-only model from the start.",
+    "Do not publish or upload the v51 checkpoint."
+  ],
+  "next_experiment": "Implement a custom BGE-M3 head-only distillation smoke: freeze the XLM-R encoder, train sparse_linear and colbert_linear against v50 target margins, load the head checkpoint into the hybrid runner, and compare against base BGE-M3 hybrid on an identical MIRACL Arabic sample before any full run."
+}

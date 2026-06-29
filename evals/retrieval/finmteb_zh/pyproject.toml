@@ -1,0 +1,52 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "finmteb-sota-reranker"
+version = "0.1.0"
+description = "Public snapshot SOTA Chinese finance reranker for FinanceMTEB Reranking_zh."
+readme = "README.md"
+requires-python = ">=3.10,<3.13"
+dependencies = [
+  "datasets>=3.6.0",
+  "huggingface-hub>=0.31.0",
+  "numpy>=1.26.0",
+  "pyyaml>=6.0.2",
+  "tqdm>=4.66.0",
+]
+
+[project.optional-dependencies]
+eval = [
+  "sentence-transformers>=5.1.0",
+  "torch>=2.5.0",
+  "transformers>=4.51.0",
+  "peft>=0.15.0",
+]
+train = [
+  "accelerate>=1.8.0",
+  "bitsandbytes>=0.46.0; platform_system == 'Linux'",
+  "sentence-transformers>=5.1.0",
+  "torch>=2.5.0",
+  "transformers>=4.51.0",
+  "peft>=0.15.0",
+]
+dev = [
+  "pytest>=8.0.0",
+  "ruff>=0.12.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[project.urls]
+Repository = "https://github.com/Kevin-Li-2025/finmteb-zh-reranker-sota"
+Results = "https://github.com/Kevin-Li-2025/finmteb-zh-reranker-sota/blob/main/RESULTS.md"
+Comparison = "https://github.com/Kevin-Li-2025/finmteb-zh-reranker-sota/blob/main/reports/public_reranking_zh_snapshot_comparison.md"
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

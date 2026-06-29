@@ -1,0 +1,287 @@
+{
+  "experiment_id": "2026-06-05-v82-antiregression-lora-smoke",
+  "status": "completed_failed_multisplit_gate_useful_model_card_signal",
+  "goal": "Run one tiny attention-qkv LoRA standalone-student smoke over the v81a anti-regression teacher rows, then evaluate with the four-slice MIRACL Arabic multi-split gate and query-level failure analysis.",
+  "depends_on": [
+    "experiments/2026-06-05-v81-antiregression-teacher-selector.json",
+    "experiments/2026-06-05-v80-failure-aware-lora-smoke.json",
+    "experiments/2026-06-05-v78-v77-failure-analysis.json",
+    "experiments/2026-06-05-v73-multisplit-stability-gate.json",
+    "experiments/2026-06-05-v74-v72a-stride4-stability.json"
+  ],
+  "current_best_system_reference": {
+    "version": "v56",
+    "method": "BGE-M3 hybrid r100 plus BGE-reranker-v2-m3 min-max score blend",
+    "benchmark": "MIRACL Arabic dev",
+    "main_score_ndcg_at_10": 0.8286045292115427,
+    "claim_scope": "retrieval-system teacher/reference, not standalone embedding model SOTA"
+  },
+  "fresh_research_2026_06_05": [
+    {
+      "source": "BAAI/bge-m3 model card",
+      "url": "https://huggingface.co/BAAI/bge-m3",
+      "finding": "BGE-M3 exposes dense, sparse, and multi-vector retrieval modes.",
+      "implication": "The v82 student must be judged on the fused model-card/base-best surfaces, not only sparse_colbert local gains."
+    },
+    {
+      "source": "FlagEmbedding finetune embedder documentation",
+      "url": "https://github.com/FlagOpen/FlagEmbedding/tree/master/examples/finetune/embedder",
+      "finding": "The official M3 training path consumes teacher-score rows through pos_scores and neg_scores.",
+      "implication": "The v81a anti-regression JSONL rows remain compatible with the official no-DDP M3 KD path."
+    },
+    {
+      "source": "BGE-M3 technical report",
+      "url": "https://arxiv.org/abs/2402.03216",
+      "finding": "BGE-M3's reported strength comes from unified dense, lexical, and multi-vector retrieval plus distillation.",
+      "implication": "A useful student should move the public fusion surface and reduce regressions across query-disjoint slices."
+    },
+    {
+      "source": "MIRACL official repository",
+      "url": "https://github.com/project-miracl/miracl",
+      "finding": "MIRACL Arabic remains the same-task high-signal diagnostic for this loop.",
+      "implication": "The four query-disjoint stride slices remain the smoke-test gate before any scale-up or full-dev evaluation."
+    }
+  ],
+  "remote_training": {
+    "host": "hhai-zijun",
+    "repo_path": "/home/hhai/arabic-embedding-sota-lab",
+    "script": "logs/v82-antiregression-lora-qkv-r16-lr1e-5-t005-g9.sh",
+    "log": "logs/v82-antiregression-lora-qkv-r16-lr1e-5-t005-g9.log",
+    "output_dir": "remote_outputs/training-smoke-bge-m3-official-no-ddp-v82-antiregression-lora-qkv-r16-lr1e-5-t005-g9",
+    "teacher_rows": "remote_outputs/student-distill-v81a-antiregression-teacher/teacher_train_antiregression.jsonl",
+    "base_model": "BAAI/bge-m3",
+    "trainer": "FlagEmbedding BGE-M3 no-DDP wrapper",
+    "loss": "m3_kd_loss",
+    "unified_finetuning": true,
+    "fix_encoder": false,
+    "knowledge_distillation": true,
+    "train_rows": 512,
+    "train_group_size": 9,
+    "per_device_train_batch_size": 1,
+    "gradient_accumulation_steps": 8,
+    "learning_rate": 0.00001,
+    "temperature": 0.05,
+    "num_train_epochs": 1.0,
+    "query_max_len": 64,
+    "passage_max_len": 128,
+    "train_runtime_seconds": 106.1364,
+    "train_samples_per_second": 4.824,
+    "train_steps_per_second": 0.603,
+    "train_loss": 1.296099215745926,
+    "oom": false
+  },
+  "lora": {
+    "target_preset": "attention_qkv",
+    "target_modules": [
+      "query",
+      "key",
+      "value"
+    ],
+    "rank": 16,
+    "alpha": 32,
+    "dropout": 0.1,
+    "selected_module_count": 72,
+    "trainable_parameters": 2359296,
+    "estimated_lora_trainable_fraction_after_wrapping": 0.004138287783429606,
+    "total_parameters_after_wrapping": 570114048
+  },
+  "remote_evaluation": {
+    "output_root": "remote_outputs/v82-antiregression-lora-qkv-r16-lr1e-5-t005-g9-stride4",
+    "gate_summary": "remote_outputs/v82-antiregression-lora-qkv-r16-lr1e-5-t005-g9-stride4/gate/summary.json",
+    "failure_analysis": "remote_outputs/v82-antiregression-lora-qkv-r16-lr1e-5-t005-g9-stride4/failure_analysis.json",
+    "candidate_run_file": "remote_outputs/miracl-official-ar-bge-m3-hybrid-r100-v43/runfiles/ar_dev.txt",
+    "candidate_depth": 100,
+    "batch_size": 16,
+    "max_passage_length": 256,
+    "offline_mode": true,
+    "query_slices": [
+      {
+        "label": "slice0",
+        "query_count": 50,
+        "query_offset": 0,
+        "query_stride": 4
+      },
+      {
+        "label": "slice1",
+        "query_count": 50,
+        "query_offset": 1,
+        "query_stride": 4
+      },
+      {
+        "label": "slice2",
+        "query_count": 50,
+        "query_offset": 2,
+        "query_stride": 4
+      },
+      {
+        "label": "slice3",
+        "query_count": 50,
+        "query_offset": 3,
+        "query_stride": 4
+      }
+    ]
+  },
+  "gate_result": {
+    "required_delta": 0.005,
+    "min_pass_fraction": 1.0,
+    "selected_same_weight_label": "model_card",
+    "gate_pass": false,
+    "aggregate": {
+      "best_vs_best": {
+        "mean_delta": 0.0012033611121698429,
+        "min_delta": 0.00032835788514740116,
+        "max_delta": 0.00301596116816627,
+        "pass_count": 0,
+        "pass_fraction": 0.0
+      },
+      "model_card": {
+        "mean_delta": 0.004190492884368208,
+        "min_delta": 0.0017273132153040605,
+        "max_delta": 0.007083230624281511,
+        "pass_count": 1,
+        "pass_fraction": 0.25
+      },
+      "selected_same_weight": {
+        "mean_delta": 0.004190492884368208,
+        "min_delta": 0.0017273132153040605,
+        "max_delta": 0.007083230624281511,
+        "pass_count": 1,
+        "pass_fraction": 0.25
+      }
+    },
+    "criteria": {
+      "best_vs_best_pass_fraction": false,
+      "model_card_pass_fraction": false,
+      "selected_same_weight_pass_fraction": false,
+      "best_vs_best_mean_delta": false,
+      "model_card_mean_delta": false,
+      "selected_same_weight_mean_delta": false
+    },
+    "split_deltas": [
+      {
+        "label": "slice0",
+        "best_vs_best": 0.00032835788514740116,
+        "model_card": 0.0017273132153040605,
+        "selected_same_weight": 0.0017273132153040605
+      },
+      {
+        "label": "slice1",
+        "best_vs_best": 0.00301596116816627,
+        "model_card": 0.004847221339488783,
+        "selected_same_weight": 0.004847221339488783
+      },
+      {
+        "label": "slice2",
+        "best_vs_best": 0.0005760431317000103,
+        "model_card": 0.003104206358398476,
+        "selected_same_weight": 0.003104206358398476
+      },
+      {
+        "label": "slice3",
+        "best_vs_best": 0.0008930822636656899,
+        "model_card": 0.007083230624281511,
+        "selected_same_weight": 0.007083230624281511
+      }
+    ]
+  },
+  "query_level_failure_analysis": {
+    "query_count": 200,
+    "required_delta": 0.005,
+    "surface_stats": {
+      "model_card": {
+        "mean_delta": 0.004190492884368298,
+        "min_delta": -0.0874717141014082,
+        "max_delta": 0.1845756967795682,
+        "pass_count": 22,
+        "pass_fraction": 0.11,
+        "regression_count": 10,
+        "regression_fraction": 0.05
+      },
+      "sparse_colbert": {
+        "mean_delta": 0.002842487794603672,
+        "min_delta": -0.36907024642854247,
+        "max_delta": 0.3010299956639812,
+        "pass_count": 22,
+        "pass_fraction": 0.11,
+        "regression_count": 12,
+        "regression_fraction": 0.06
+      },
+      "training_default": {
+        "mean_delta": 0.0015809530880079143,
+        "min_delta": -0.13092975357145753,
+        "max_delta": 0.1480409554829326,
+        "pass_count": 11,
+        "pass_fraction": 0.055,
+        "regression_count": 7,
+        "regression_fraction": 0.035
+      },
+      "colbert_heavy": {
+        "mean_delta": 0.0003041625469539852,
+        "min_delta": -0.13565197343244773,
+        "max_delta": 0.3010299956639812,
+        "pass_count": 15,
+        "pass_fraction": 0.075,
+        "regression_count": 12,
+        "regression_fraction": 0.06
+      }
+    }
+  },
+  "comparison_to_v77_v80": {
+    "best_vs_best_mean_delta": {
+      "v77": 0.000727657885741334,
+      "v80": 0.0010396872768939913,
+      "v82": 0.0012033611121698429,
+      "v82_minus_v80": 0.0001636738352758516,
+      "interpretation": "slightly better than v80 but still far below the +0.005 gate"
+    },
+    "model_card_mean_delta": {
+      "v77": 0.0030814489210519436,
+      "v80": 0.003157161249787932,
+      "v82": 0.004190492884368208,
+      "v82_minus_v80": 0.001033331634580276,
+      "interpretation": "clearer model-card movement, but still below threshold and only 1/4 slices pass"
+    },
+    "selected_same_weight_surface": {
+      "v77": "sparse_colbert",
+      "v80": "sparse_colbert",
+      "v82": "model_card",
+      "interpretation": "anti-regression changed the selected surface in the desired direction"
+    },
+    "query_level_model_card_pass_count": {
+      "v77": 22,
+      "v80": 18,
+      "v82": 22,
+      "interpretation": "v82 recovers v77-level query pass count and improves regressions versus v77/v80, but still passes only 11% of queries at +0.005"
+    },
+    "query_level_model_card_regression_count": {
+      "v77": 15,
+      "v80": 11,
+      "v82": 10
+    },
+    "query_level_sparse_colbert_pass_count": {
+      "v77": 27,
+      "v80": 23,
+      "v82": 22,
+      "interpretation": "the new data design sacrifices sparse_colbert movement while shifting pressure toward model_card"
+    }
+  },
+  "interpretation": {
+    "engineering_result": "LoRA training and offline four-slice evaluation completed without OOM or dependency blockers.",
+    "model_result": "The checkpoint fails the strict standalone-student gate. The useful signal is that anti-regression supervision moved the selected same-weight surface from sparse_colbert to model_card and improved model-card mean versus v80.",
+    "useful_signal": "Explicit anti-regression targets are a better direction than pure row reweighting, but the current M3 KD loss and tiny LoRA setup still cannot robustly improve base-best or model-card surfaces."
+  },
+  "decision": {
+    "scale_training": false,
+    "full_dev_evaluation": false,
+    "publish_checkpoint": false,
+    "upload_checkpoint": false,
+    "sota_claim": false,
+    "reason": "v82 fails every predeclared multi-split gate criterion. Best-vs-best mean delta is only +0.001203 with 0/4 passing slices, and model-card mean delta is +0.004190 with 1/4 passing slices.",
+    "next_action": "Do not simply scale v82. The next attempt should keep the anti-regression idea but change the objective more directly, for example adding explicit pair/list constraints against base model-card winners, raising model-card positive separation without degrading base-best, or building a small validation-aware objective outside the stock M3 KD loss."
+  },
+  "remote_state_after_run": "NVIDIA L20 idle",
+  "raw_outputs_committed": false,
+  "model_checkpoints_committed": false,
+  "generated_embeddings_committed": false,
+  "credentials_committed": false
+}

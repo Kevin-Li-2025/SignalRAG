@@ -1,0 +1,123 @@
+{
+  "experiment_id": "2026-06-05-v71a-validation-aware-lora-smoke",
+  "status": "completed_failed_v71_gate",
+  "goal": "Test a materially different BGE-M3 adapter surface after v70a by training attention-qkv LoRA and evaluating it with the v71 query-disjoint tune plus held-out gate.",
+  "depends_on": [
+    "experiments/2026-06-05-v69-blended-teacher-diagnostic.json",
+    "experiments/2026-06-05-v70-lora-adapter-plumbing.json",
+    "experiments/2026-06-05-v70a-lora-smoke.json",
+    "experiments/2026-06-05-v71-validation-aware-adapter-gate.json"
+  ],
+  "remote_artifacts": {
+    "training_output_dir": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/training-smoke-bge-m3-official-no-ddp-v71a-lora-qkv-r16-lr2e-5-t005",
+    "tune_diagnostic_summary": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/v71a-lora-qkv-r16-lr2e-5-t005-tune-diagnostic/summary.json",
+    "heldout_diagnostic_summary": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/v71a-lora-qkv-r16-lr2e-5-t005-heldout-diagnostic/summary.json",
+    "gate_summary": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/v71a-lora-qkv-r16-lr2e-5-t005-gate/summary.json",
+    "logs": "remote-only; not committed"
+  },
+  "training": {
+    "base_model": "BAAI/bge-m3",
+    "trainer": "FlagEmbedding BGE-M3 no-DDP wrapper",
+    "teacher_rows": "v69 blended teacher rows",
+    "train_rows": 512,
+    "train_group_size": 5,
+    "loss": "m3_kd_loss",
+    "unified_finetuning": true,
+    "fix_encoder": false,
+    "knowledge_distillation": true,
+    "learning_rate": 0.00002,
+    "temperature": 0.05,
+    "gradient_accumulation_steps": 8,
+    "per_device_train_batch_size": 1,
+    "num_train_epochs": 1.0,
+    "train_runtime_seconds": 99.2877,
+    "train_loss": 0.6903379410505295,
+    "oom": false
+  },
+  "lora": {
+    "target_preset": "attention_qkv",
+    "target_modules": [
+      "key",
+      "value",
+      "query"
+    ],
+    "rank": 16,
+    "alpha": 32,
+    "dropout": 0.1,
+    "selected_module_count": 72,
+    "trainable_parameters": 2359296,
+    "estimated_lora_trainable_fraction": 0.004138287783429606,
+    "total_parameters_after_wrapping": 570114048
+  },
+  "diagnostic": {
+    "candidate_pool": "MIRACL Arabic dev BGE-M3 hybrid r100 candidate run from v43",
+    "candidate_run_file": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/miracl-official-ar-bge-m3-hybrid-r100-v43/runfiles/ar_dev.txt",
+    "query_split": {
+      "tune": {
+        "query_offset": 0,
+        "query_stride": 2,
+        "query_count": 100
+      },
+      "heldout": {
+        "query_offset": 1,
+        "query_stride": 2,
+        "query_count": 100
+      }
+    },
+    "required_delta_ndcg_at_10": 0.005,
+    "gate_pass": false,
+    "criteria": {
+      "tune_best_vs_best": false,
+      "tune_model_card": false,
+      "heldout_best_vs_best": false,
+      "heldout_model_card": false,
+      "heldout_tune_selected_same_weight": false
+    },
+    "selected_same_weight_label_from_tune": "model_card",
+    "tune": {
+      "best_vs_best": {
+        "base_weight_label": "colbert_heavy",
+        "student_weight_label": "colbert_heavy",
+        "base_score": 0.7955547209909546,
+        "student_score": 0.7930987064384283,
+        "delta": -0.002456014552526309
+      },
+      "model_card_delta": 0.0014623355805921667,
+      "best_same_weight": {
+        "weight_label": "model_card",
+        "base_main_score": 0.7913239044223134,
+        "student_main_score": 0.7927862400029055,
+        "delta": 0.0014623355805921667
+      }
+    },
+    "heldout": {
+      "best_vs_best": {
+        "base_weight_label": "colbert_heavy",
+        "student_weight_label": "model_card",
+        "base_score": 0.7894317550497838,
+        "student_score": 0.7900365181585504,
+        "delta": 0.0006047631087665595
+      },
+      "model_card_delta": 0.0034136784927966124,
+      "best_same_weight": {
+        "weight_label": "sparse_heavy",
+        "base_main_score": 0.774363368993148,
+        "student_main_score": 0.7802295368002042,
+        "delta": 0.005866167807056288
+      }
+    }
+  },
+  "decision": {
+    "scale_training": false,
+    "full_dev_evaluation": false,
+    "publish_checkpoint": false,
+    "upload_checkpoint": false,
+    "sota_claim": false,
+    "reason": "The attention-qkv adapter trained and loaded successfully, and held-out sparse-heavy improved by +0.005866, but every predeclared v71 gate criterion failed. The strongest base surface did not move enough, and model-card gains stayed below +0.005 on both tune and held-out.",
+    "next_action": "Do not scale v71a. Treat qkv LoRA as another useful negative result. The next attempt must change the objective or data design more substantially, such as optimizing directly against model-card/base-best surfaces or constructing richer teacher rows, before any additional GPU run."
+  },
+  "raw_outputs_committed": false,
+  "model_checkpoints_committed": false,
+  "generated_embeddings_committed": false,
+  "credentials_committed": false
+}

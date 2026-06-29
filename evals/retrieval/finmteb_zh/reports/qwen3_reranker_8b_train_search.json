@@ -1,0 +1,132 @@
+{
+  "model": "Qwen/Qwen3-Reranker-8B",
+  "adapter": null,
+  "split": "train",
+  "average_map": 0.9950396825396826,
+  "tasks": [
+    {
+      "dataset": "FinanceMTEB/FinEvaRetrieval-reranking",
+      "leaderboard_name": "FinEvaReranking",
+      "split": "train",
+      "num_queries": 122,
+      "best": {
+        "instruction": "Given a finance question, retrieve and rank passages that directly answer it. Prioritize exact entities, numbers, dates, formulas, and financial terminology.",
+        "alpha": 0.0,
+        "metrics": {
+          "map": 1.0,
+          "mrr": 1.0,
+          "ndcg@10": 1.0
+        }
+      },
+      "candidates": [
+        {
+          "instruction": "Given a finance question, retrieve and rank passages that directly answer it. Prioritize exact entities, numbers, dates, formulas, and financial terminology.",
+          "alpha": 0.0,
+          "metrics": {
+            "map": 1.0,
+            "mrr": 1.0,
+            "ndcg@10": 1.0
+          }
+        },
+        {
+          "instruction": "Given a Chinese finance question, judge whether the document contains the exact answer. Prefer passages with matching company names, stock codes, dates, amounts, ratios, and event descriptions.",
+          "alpha": 0.0,
+          "metrics": {
+            "map": 0.9929742388758782,
+            "mrr": 0.9929742388758782,
+            "ndcg@10": 0.994535519125683
+          }
+        },
+        {
+          "instruction": "Given a question from Chinese financial news or reports, rank the document by answer completeness and factual match. Penalize topic-only matches that do not answer the question.",
+          "alpha": 0.0,
+          "metrics": {
+            "map": 0.9918032786885246,
+            "mrr": 0.9918032786885246,
+            "ndcg@10": 0.9939496680913353
+          }
+        },
+        {
+          "instruction": "Determine whether the document is the best evidence for answering the financial query. Entity, time, numeric value, and causal relation mismatches should be treated as non-relevant.",
+          "alpha": 0.0,
+          "metrics": {
+            "map": 0.9929742388758782,
+            "mrr": 0.9929742388758782,
+            "ndcg@10": 0.994535519125683
+          }
+        },
+        {
+          "instruction": "For Chinese finance QA retrieval, return yes only when the passage directly supports the answer with precise facts, not just a related topic.",
+          "alpha": 0.0,
+          "metrics": {
+            "map": 0.9938524590163934,
+            "mrr": 0.9938524590163934,
+            "ndcg@10": 0.9953334144104377
+          }
+        }
+      ]
+    },
+    {
+      "dataset": "FinanceMTEB/DISCFinLLM-reranking",
+      "leaderboard_name": "DISCFinLLMReranking",
+      "split": "train",
+      "num_queries": 42,
+      "best": {
+        "instruction": "Given a finance question, retrieve and rank passages that directly answer it. Prioritize exact entities, numbers, dates, formulas, and financial terminology.",
+        "alpha": 0.2,
+        "metrics": {
+          "map": 0.9900793650793651,
+          "mrr": 0.9880952380952381,
+          "ndcg@10": 0.992700628657554
+        }
+      },
+      "candidates": [
+        {
+          "instruction": "Given a finance question, retrieve and rank passages that directly answer it. Prioritize exact entities, numbers, dates, formulas, and financial terminology.",
+          "alpha": 0.2,
+          "metrics": {
+            "map": 0.9900793650793651,
+            "mrr": 0.9880952380952381,
+            "ndcg@10": 0.992700628657554
+          }
+        },
+        {
+          "instruction": "Given a Chinese finance question, judge whether the document contains the exact answer. Prefer passages with matching company names, stock codes, dates, amounts, ratios, and event descriptions.",
+          "alpha": 0.1,
+          "metrics": {
+            "map": 0.9880952380952381,
+            "mrr": 0.9880952380952381,
+            "ndcg@10": 0.9919260568358677
+          }
+        },
+        {
+          "instruction": "Given a question from Chinese financial news or reports, rank the document by answer completeness and factual match. Penalize topic-only matches that do not answer the question.",
+          "alpha": 0.08,
+          "metrics": {
+            "map": 0.9880952380952381,
+            "mrr": 0.9880952380952381,
+            "ndcg@10": 0.9919260568358677
+          }
+        },
+        {
+          "instruction": "Determine whether the document is the best evidence for answering the financial query. Entity, time, numeric value, and causal relation mismatches should be treated as non-relevant.",
+          "alpha": 0.02,
+          "metrics": {
+            "map": 0.9861111111111112,
+            "mrr": 0.9880952380952381,
+            "ndcg@10": 0.9911514850141812
+          }
+        },
+        {
+          "instruction": "For Chinese finance QA retrieval, return yes only when the passage directly supports the answer with precise facts, not just a related topic.",
+          "alpha": 0.08,
+          "metrics": {
+            "map": 0.9861111111111112,
+            "mrr": 0.9880952380952381,
+            "ndcg@10": 0.9911514850141812
+          }
+        }
+      ]
+    }
+  ]
+}

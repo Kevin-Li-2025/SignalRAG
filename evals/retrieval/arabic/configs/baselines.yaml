@@ -1,0 +1,20 @@
+language: ara
+output_dir: outputs/mteb-baselines
+batch_size: 16
+models:
+  - Qwen/Qwen3-Embedding-0.6B
+  - BAAI/bge-m3
+  - intfloat/multilingual-e5-large-instruct
+  - sentence-transformers/paraphrase-multilingual-mpnet-base-v2
+  - Omartificial-Intelligence-Space/Arabic-Triplet-Matryoshka-V2
+heavy_models:
+  - nvidia/llama-embed-nemotron-8b
+  - Qwen/Qwen3-Embedding-4B
+  - Qwen/Qwen3-Embedding-8B
+emerging_small_models:
+  - jinaai/jina-embeddings-v5-text-small
+candidate_rerankers:
+  - BAAI/bge-reranker-v2-m3
+  - Qwen/Qwen3-Reranker-0.6B
+  - Qwen/Qwen3-Reranker-4B
+  - Qwen/Qwen3-Reranker-8B

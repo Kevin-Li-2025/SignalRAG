@@ -1,0 +1,341 @@
+{
+  "experiment_id": "2026-06-01-prompted-registry-sts-nli-v9",
+  "created_utc": "2026-06-01T22:23:57Z",
+  "source": {
+    "kaggle_kernel": "likevin2005/arabic-embedding-sota-lab",
+    "kernel_status": "COMPLETE",
+    "kernel_version": 9,
+    "kernel_url": "https://www.kaggle.com/code/likevin2005/arabic-embedding-sota-lab",
+    "local_output_source": "/tmp/arabic-registry-v9/arabic-embedding-prompted-registry-sts-nli",
+    "raw_outputs_committed": false
+  },
+  "scope": {
+    "purpose": "prompted/registry-controlled STS/NLI evaluation for instruction-aware models",
+    "batch_size": 1,
+    "max_seq_length": 256,
+    "tasks": [
+      "ArEntail",
+      "XNLI",
+      "HUMESTS22",
+      "STS17",
+      "STS22.v2"
+    ],
+    "models": [
+      "Qwen/Qwen3-Embedding-0.6B",
+      "intfloat/multilingual-e5-large-instruct"
+    ],
+    "loader": "mteb.get_model registry wrappers"
+  },
+  "results": [
+    {
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "task": "ArEntail",
+      "status": "complete",
+      "family": "nli",
+      "mteb_version": "2.12.30",
+      "dataset_revision": "4da4316c6e3287746ab74ff67dd252ad128fceff",
+      "evaluation_time_sec": 43.173,
+      "test_subset_count": 1,
+      "primary_metric": "main_score/max_ap",
+      "primary_score": 0.834499,
+      "all_subset_main_score_mean": 0.834499,
+      "arabic_subsets": [
+        {
+          "subset": "default",
+          "languages": [
+            "ara-Arab"
+          ],
+          "main_score": 0.834499,
+          "cosine_spearman": null,
+          "max_ap": 0.834499,
+          "similarity_ap": 0.834122
+        }
+      ]
+    },
+    {
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "task": "HUMESTS22",
+      "status": "complete",
+      "family": "sts",
+      "mteb_version": "2.12.30",
+      "dataset_revision": "ab40ed76c4283318b7b146aff31f8cdefd6ebae0",
+      "evaluation_time_sec": 27.918,
+      "test_subset_count": 4,
+      "primary_metric": "mean main_score across all test subsets",
+      "primary_score": 0.579611,
+      "all_subset_main_score_mean": 0.579611,
+      "arabic_subsets": [
+        {
+          "subset": "ar",
+          "languages": [
+            "ara-Arab"
+          ],
+          "main_score": 0.287968,
+          "cosine_spearman": 0.287968,
+          "max_ap": null,
+          "similarity_ap": null
+        }
+      ]
+    },
+    {
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "task": "STS17",
+      "status": "complete",
+      "family": "sts",
+      "mteb_version": "2.12.30",
+      "dataset_revision": "faeb762787bd10488a50c8b5be4a3b82e411949c",
+      "evaluation_time_sec": 161.927,
+      "test_subset_count": 11,
+      "primary_metric": "mean main_score across all test subsets",
+      "primary_score": 0.846962,
+      "all_subset_main_score_mean": 0.846962,
+      "arabic_subsets": [
+        {
+          "subset": "ar-ar",
+          "languages": [
+            "ara-Arab"
+          ],
+          "main_score": 0.808917,
+          "cosine_spearman": 0.808917,
+          "max_ap": null,
+          "similarity_ap": null
+        },
+        {
+          "subset": "en-ar",
+          "languages": [
+            "eng-Latn",
+            "ara-Arab"
+          ],
+          "main_score": 0.758191,
+          "cosine_spearman": 0.758191,
+          "max_ap": null,
+          "similarity_ap": null
+        }
+      ]
+    },
+    {
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "task": "STS22.v2",
+      "status": "complete",
+      "family": "sts",
+      "mteb_version": "2.12.30",
+      "dataset_revision": "d31f33a128469b20e357535c39b82fb3c3f6f2bd",
+      "evaluation_time_sec": 902.994,
+      "test_subset_count": 18,
+      "primary_metric": "mean main_score across all test subsets",
+      "primary_score": 0.664103,
+      "all_subset_main_score_mean": 0.664103,
+      "arabic_subsets": [
+        {
+          "subset": "ar",
+          "languages": [
+            "ara-Arab"
+          ],
+          "main_score": 0.661425,
+          "cosine_spearman": 0.661425,
+          "max_ap": null,
+          "similarity_ap": null
+        }
+      ]
+    },
+    {
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "task": "XNLI",
+      "status": "complete",
+      "family": "nli",
+      "mteb_version": "2.12.30",
+      "dataset_revision": "09698e0180d87dc247ca447d3a1248b931ac0cdb",
+      "evaluation_time_sec": 1900.128,
+      "test_subset_count": 14,
+      "primary_metric": "main_score/max_ap",
+      "primary_score": 0.798925,
+      "all_subset_main_score_mean": 0.795808,
+      "arabic_subsets": [
+        {
+          "subset": "ar",
+          "languages": [
+            "ara-Arab"
+          ],
+          "main_score": 0.798925,
+          "cosine_spearman": null,
+          "max_ap": 0.798925,
+          "similarity_ap": 0.798925
+        }
+      ]
+    },
+    {
+      "model": "intfloat/multilingual-e5-large-instruct",
+      "task": "ArEntail",
+      "status": "complete",
+      "family": "nli",
+      "mteb_version": "2.12.30",
+      "dataset_revision": "4da4316c6e3287746ab74ff67dd252ad128fceff",
+      "evaluation_time_sec": 4.692,
+      "test_subset_count": 1,
+      "primary_metric": "main_score/max_ap",
+      "primary_score": 0.916069,
+      "all_subset_main_score_mean": 0.916069,
+      "arabic_subsets": [
+        {
+          "subset": "default",
+          "languages": [
+            "ara-Arab"
+          ],
+          "main_score": 0.916069,
+          "cosine_spearman": null,
+          "max_ap": 0.916069,
+          "similarity_ap": 0.916069
+        }
+      ]
+    },
+    {
+      "model": "intfloat/multilingual-e5-large-instruct",
+      "task": "HUMESTS22",
+      "status": "complete",
+      "family": "sts",
+      "mteb_version": "2.12.30",
+      "dataset_revision": "ab40ed76c4283318b7b146aff31f8cdefd6ebae0",
+      "evaluation_time_sec": 2.605,
+      "test_subset_count": 4,
+      "primary_metric": "mean main_score across all test subsets",
+      "primary_score": 0.607082,
+      "all_subset_main_score_mean": 0.607082,
+      "arabic_subsets": [
+        {
+          "subset": "ar",
+          "languages": [
+            "ara-Arab"
+          ],
+          "main_score": 0.241522,
+          "cosine_spearman": 0.241522,
+          "max_ap": null,
+          "similarity_ap": null
+        }
+      ]
+    },
+    {
+      "model": "intfloat/multilingual-e5-large-instruct",
+      "task": "STS17",
+      "status": "complete",
+      "family": "sts",
+      "mteb_version": "2.12.30",
+      "dataset_revision": "faeb762787bd10488a50c8b5be4a3b82e411949c",
+      "evaluation_time_sec": 15.874,
+      "test_subset_count": 11,
+      "primary_metric": "mean main_score across all test subsets",
+      "primary_score": 0.857444,
+      "all_subset_main_score_mean": 0.857444,
+      "arabic_subsets": [
+        {
+          "subset": "ar-ar",
+          "languages": [
+            "ara-Arab"
+          ],
+          "main_score": 0.825345,
+          "cosine_spearman": 0.825345,
+          "max_ap": null,
+          "similarity_ap": null
+        },
+        {
+          "subset": "en-ar",
+          "languages": [
+            "eng-Latn",
+            "ara-Arab"
+          ],
+          "main_score": 0.814678,
+          "cosine_spearman": 0.814678,
+          "max_ap": null,
+          "similarity_ap": null
+        }
+      ]
+    },
+    {
+      "model": "intfloat/multilingual-e5-large-instruct",
+      "task": "STS22.v2",
+      "status": "complete",
+      "family": "sts",
+      "mteb_version": "2.12.30",
+      "dataset_revision": "d31f33a128469b20e357535c39b82fb3c3f6f2bd",
+      "evaluation_time_sec": 85.219,
+      "test_subset_count": 18,
+      "primary_metric": "mean main_score across all test subsets",
+      "primary_score": 0.689124,
+      "all_subset_main_score_mean": 0.689124,
+      "arabic_subsets": [
+        {
+          "subset": "ar",
+          "languages": [
+            "ara-Arab"
+          ],
+          "main_score": 0.614529,
+          "cosine_spearman": 0.614529,
+          "max_ap": null,
+          "similarity_ap": null
+        }
+      ]
+    },
+    {
+      "model": "intfloat/multilingual-e5-large-instruct",
+      "task": "XNLI",
+      "status": "complete",
+      "family": "nli",
+      "mteb_version": "2.12.30",
+      "dataset_revision": "09698e0180d87dc247ca447d3a1248b931ac0cdb",
+      "evaluation_time_sec": 163.691,
+      "test_subset_count": 14,
+      "primary_metric": "main_score/max_ap",
+      "primary_score": 0.744927,
+      "all_subset_main_score_mean": 0.763278,
+      "arabic_subsets": [
+        {
+          "subset": "ar",
+          "languages": [
+            "ara-Arab"
+          ],
+          "main_score": 0.744927,
+          "cosine_spearman": null,
+          "max_ap": 0.744927,
+          "similarity_ap": 0.744927
+        }
+      ]
+    }
+  ],
+  "aggregates": [
+    {
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "overall_primary_score_mean": 0.74482,
+      "sts_primary_score_mean": 0.696892,
+      "nli_primary_score_mean": 0.816712,
+      "arabic_only_mean": 0.678347,
+      "arabic_involving_mean": 0.691654
+    },
+    {
+      "model": "intfloat/multilingual-e5-large-instruct",
+      "overall_primary_score_mean": 0.762929,
+      "sts_primary_score_mean": 0.717883,
+      "nli_primary_score_mean": 0.830498,
+      "arabic_only_mean": 0.668478,
+      "arabic_involving_mean": 0.692845
+    }
+  ],
+  "comparison_notes": {
+    "e5_vs_unprompted_v8": {
+      "overall_delta": 0.014566,
+      "sts_delta": 0.004927,
+      "nli_delta": 0.029025,
+      "arabic_only_delta": 0.000548
+    },
+    "qwen_vs_unprompted_smoke_v5_shared_tasks": {
+      "ArEntail_delta": 0.063212,
+      "STS17_delta": 0.061573,
+      "STS22_v2_delta": -0.010201
+    }
+  },
+  "interpretation": [
+    "Prompted/registry E5 improves over the unprompted E5 baseline and becomes the best five-task overall STS/NLI baseline seen so far.",
+    "Prompted/registry Qwen improves substantially on ArEntail and STS17 versus the earlier unprompted smoke run, but still trails E5 overall.",
+    "Arabic Triplet remains strongest for NLI/pure-Arabic slices from the v8 comparison, while E5 is now strongest overall among tested STS/NLI settings.",
+    "The next experiment should move to reranking/retrieval batches before training data construction."
+  ],
+  "next_experiment": "Reranking batch for E5 registry, BGE-M3, and Arabic Triplet on NamaaMrTydiReranking and MIRACLReranking."
+}

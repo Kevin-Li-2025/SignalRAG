@@ -1,0 +1,158 @@
+{
+  "date": "2026-06-05",
+  "experiment_id": "2026-06-05-v68-curriculum-distillation-design",
+  "status": "design_ready_no_gpu_started",
+  "goal": "Design the next standalone BGE-M3 student attempt as validation-aware curriculum distillation rather than another blind scale-up of v66/v67.",
+  "source_records": [
+    "experiments/2026-06-05-v66-v67-stratified-student-smokes.json",
+    "experiments/2026-06-05-v65-teacher-score-distribution.json",
+    "experiments/2026-06-05-official-m3-no-ddp-student-smokes-v61-v62.json"
+  ],
+  "fresh_sources_checked": [
+    {
+      "source": "BGE-M3 model card",
+      "url": "https://huggingface.co/BAAI/bge-m3",
+      "implication": "The student must preserve BGE-M3's dense, sparse, and multi-vector retrieval modes; dense-only training is not a credible path to a standalone BGE-M3-derived retriever."
+    },
+    {
+      "source": "BGE-M3 technical report",
+      "url": "https://arxiv.org/abs/2402.03216",
+      "implication": "BGE-M3 itself uses self-knowledge distillation across retrieval functionalities, supporting a multi-mode student objective rather than a single dense loss."
+    },
+    {
+      "source": "FlagEmbedding fine-tuning tutorial",
+      "url": "https://bge-model.com/tutorial/7_Finetuning/7.1.2.html",
+      "implication": "Official finetuning supports teacher scores, m3_kd_loss, unified_finetuning, and temperature controls, so the next experiment can stay on the official no-DDP path."
+    },
+    {
+      "source": "FlagEmbedding M3 modeling documentation",
+      "url": "https://bge-model.com/_modules/FlagEmbedding/finetune/embedder/encoder_only/m3/modeling.html",
+      "implication": "The implementation exposes dense, sparse, and ColBERT losses and score fusion; diagnostics must test both model-card weights and best-vs-best fusion."
+    },
+    {
+      "source": "Curriculum Learning for Dense Retrieval Distillation",
+      "url": "https://arxiv.org/abs/2204.13679",
+      "implication": "Difficulty-controlled distillation is a plausible response to v66 being too adversarial and v67 being too narrow."
+    },
+    {
+      "source": "Beyond Hard Negatives: The Importance of Score Distribution in Knowledge Distillation for Dense Retrieval",
+      "url": "https://arxiv.org/abs/2604.04734",
+      "implication": "The curriculum should preserve teacher score variance and entropy rather than overfitting only top hard negatives."
+    },
+    {
+      "source": "ADAM: Dense Retrieval Distillation with Adaptive Dark Examples",
+      "url": "https://arxiv.org/abs/2212.10192",
+      "implication": "Rows should be filtered by teacher confidence and not all hard examples should be treated as equally useful."
+    }
+  ],
+  "script_update": {
+    "path": "scripts/prepare_stratified_teacher_rows.py",
+    "change": "Add --max-best-margin so curriculum stages can target bounded best-margin bands, not only min-margin filters.",
+    "tests": "tests/test_prepare_stratified_teacher_rows.py",
+    "raw_training_data_committed": false
+  },
+  "v68_curriculum_plan": {
+    "teacher_rows": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/teacher-miracl-ar-train-bge-reranker-v2-m3-v50/teacher_train_reranker.jsonl",
+    "base_model": "BAAI/bge-m3",
+    "launcher": "scripts/run_flagembedding_m3_no_ddp.py",
+    "objective": "official FlagEmbedding M3 unified teacher-score distillation",
+    "trainable_modules": [
+      "sparse_linear",
+      "colbert_linear"
+    ],
+    "fixed_encoder_first": true,
+    "score_scale": 0.25,
+    "query_disjoint_validation": true,
+    "stages": [
+      {
+        "name": "v68a-boundary-hard-clean",
+        "purpose": "Start with qrel-consistent borderline rows so the student sees hard examples without v66-style contradictory teacher targets.",
+        "max_train_rows": 256,
+        "max_eval_rows": 64,
+        "negatives_per_query": 4,
+        "negative_mix": {
+          "hard": 1,
+          "middle": 1,
+          "easy": 2
+        },
+        "min_available": {
+          "hard": 1,
+          "middle": 1,
+          "easy": 2
+        },
+        "min_best_margin": 0.05,
+        "max_best_margin": 0.5,
+        "learning_rate": 0.000002,
+        "temperature": 0.02,
+        "expected_effect": "Improve dense+sparse or sparse+ColBERT surfaces without damaging the ColBERT-heavy base-best surface."
+      },
+      {
+        "name": "v68b-middle-score-spectrum",
+        "purpose": "Add middle teacher margins to recover score-distribution variance that v67 lacks.",
+        "max_train_rows": 512,
+        "max_eval_rows": 96,
+        "negatives_per_query": 6,
+        "negative_mix": {
+          "hard": 1,
+          "middle": 3,
+          "easy": 2
+        },
+        "min_available": {
+          "hard": 1,
+          "middle": 3,
+          "easy": 2
+        },
+        "min_best_margin": 0.5,
+        "max_best_margin": 4.0,
+        "learning_rate": 0.000002,
+        "temperature": 0.02,
+        "expected_effect": "Teach smoother ranking preferences and reduce over-specialization to only near-tie hard negatives."
+      },
+      {
+        "name": "v68c-broad-anchor",
+        "purpose": "Add easy anchors after hard/middle stages to preserve the original BGE-M3 hybrid ordering and avoid sparse-head drift.",
+        "max_train_rows": 512,
+        "max_eval_rows": 96,
+        "negatives_per_query": 8,
+        "negative_mix": {
+          "hard": 1,
+          "middle": 3,
+          "easy": 4
+        },
+        "min_available": {
+          "hard": 1,
+          "middle": 2,
+          "easy": 4
+        },
+        "min_best_margin": 0.05,
+        "max_best_margin": 8.0,
+        "learning_rate": 0.000001,
+        "temperature": 0.05,
+        "expected_effect": "Regularize toward stable model-card and ColBERT-heavy surfaces after the student has seen harder rows."
+      }
+    ]
+  },
+  "diagnostic_gate": {
+    "candidate_run_file": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/miracl-official-ar-bge-m3-hybrid-r100-v43/runfiles/ar_dev.txt",
+    "query_count": 200,
+    "candidate_depth": 100,
+    "same_candidate_pool": true,
+    "metric": "main_score/ndcg_at_10",
+    "required_best_vs_best_delta": 0.005,
+    "required_model_card_delta": 0.005,
+    "also_track": [
+      "best_same_weight_delta",
+      "sparse_heavy_delta",
+      "dense_sparse_delta",
+      "colbert_heavy_delta"
+    ],
+    "full_dev_evaluation_allowed_if_gate_passes": true
+  },
+  "decision": {
+    "start_gpu_now": false,
+    "reason": "v66/v67 show localized gains but no robust best-vs-best standalone improvement. v68 needs bounded margin-band split generation and a staged training command plan before GPU use.",
+    "publish_checkpoint": false,
+    "upload_checkpoint": false,
+    "next_action": "Generate v68a/v68b/v68c split summaries on the remote host, inspect their entropy/margin coverage, then launch only the smallest staged smoke if the generated split distributions match the plan."
+  }
+}

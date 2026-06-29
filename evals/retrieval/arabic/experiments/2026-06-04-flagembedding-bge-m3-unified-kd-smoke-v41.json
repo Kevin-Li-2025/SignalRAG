@@ -1,0 +1,120 @@
+{
+  "experiment_id": "2026-06-04-flagembedding-bge-m3-unified-kd-smoke-v41",
+  "created_utc": "2026-06-04T20:42:15Z",
+  "status": "failed",
+  "purpose": "Test the official FlagEmbedding BGE-M3 unified dense+sparse+ColBERT fine-tuning path with teacher-score knowledge distillation on a small MIRACL Arabic teacher-data sample.",
+  "research_basis": {
+    "bge_m3_model_card": "https://huggingface.co/BAAI/bge-m3",
+    "flagembedding_finetune_examples": "https://github.com/FlagOpen/FlagEmbedding/tree/master/examples/finetune/embedder",
+    "flagembedding_finetune_readme": "https://raw.githubusercontent.com/FlagOpen/FlagEmbedding/master/examples/finetune/embedder/README.md",
+    "bge_m3_paper": "https://arxiv.org/abs/2402.03216",
+    "summary": [
+      "BGE-M3 is explicitly designed for dense, sparse, and multi-vector retrieval, so a generic dense-only SentenceTransformer checkpoint is the wrong target for preserving the strongest current hybrid result.",
+      "FlagEmbedding's official fine-tuning data format supports query, pos, neg, pos_scores, and neg_scores; the existing v38 teacher JSONL already matches this format.",
+      "The official M3 trainer exposes unified_finetuning, knowledge_distillation, use_self_distill, and fix_encoder, which are the right levers for a small head-only smoke before larger training."
+    ]
+  },
+  "source": {
+    "remote_host": "hhai-zijun",
+    "remote_workdir": "/home/hhai/arabic-embedding-sota-lab",
+    "raw_training_data_committed": false,
+    "checkpoint_committed": false,
+    "logs_committed": false
+  },
+  "base_model": "BAAI/bge-m3",
+  "base_model_path": "/home/hhai/hf-models/BAAI-bge-m3",
+  "train_data": {
+    "source": "remote_outputs/teacher-miracl-ar-train-bge-m3-hybrid-r100-v1/teacher_train.jsonl",
+    "teacher": "BAAI/bge-m3 hybrid r100 [0.4, 0.2, 0.4]",
+    "source_rows_available": 3495,
+    "selected_negatives_available": 27960,
+    "raw_text_committed": false
+  },
+  "attempts": [
+    {
+      "name": "v41-full-smoke",
+      "output_dir": "remote_outputs/flagembedding-bge-m3-unified-kd-smoke-v41/model",
+      "train_rows": 64,
+      "train_group_size": 9,
+      "query_max_len": 128,
+      "passage_max_len": 256,
+      "max_steps": 20,
+      "precision": "fp16",
+      "same_dataset_within_batch": true,
+      "fix_encoder": true,
+      "unified_finetuning": true,
+      "knowledge_distillation": true,
+      "use_self_distill": true,
+      "result": "failed before training",
+      "failure": "FlagEmbedding dataset loader called torch.distributed.get_rank without an initialized process group."
+    },
+    {
+      "name": "v41-single-process",
+      "output_dir": "remote_outputs/flagembedding-bge-m3-unified-kd-smoke-v41/model",
+      "train_rows": 64,
+      "train_group_size": 9,
+      "query_max_len": 128,
+      "passage_max_len": 256,
+      "max_steps": 20,
+      "precision": "fp16",
+      "same_dataset_within_batch": false,
+      "fix_encoder": true,
+      "unified_finetuning": true,
+      "knowledge_distillation": true,
+      "use_self_distill": true,
+      "result": "failed before training",
+      "failure": "The same dataset loader rank lookup failed without torchrun/distributed initialization."
+    },
+    {
+      "name": "v41-torchrun",
+      "output_dir": "remote_outputs/flagembedding-bge-m3-unified-kd-smoke-v41/model",
+      "train_rows": 64,
+      "train_group_size": 9,
+      "query_max_len": 128,
+      "passage_max_len": 256,
+      "max_steps": 20,
+      "precision": "fp16",
+      "same_dataset_within_batch": false,
+      "fix_encoder": true,
+      "unified_finetuning": true,
+      "knowledge_distillation": true,
+      "use_self_distill": true,
+      "result": "failed during first training step",
+      "failure": "Initial sub_batch_size=3 caused ColBERT tensor length mismatch; after removing sub-batching, the process reached 1/20 steps and then exited with SIGSEGV."
+    },
+    {
+      "name": "v41-min",
+      "output_dir": "remote_outputs/flagembedding-bge-m3-unified-kd-smoke-v41-min/model",
+      "train_rows": 16,
+      "train_group_size": 2,
+      "query_max_len": 64,
+      "passage_max_len": 128,
+      "max_steps": 5,
+      "precision": "bf16",
+      "same_dataset_within_batch": false,
+      "fix_encoder": true,
+      "unified_finetuning": true,
+      "knowledge_distillation": true,
+      "use_self_distill": false,
+      "result": "failed during first training step",
+      "failure": "The minimized torchrun configuration still reached 1/5 steps and then exited with SIGSEGV."
+    }
+  ],
+  "environment": {
+    "device": "NVIDIA L20",
+    "flagembedding": "1.3.5",
+    "sentence_transformers": "5.5.1",
+    "transformers": "4.57.6",
+    "tokenizers": "0.22.2",
+    "accelerate": "1.13.0",
+    "torch": "2.6.0+cu124",
+    "deepspeed_available": false
+  },
+  "interpretation": [
+    "The official M3 training path is methodologically correct for the current best BGE-M3 hybrid target, but this exact remote package stack is not stable enough to scale.",
+    "The repeated SIGSEGV after the first training step means there is no v41 checkpoint and no v41 evaluation score.",
+    "This result does not invalidate BGE-M3 unified distillation; it invalidates the current environment/configuration as a production training path.",
+    "Because v39 and v40 dense-only smokes regressed, the best completed result remains BGE-M3 hybrid r100 at 0.801025 nDCG@10 on full MIRACL Arabic dev."
+  ],
+  "next_experiment": "Either create an isolated official FlagEmbedding finetune environment with its recommended dependencies and deepspeed, or implement a lightweight custom BGE-M3 head-only distillation loop that avoids the unstable trainer and full-vocabulary sparse training path."
+}

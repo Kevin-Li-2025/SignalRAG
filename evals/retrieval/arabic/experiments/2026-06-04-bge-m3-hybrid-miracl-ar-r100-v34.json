@@ -1,0 +1,89 @@
+{
+  "experiment_id": "2026-06-04-bge-m3-hybrid-miracl-ar-r100-v34",
+  "created_utc": "2026-06-04T14:53:04Z",
+  "status": "completed",
+  "purpose": "Full Arabic MIRACLRetrieval BGE-M3 hybrid r100 ablation to test whether larger candidate/rerank depth improves over r50.",
+  "source": {
+    "remote_host": "hhai-zijun",
+    "remote_output_source": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/bge-m3-hybrid-miracl-ar-r100-v34",
+    "local_parse_source": "/tmp/bge-m3-hybrid-v34",
+    "raw_outputs_committed": false
+  },
+  "model": "BAAI/bge-m3",
+  "task": "MIRACLRetrieval",
+  "dataset": "mteb/MIRACLRetrieval",
+  "dataset_revision": "9c09abc13478308c27598f350e31d8f06b9b5481",
+  "subset": "ar",
+  "split": "dev",
+  "evaluator": {
+    "script": "scripts/run_miracl_bge_m3_hybrid.py",
+    "method": "Full-corpus dense+sparse candidate generation followed by FlagEmbedding BGEM3FlagModel.compute_score dense+sparse+ColBERT reranking.",
+    "candidate_top_k": 100,
+    "rerank_limit": 100,
+    "top_k": 10,
+    "weights_for_different_modes": [
+      0.4,
+      0.2,
+      0.4
+    ],
+    "note": "Same full-corpus setup as v33 r50, with doubled candidate and rerank depth."
+  },
+  "runtime_config": {
+    "device": "NVIDIA L20",
+    "batch_size": 32,
+    "rerank_batch_size": 32,
+    "max_length": 256,
+    "max_passage_length": 256,
+    "encode_chunk_size": 1000,
+    "corpus_count": 2061414,
+    "query_count": 2896,
+    "positive_count": 5658
+  },
+  "metrics": {
+    "main_score": 0.8010252064432427,
+    "ndcg_at_10": 0.8010252064432427,
+    "map_at_10": 0.7379044503678543,
+    "mrr_at_10": 0.8197992030605981,
+    "recall_at_10": 0.8931740824782951,
+    "precision_at_10": 0.16902624309392264,
+    "hit_rate_at_10": 0.9488950276243094
+  },
+  "timings": {
+    "candidate_elapsed_seconds": 3388.9240454798564,
+    "candidate_elapsed_hours": 0.9413677904110712,
+    "candidate_docs_per_second": 608.2797880198914,
+    "rerank_elapsed_seconds": 1012.6870452919975,
+    "rerank_pairs": 289600,
+    "total_measured_seconds": 4401.611090771854,
+    "total_measured_hours": 1.2226697474366261
+  },
+  "comparison_context": {
+    "bge_m3_hybrid_r50": {
+      "ndcg_at_10": 0.800790742096028,
+      "delta_vs_r100": 0.00023446434721468207
+    },
+    "bge_m3_dense": {
+      "ndcg_at_10": 0.78523,
+      "delta_vs_r100": 0.01579520644324275
+    },
+    "intfloat_multilingual_e5_large_instruct_dense": {
+      "ndcg_at_10": 0.76456,
+      "delta_vs_r100": 0.03646520644324268
+    },
+    "qwen3_embedding_8b_direct_dense": {
+      "ndcg_at_10": 0.7001642645001055,
+      "delta_vs_r100": 0.10086094194313722
+    },
+    "arabic_triplet_matryoshka_v2_dense": {
+      "ndcg_at_10": 0.61307,
+      "delta_vs_r100": 0.1879552064432427
+    }
+  },
+  "interpretation": [
+    "BGE-M3 hybrid r100 is the strongest completed full Arabic MIRACLRetrieval result in this repo, with main_score/ndcg_at_10 0.801025.",
+    "The gain over r50 is only +0.000234 nDCG@10, while rerank pairs doubled from 144,800 to 289,600 and rerank time roughly doubled.",
+    "This suggests the candidate/rerank depth is already close to saturated at r50-r100 for this setup.",
+    "The practical next step is not r200; it is a small dense/sparse/ColBERT weight ablation at r50 or r100, then teacher-data construction."
+  ],
+  "next_experiment": "Run a small weight ablation, starting with a ColBERT-heavier configuration such as [0.3, 0.2, 0.5] at r50 to keep runtime controlled."
+}

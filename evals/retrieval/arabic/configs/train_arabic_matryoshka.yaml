@@ -1,0 +1,22 @@
+model_name: Qwen/Qwen3-Embedding-0.6B
+train_file: data/train_pairs.jsonl
+eval_file: data/dev_pairs.jsonl
+output_dir: outputs/qwen3-0.6b-arabic-matryoshka
+seed: 42
+num_train_epochs: 1
+learning_rate: 2.0e-5
+warmup_ratio: 0.05
+train_batch_size: 16
+eval_batch_size: 16
+gradient_accumulation_steps: 1
+max_seq_length: 256
+loss: multiple_negatives_ranking
+matryoshka_dims:
+  - 1024
+  - 768
+  - 512
+  - 256
+use_lora: false
+trust_remote_code: true
+save_total_limit: 2
+

@@ -1,0 +1,230 @@
+{
+  "date": "2026-06-05",
+  "experiment_id": "2026-06-05-v66-v67-stratified-student-smokes",
+  "status": "completed_rejected_for_scaling",
+  "goal": "Test whether stratified teacher rows from the v65 score-distribution diagnostic can make official FlagEmbedding BGE-M3 head-only student distillation produce a robust standalone retriever improvement.",
+  "source_records": [
+    "experiments/2026-06-05-v65-teacher-score-distribution.json",
+    "experiments/2026-06-05-v64-lower-lr-temperature-smokes.json",
+    "experiments/2026-06-05-miracl-ar-bge-reranker-teacher-data-v50.json"
+  ],
+  "fresh_sources_checked": [
+    {
+      "source": "BAAI/bge-m3 model card",
+      "url": "https://huggingface.co/BAAI/bge-m3",
+      "implication": "BGE-M3's public retrieval strength is tied to dense, sparse, and multi-vector representations, so the student gate must evaluate the hybrid surface rather than dense-only embeddings."
+    },
+    {
+      "source": "FlagEmbedding BGE-M3 modeling documentation",
+      "url": "https://bge-model.com/_modules/FlagEmbedding/finetune/embedder/encoder_only/m3/modeling.html",
+      "implication": "The official M3 objective supports teacher scores and unified dense+sparse+ColBERT losses, which remains the right implementation path for a standalone BGE-M3 student."
+    },
+    {
+      "source": "FlagEmbedding fine-tuning tutorial",
+      "url": "https://bge-model.com/tutorial/7_Finetuning/7.1.2.html",
+      "implication": "The teacher JSONL format with pos_scores and neg_scores is compatible with official KD; the main risk is row distribution and validation, not file format."
+    },
+    {
+      "source": "SentenceTransformers loss documentation",
+      "url": "https://sbert.net/docs/package_reference/sentence_transformer/losses.html",
+      "implication": "MarginMSE-style score distillation is valid in general, but prior dense-only smokes show it is too weak for this BGE-M3 hybrid teacher unless the retrieval modes are preserved."
+    },
+    {
+      "source": "Beyond Hard Negatives: The Importance of Score Distribution in Knowledge Distillation for Dense Retrieval",
+      "url": "https://arxiv.org/abs/2604.04734",
+      "implication": "Teacher score distribution and instance quality need explicit control; simply adding harder negatives is not enough if rows become adversarial or too narrow."
+    }
+  ],
+  "script_added": "scripts/prepare_stratified_teacher_rows.py",
+  "tests_added": "tests/test_prepare_stratified_teacher_rows.py",
+  "remote_artifacts": {
+    "source_teacher_rows": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/teacher-miracl-ar-train-bge-reranker-v2-m3-v50/teacher_train_reranker.jsonl",
+    "v66_split_dir": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/student-distill-v66-stratified-teacher-g5-focused",
+    "v66_train_output_dir": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/training-smoke-bge-m3-official-no-ddp-v66-focused-g5-lr3e-6",
+    "v66_eval_output_dir": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/v66-focused-g5-lr3e-6-weight-diagnostic",
+    "v67_split_dir": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/student-distill-v67-qrel-consistent-g5",
+    "v67_train_output_dir": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/training-smoke-bge-m3-official-no-ddp-v67-qrel-consistent-g5-lr3e-6",
+    "v67_eval_output_dir": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/v67-qrel-consistent-g5-lr3e-6-weight-diagnostic",
+    "raw_outputs_committed": false,
+    "teacher_rows_committed": false,
+    "logs_committed": false,
+    "checkpoints_committed": false
+  },
+  "split_builder": {
+    "query_disjoint": true,
+    "row_selection": "stable train/held-out split plus best-margin-bin round-robin",
+    "score_scale": 0.25,
+    "negative_strata": {
+      "hard": [
+        "negative",
+        "0_to_0.5",
+        "0.5_to_1"
+      ],
+      "middle": [
+        "1_to_2",
+        "2_to_4"
+      ],
+      "easy": [
+        "4_plus"
+      ]
+    },
+    "raw_training_data_committed": false
+  },
+  "v66_split": {
+    "name": "v66-focused-g5",
+    "candidate_rows": 607,
+    "insufficient_minimum_mix_rows": 2888,
+    "train_rows": 512,
+    "heldout_rows": 80,
+    "negatives_per_query": 4,
+    "negative_mix": {
+      "hard": 1,
+      "middle": 2,
+      "easy": 1
+    },
+    "train_negative_strata_counts": {
+      "hard": 512,
+      "middle": 1024,
+      "easy": 512
+    },
+    "heldout_negative_strata_counts": {
+      "hard": 80,
+      "middle": 160,
+      "easy": 80
+    },
+    "query_overlap": 0,
+    "train_positive_above_max_negative_fraction": 0.2890625,
+    "heldout_positive_above_max_negative_fraction": 0.3,
+    "train_best_margin_mean": -0.298,
+    "train_best_margin_p50": -0.199,
+    "teacher_temperature_0p2_mean_normalized_entropy": 0.36,
+    "interpretation": "The split fixed hard/middle/easy coverage but became too adversarial: most selected rows had a teacher-ranked negative above the positive."
+  },
+  "v67_split": {
+    "name": "v67-qrel-consistent-g5",
+    "candidate_rows": 202,
+    "insufficient_minimum_mix_rows": 3293,
+    "train_rows": 160,
+    "heldout_rows": 32,
+    "negatives_per_query": 4,
+    "negative_mix": {
+      "hard": 1,
+      "middle": 1,
+      "easy": 2
+    },
+    "min_best_margin": 0.05,
+    "train_negative_strata_counts": {
+      "hard": 160,
+      "middle": 160,
+      "easy": 320
+    },
+    "heldout_negative_strata_counts": {
+      "hard": 32,
+      "middle": 32,
+      "easy": 64
+    },
+    "query_overlap": 0,
+    "train_positive_above_max_negative_fraction": 1.0,
+    "heldout_positive_above_max_negative_fraction": 1.0,
+    "train_best_margin_mean": 0.1311,
+    "heldout_best_margin_mean": 0.1424,
+    "teacher_temperature_0p2_train_mean_positive_probability": 0.6325,
+    "teacher_temperature_0p2_train_mean_normalized_entropy": 0.4677,
+    "interpretation": "This is a smaller but cleaner qrel-consistent hard KD split with non-saturated teacher distributions."
+  },
+  "shared_training_config": {
+    "base_model": "BAAI/bge-m3",
+    "launcher": "scripts/run_flagembedding_m3_no_ddp.py",
+    "objective": "official FlagEmbedding M3 unified teacher-score distillation",
+    "kd_loss_type": "m3_kd_loss",
+    "unified_finetuning": true,
+    "fix_encoder": true,
+    "trainable_modules": [
+      "sparse_linear",
+      "colbert_linear"
+    ],
+    "learning_rate": 0.000003,
+    "temperature": 0.02,
+    "query_max_len": 64,
+    "passage_max_len": 128,
+    "num_train_epochs": 1
+  },
+  "diagnostic_surface": {
+    "candidate_run_file": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/miracl-official-ar-bge-m3-hybrid-r100-v43/runfiles/ar_dev.txt",
+    "query_count": 200,
+    "candidate_depth": 100,
+    "same_candidate_pool": true,
+    "metric": "main_score/ndcg_at_10",
+    "required_best_vs_best_delta": 0.005,
+    "required_model_card_delta": 0.005,
+    "full_dev_evaluation_allowed_if_gate_passes": true
+  },
+  "runs": [
+    {
+      "name": "v66-focused-g5-lr3e-6",
+      "train_rows": 512,
+      "train_group_size": 5,
+      "train_runtime_seconds": 19.0295,
+      "train_loss": 1.1569534130394459,
+      "base_best": {
+        "weight_label": "colbert_heavy",
+        "main_score": 0.7924932380203694
+      },
+      "student_best": {
+        "weight_label": "colbert_heavy",
+        "main_score": 0.7928365102228628
+      },
+      "best_vs_best_delta": 0.0003432722024934165,
+      "model_card_delta": 0.0017193973018977404,
+      "best_same_weight_delta": {
+        "weight_label": "sparse_heavy",
+        "base_main_score": 0.7804954089458204,
+        "student_main_score": 0.78758706012213,
+        "delta": 0.00709165117630961
+      },
+      "gate": "fail"
+    },
+    {
+      "name": "v67-qrel-consistent-g5-lr3e-6",
+      "train_rows": 160,
+      "train_group_size": 5,
+      "train_runtime_seconds": 6.2352,
+      "train_loss": 0.964897608757019,
+      "base_best": {
+        "weight_label": "colbert_heavy",
+        "main_score": 0.7924932380203694,
+        "map_at_10": 0.7259103835978837,
+        "mrr_at_10": 0.8084702380952382
+      },
+      "student_best": {
+        "weight_label": "colbert_heavy",
+        "main_score": 0.7923015570155184,
+        "map_at_10": 0.7260979497354496,
+        "mrr_at_10": 0.8085892857142858
+      },
+      "best_vs_best_delta": -0.00019168100485100759,
+      "model_card_delta": 0.00045111189626634296,
+      "best_same_weight_delta": {
+        "weight_label": "dense_sparse",
+        "base_main_score": 0.7804682199158361,
+        "student_main_score": 0.7827309222390704,
+        "delta": 0.0022627023232342225
+      },
+      "gate": "fail"
+    }
+  ],
+  "interpretation": [
+    "v66 proves that stratified teacher rows can repair sparse-heavy behavior, but the robust best-vs-best gain is only +0.000343 nDCG@10, far below the predeclared +0.005 gate.",
+    "v67 proves that qrel-consistent hard rows are cleaner and less saturated, but the split is small and the best student surface trails the best base surface by -0.000192.",
+    "The current head-only sparse/ColBERT student can learn localized corrections, but it has not yet produced a publishable standalone retriever checkpoint.",
+    "The next design should not blindly scale v66 or v67. It should combine qrel-consistent rows with broader middle/easy coverage through a curriculum or sampler, and it should validate on a tune split before touching full MIRACL dev."
+  ],
+  "decision": {
+    "scale_v66": false,
+    "scale_v67": false,
+    "publish_checkpoint": false,
+    "upload_checkpoint": false,
+    "full_dev_evaluation": false,
+    "next_action": "Design v68 as validation-aware curriculum distillation: start from qrel-consistent hard rows, gradually add middle/easy rows, keep score scaling, and require at least +0.005 best-vs-best and +0.005 model-card-surface nDCG@10 before any full-dev evaluation or checkpoint publication."
+  }
+}

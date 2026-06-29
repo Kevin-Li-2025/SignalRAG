@@ -1,0 +1,196 @@
+{
+  "experiment_id": "2026-06-05-v81-antiregression-teacher-selector",
+  "status": "completed_selector_ready_no_training",
+  "goal": "Change the v80 failure-aware data design by adding a direct model-card/training-default anti-regression target source before any further standalone-student GPU training.",
+  "depends_on": [
+    "experiments/2026-06-05-v80-failure-aware-lora-smoke.json",
+    "experiments/2026-06-05-v79-failure-aware-teacher-selector.json",
+    "experiments/2026-06-05-v75-bge-m3-component-teacher-augmentation.json"
+  ],
+  "current_best_system_reference": {
+    "version": "v56",
+    "method": "BGE-M3 hybrid r100 plus BGE-reranker-v2-m3 min-max score blend",
+    "benchmark": "MIRACL Arabic dev",
+    "main_score_ndcg_at_10": 0.8286045292115427,
+    "claim_scope": "retrieval-system teacher/reference, not standalone embedding model SOTA"
+  },
+  "fresh_research_2026_06_05": [
+    {
+      "source": "BAAI/bge-m3 model card",
+      "url": "https://huggingface.co/BAAI/bge-m3",
+      "finding": "BGE-M3 exposes dense, sparse, and multi-vector retrieval modes.",
+      "implication": "A student data design should directly target the public model-card/base-best fusion surfaces rather than only sparse_colbert."
+    },
+    {
+      "source": "FlagEmbedding finetune embedder documentation",
+      "url": "https://github.com/FlagOpen/FlagEmbedding/tree/master/examples/finetune/embedder",
+      "finding": "The official M3 finetuning path consumes teacher-score rows through pos_scores and neg_scores.",
+      "implication": "v81 stays compatible with the existing official no-DDP KD path."
+    },
+    {
+      "source": "BGE-M3 technical report",
+      "url": "https://arxiv.org/abs/2402.03216",
+      "finding": "BGE-M3's reported strength comes from unified dense, lexical, and multi-vector retrieval plus distillation.",
+      "implication": "The target source should preserve hard negatives but explicitly separate them below the positive across strong fusion modes."
+    },
+    {
+      "source": "MIRACL official repository",
+      "url": "https://github.com/project-miracl/miracl",
+      "finding": "MIRACL Arabic remains the same-task high-signal diagnostic for this loop.",
+      "implication": "v81 remains no-training data design until a later smoke is evaluated by the four-slice gate."
+    }
+  ],
+  "implemented_changes": [
+    {
+      "file": "scripts/prepare_multisurface_teacher_rows.py",
+      "change": "Added optional anti-regression target-source arguments. When enabled, negatives that are false positives on configured surfaces are kept hard but assigned a direct target margin below the positive."
+    },
+    {
+      "file": "tests/test_prepare_multisurface_teacher_rows.py",
+      "change": "Added coverage for anti-regression surface validation, target-score generation, and summary persistence."
+    }
+  ],
+  "anti_regression_target": {
+    "default_state": "off",
+    "enabled_for_v81": true,
+    "guard_surfaces": [
+      "model_card",
+      "training_default"
+    ],
+    "mechanism": "Add a row-level target source where positives score 1.0, negatives that are false positives on guard surfaces score 1.0 - anti_regression_margin, and other negatives score 0.0 before weighted min-max blending.",
+    "rationale": "v80 showed row reweighting alone did not improve model-card/base-best query-level pass counts. v81 makes the anti-regression supervision explicit in the teacher scores consumed by FlagEmbedding."
+  },
+  "remote_selector_sweep": {
+    "host": "hhai-zijun",
+    "input_jsonl": "remote_outputs/student-distill-v75-component-teacher/teacher_train_component_augmented.jsonl",
+    "new_training_launched": false,
+    "variants": {
+      "v81a": {
+        "output_dir": "remote_outputs/student-distill-v81a-antiregression-teacher",
+        "candidate_rows": 2245,
+        "train_rows": 512,
+        "heldout_rows": 96,
+        "query_overlap": 0,
+        "surface_negative_counts": {
+          "model_card": 3,
+          "training_default": 3,
+          "sparse_colbert": 1,
+          "colbert_heavy": 1
+        },
+        "anti_regression_weight": 0.5,
+        "anti_regression_margin": 0.2,
+        "surface_hard_margin": 0.1,
+        "train_selected_surface_counts": {
+          "model_card": 2800,
+          "training_default": 1475,
+          "sparse_colbert": 2993,
+          "colbert_heavy": 2763
+        },
+        "heldout_selected_surface_counts": {
+          "model_card": 493,
+          "training_default": 272,
+          "sparse_colbert": 541,
+          "colbert_heavy": 484
+        },
+        "train_primary_surface_counts": {
+          "training_default": 544,
+          "model_card": 557,
+          "sparse_colbert": 1683,
+          "colbert_heavy": 275
+        },
+        "train_target_best_margin_mean": 0.11930748513113426,
+        "heldout_target_best_margin_mean": 0.12492415248474575,
+        "train_target_margin_mean": 0.49994977626942255,
+        "teacher_distribution_t0_2": {
+          "mean_pos_probability": 0.41729842399581446,
+          "mean_max_negative_probability": 0.22908990010317287,
+          "mean_normalized_entropy": 0.7190868191739428
+        },
+        "decision": "preferred next tiny-smoke input because it has the strongest training-default primary coverage while preserving broad model-card and sparse_colbert coverage"
+      },
+      "v81b": {
+        "output_dir": "remote_outputs/student-distill-v81b-antiregression-teacher",
+        "candidate_rows": 2153,
+        "train_rows": 512,
+        "heldout_rows": 96,
+        "query_overlap": 0,
+        "surface_negative_counts": {
+          "model_card": 3,
+          "training_default": 3,
+          "sparse_colbert": 1,
+          "colbert_heavy": 1
+        },
+        "anti_regression_weight": 0.7,
+        "anti_regression_margin": 0.25,
+        "surface_hard_margin": 0.1,
+        "train_selected_surface_counts": {
+          "model_card": 2623,
+          "training_default": 1227,
+          "sparse_colbert": 2875,
+          "colbert_heavy": 2586
+        },
+        "train_primary_surface_counts": {
+          "sparse_colbert": 1766,
+          "model_card": 544,
+          "training_default": 378,
+          "colbert_heavy": 250
+        },
+        "train_target_best_margin_mean": 0.1487188536775377,
+        "teacher_distribution_t0_2": {
+          "mean_pos_probability": 0.4418867329936195,
+          "mean_max_negative_probability": 0.2097777943065592,
+          "mean_normalized_entropy": 0.707577551511047
+        },
+        "decision": "stronger margin but lower training-default coverage than v81a"
+      },
+      "v81c": {
+        "output_dir": "remote_outputs/student-distill-v81c-antiregression-teacher",
+        "candidate_rows": 2155,
+        "train_rows": 512,
+        "heldout_rows": 96,
+        "query_overlap": 0,
+        "surface_negative_counts": {
+          "model_card": 2,
+          "training_default": 3,
+          "sparse_colbert": 1,
+          "colbert_heavy": 2
+        },
+        "anti_regression_weight": 0.6,
+        "anti_regression_margin": 0.2,
+        "surface_hard_margin": 0.12,
+        "train_selected_surface_counts": {
+          "model_card": 2811,
+          "training_default": 1318,
+          "sparse_colbert": 3034,
+          "colbert_heavy": 2776
+        },
+        "train_primary_surface_counts": {
+          "sparse_colbert": 1825,
+          "training_default": 419,
+          "model_card": 577,
+          "colbert_heavy": 274
+        },
+        "train_target_best_margin_mean": 0.1477006281233763,
+        "teacher_distribution_t0_2": {
+          "mean_pos_probability": 0.43465504282295186,
+          "mean_max_negative_probability": 0.20771217208322723,
+          "mean_normalized_entropy": 0.7204435794604712
+        },
+        "decision": "good broad coverage, but still more sparse_colbert-heavy than v81a"
+      }
+    }
+  },
+  "decision": {
+    "preferred_variant": "v81a",
+    "new_gpu_training_launched": false,
+    "scale_training_now": false,
+    "full_dev_evaluation": false,
+    "publish_checkpoint": false,
+    "sota_claim": false,
+    "next_action": "After another fresh state/research check, v81a can be used for at most one tiny v82 smoke with the same strict four-slice gate and query-level analysis. Reject unless model-card and best-vs-best pass fractions improve materially."
+  },
+  "raw_outputs_committed": false,
+  "model_checkpoints_committed": false,
+  "generated_embeddings_committed": false,
+  "credentials_committed": false
+}

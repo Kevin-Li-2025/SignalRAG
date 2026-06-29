@@ -1,0 +1,79 @@
+{
+  "experiment_id": "2026-06-04-training-smoke-bge-m3-miracl-teacher-v39",
+  "created_utc": "2026-06-04T20:18:53Z",
+  "status": "completed",
+  "purpose": "Verify the training path on a small sample of the BGE-M3 hybrid MIRACL Arabic teacher data before scaling.",
+  "source": {
+    "remote_host": "hhai-zijun",
+    "remote_output_source": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/training-smoke-bge-m3-miracl-teacher-v39",
+    "local_parse_source": "/tmp/v39-training-smoke/smoke_summary.json",
+    "raw_training_data_committed": false,
+    "checkpoint_committed": false
+  },
+  "base_model": "BAAI/bge-m3",
+  "base_model_path": "/home/hhai/hf-models/BAAI-bge-m3",
+  "train_data": {
+    "source": "remote_outputs/teacher-miracl-ar-train-bge-m3-hybrid-r100-v1/teacher_train.jsonl",
+    "smoke_file": "remote_outputs/training-smoke-bge-m3-miracl-teacher-v39/teacher_train_smoke64.jsonl",
+    "rows": 64,
+    "teacher": "BAAI/bge-m3 hybrid r100 [0.4, 0.2, 0.4]",
+    "raw_text_committed": false
+  },
+  "training": {
+    "loss": "MultipleNegativesRankingLoss",
+    "matryoshka_dims": [],
+    "num_train_epochs": 1.0,
+    "train_batch_size": 4,
+    "learning_rate": 0.00002,
+    "max_seq_length": 256,
+    "train_runtime_seconds": 15.5505,
+    "train_samples_per_second": 4.116,
+    "train_steps_per_second": 1.029,
+    "train_loss": 0.5157430768013,
+    "epoch": 1.0
+  },
+  "environment": {
+    "device": "NVIDIA L20",
+    "sentence_transformers": "5.5.1",
+    "transformers": "4.57.6",
+    "tokenizers": "0.22.2",
+    "accelerate": "1.13.0",
+    "torch": "2.6.0+cu124",
+    "note": "The first smoke attempt failed before training because transformers 4.44.2 was incompatible with sentence-transformers 5.5.1; upgrading transformers to 4.57.6 fixed Trainer processing_class support."
+  },
+  "eval_sample": {
+    "dataset": "mteb/MIRACLRetrieval",
+    "dataset_revision": "9c09abc13478308c27598f350e31d8f06b9b5481",
+    "subset": "ar",
+    "split": "dev",
+    "sample": "50 queries / 1000 docs positive-plus-negatives sample; not comparable to full MIRACL results.",
+    "base_main_score": 0.9854023627273953,
+    "final_main_score": 0.9768795267595185,
+    "delta_final_minus_base": -0.00852283596787684,
+    "base_metrics": {
+      "ndcg_at_10": 0.9854023627273953,
+      "map_at_10": 0.9783333333333333,
+      "mrr_at_10": 0.985,
+      "recall_at_10": 1.0,
+      "precision_at_10": 0.18599999999999997,
+      "hit_rate_at_10": 1.0,
+      "main_score": 0.9854023627273953
+    },
+    "final_metrics": {
+      "ndcg_at_10": 0.9768795267595185,
+      "map_at_10": 0.9648888888888888,
+      "mrr_at_10": 0.9822222222222223,
+      "recall_at_10": 0.996,
+      "precision_at_10": 0.184,
+      "hit_rate_at_10": 1.0,
+      "main_score": 0.9768795267595185
+    }
+  },
+  "interpretation": [
+    "The training stack now works on the remote L20 after fixing the sentence-transformers/transformers version mismatch.",
+    "A 64-row plain MultipleNegativesRankingLoss smoke completed quickly and produced a checkpoint.",
+    "The same-seed 50-query/1000-doc MIRACL Arabic sample regressed by -0.008523 nDCG@10 versus the base BGE-M3 model.",
+    "This sample is not a leaderboard metric, but it is enough to reject simply scaling this plain MNR self-training recipe."
+  ],
+  "next_experiment": "Implement a teacher-score-aware distillation smoke, such as MarginMSE over query/positive/negative triples or a FlagEmbedding BGE-M3 distillation path, before any larger training run."
+}

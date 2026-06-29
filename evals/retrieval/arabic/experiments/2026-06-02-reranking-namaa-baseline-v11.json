@@ -1,0 +1,94 @@
+{
+  "experiment_id": "2026-06-02-reranking-namaa-baseline-v11",
+  "created_utc": "2026-06-02T01:54:57Z",
+  "source": {
+    "kaggle_kernel": "likevin2005/arabic-embedding-sota-lab",
+    "kernel_status": "COMPLETE",
+    "kernel_version": 11,
+    "kernel_url": "https://www.kaggle.com/code/likevin2005/arabic-embedding-sota-lab",
+    "local_output_source": "/tmp/arabic-namaa-v11/arabic-embedding-reranking-namaa-baseline",
+    "raw_outputs_committed": false
+  },
+  "scope": {
+    "purpose": "single-task reranking baseline after the combined reranking run was too slow",
+    "batch_size": 1,
+    "max_seq_length": 256,
+    "tasks": [
+      "NamaaMrTydiReranking"
+    ],
+    "models": [
+      "BAAI/bge-m3",
+      "Omartificial-Intelligence-Space/Arabic-Triplet-Matryoshka-V2",
+      "intfloat/multilingual-e5-large-instruct"
+    ]
+  },
+  "results": [
+    {
+      "model": "intfloat/multilingual-e5-large-instruct",
+      "task": "NamaaMrTydiReranking",
+      "status": "complete",
+      "family": "reranking",
+      "mteb_version": "2.12.30",
+      "dataset_revision": "4d574b8caf8463c741b84a293aea8ace67801cdc",
+      "evaluation_time_sec": 17.405,
+      "primary_metric": "main_score/map_at_10",
+      "primary_score": 0.89608,
+      "ndcg_at_10": 0.92201,
+      "map_at_10": 0.89608,
+      "mrr_at_10": 0.897985,
+      "recall_at_10": 1.0,
+      "precision_at_10": 0.1,
+      "languages": [
+        "ara-Arab"
+      ],
+      "subset": "default"
+    },
+    {
+      "model": "BAAI/bge-m3",
+      "task": "NamaaMrTydiReranking",
+      "status": "complete",
+      "family": "reranking",
+      "mteb_version": "2.12.30",
+      "dataset_revision": "4d574b8caf8463c741b84a293aea8ace67801cdc",
+      "evaluation_time_sec": 81.327,
+      "primary_metric": "main_score/map_at_10",
+      "primary_score": 0.79286,
+      "ndcg_at_10": 0.84408,
+      "map_at_10": 0.79286,
+      "mrr_at_10": 0.792865,
+      "recall_at_10": 1.0,
+      "precision_at_10": 0.1,
+      "languages": [
+        "ara-Arab"
+      ],
+      "subset": "default"
+    },
+    {
+      "model": "Omartificial-Intelligence-Space/Arabic-Triplet-Matryoshka-V2",
+      "task": "NamaaMrTydiReranking",
+      "status": "complete",
+      "family": "reranking",
+      "mteb_version": "2.12.30",
+      "dataset_revision": "4d574b8caf8463c741b84a293aea8ace67801cdc",
+      "evaluation_time_sec": 22.305,
+      "primary_metric": "main_score/map_at_10",
+      "primary_score": 0.64434,
+      "ndcg_at_10": 0.73147,
+      "map_at_10": 0.64434,
+      "mrr_at_10": 0.644336,
+      "recall_at_10": 1.0,
+      "precision_at_10": 0.1,
+      "languages": [
+        "ara-Arab"
+      ],
+      "subset": "default"
+    }
+  ],
+  "interpretation": [
+    "intfloat/multilingual-e5-large-instruct is the clear Namaa reranking winner.",
+    "This reinforces E5 as the current broad Arabic embedding baseline after its prompted STS/NLI win.",
+    "BAAI/bge-m3 remains a strong broad baseline, but trails E5 by 0.103220 main_score on this reranking task.",
+    "Arabic Triplet remains useful for STS/NLI specialization but is not competitive for this reranking task."
+  ],
+  "next_experiment": "MIRACLReranking-only baseline across the same three tracked models."
+}

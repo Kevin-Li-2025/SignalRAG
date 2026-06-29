@@ -1,0 +1,17 @@
+model_name: BAAI/bge-m3
+train_file: outputs/student-distill-v58/student_margin_mse_train.jsonl
+eval_file: outputs/student-distill-v58/student_margin_mse_heldout.jsonl
+output_dir: outputs/student-distill-v58/model
+seed: 20260605
+num_train_epochs: 1
+learning_rate: 1.0e-6
+warmup_ratio: 0.05
+train_batch_size: 2
+eval_batch_size: 2
+gradient_accumulation_steps: 8
+max_seq_length: 256
+loss: margin_mse
+matryoshka_dims: []
+use_lora: false
+trust_remote_code: true
+save_total_limit: 1

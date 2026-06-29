@@ -1,0 +1,68 @@
+{
+  "experiment_id": "2026-06-04-flagembedding-deepspeed-env-probe-v42",
+  "created_utc": "2026-06-04T20:50:15Z",
+  "status": "blocked",
+  "purpose": "Check whether the official FlagEmbedding BGE-M3 finetuning route should be retried with the documented torchrun plus Deepspeed setup after v41 SIGSEGV failures.",
+  "research_basis": {
+    "bge_finetuning_docs": "https://bge-model.com/tutorial/7_Finetuning/7.1.2.html",
+    "flagembedding_repository": "https://github.com/FlagOpen/FlagEmbedding",
+    "flagembedding_finetune_readme": "https://raw.githubusercontent.com/FlagOpen/FlagEmbedding/master/examples/finetune/embedder/README.md",
+    "bge_m3_model_card": "https://huggingface.co/BAAI/bge-m3",
+    "bge_m3_paper": "https://arxiv.org/abs/2402.03216",
+    "arabic_mteb_swan_paper": "https://arxiv.org/abs/2411.01192",
+    "summary": [
+      "The official BGE finetuning tutorial says to install FlagEmbedding with the finetune extra and shows torchrun plus Deepspeed for finetuning.",
+      "The official embedder finetuning README confirms that teacher scores are first-class inputs through pos_scores and neg_scores.",
+      "The BGE-M3 model card and paper reinforce that the target should preserve dense, sparse, and multi-vector behavior rather than dense-only checkpoints.",
+      "ArabicMTEB/Swan remains the strongest Arabic-centric benchmark direction for final claims, while MIRACL Arabic remains the current high-signal retrieval target."
+    ]
+  },
+  "remote_environment": {
+    "host": "hhai-zijun",
+    "workdir": "/home/hhai/arabic-embedding-sota-lab",
+    "gpu": "NVIDIA L20",
+    "gpu_memory_mb": 46068,
+    "driver": "550.163.01",
+    "cuda_runtime": "12.4",
+    "python": "3.12.3",
+    "linux_kernel": "6.14.0-27-generic",
+    "existing_flagembedding": "1.3.5",
+    "existing_torch": "2.6.0+cu124",
+    "existing_transformers": "4.57.6",
+    "existing_accelerate": "1.13.0"
+  },
+  "actions": [
+    {
+      "action": "Installed deepspeed into the existing remote virtualenv.",
+      "result": "install_success",
+      "version": "0.19.1"
+    },
+    {
+      "action": "Synced configs/ds_stage0.json to the remote host for a documented stage-0 Deepspeed smoke.",
+      "result": "synced"
+    },
+    {
+      "action": "Imported deepspeed in the remote virtualenv.",
+      "result": "blocked",
+      "error": "deepspeed import fails before training because CUDA_HOME does not exist and no CUDA toolkit/nvcc is available on the host."
+    },
+    {
+      "action": "Retried import with DS_BUILD_OPS=0.",
+      "result": "blocked",
+      "error": "The same CUDA_HOME check still fails inside deepspeed ops compatibility detection."
+    }
+  ],
+  "policy": {
+    "raw_data_committed": false,
+    "checkpoints_committed": false,
+    "remote_logs_committed": false,
+    "credentials_committed": false
+  },
+  "interpretation": [
+    "The official Deepspeed route is not currently runnable on hhai-zijun without installing a CUDA toolkit or switching to a CUDA-devel container.",
+    "Because the GPU itself is sufficient and idle, this is an infrastructure blocker, not a model-capacity blocker.",
+    "Spending the next round on CUDA toolkit/container setup is lower research leverage than avoiding the unstable official Trainer path.",
+    "The recommended next experiment is a custom lightweight BGE-M3 head-only distillation loop: freeze the XLM-R encoder, train only sparse_linear and colbert_linear from MIRACL Arabic labels plus the v38 hybrid teacher distribution, and evaluate with the same full MIRACL Arabic hybrid scorer."
+  ],
+  "next_experiment": "Implement v43 custom BGE-M3 sparse/ColBERT head distillation smoke. Use 64-256 MIRACL train rows first, no raw data/checkpoint commits, then compare any checkpoint against the current BGE-M3 hybrid r100 full-dev score of 0.801025 only if the smoke is stable."
+}

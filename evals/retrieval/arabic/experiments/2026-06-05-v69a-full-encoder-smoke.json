@@ -1,0 +1,126 @@
+{
+  "date": "2026-06-05",
+  "experiment_id": "2026-06-05-v69a-full-encoder-smoke",
+  "status": "completed_failed_standalone_student_gate",
+  "goal": "Test whether a tiny full-encoder BGE-M3 student smoke can move the strong hybrid fusion surface after switching from sharp reranker-only teacher rows to v56-style blended teacher scores.",
+  "source_records": [
+    "experiments/2026-06-05-v69-blended-teacher-adapter-design.json",
+    "experiments/2026-06-05-v69-blended-teacher-diagnostic.json",
+    "experiments/2026-06-05-v68-curriculum-split-and-smoke.json",
+    "experiments/2026-06-05-bge-reranker-score-blend-v56.json"
+  ],
+  "fresh_sources_checked": [
+    {
+      "source": "BGE-M3 model card",
+      "url": "https://huggingface.co/BAAI/bge-m3",
+      "implication": "The student must preserve dense, sparse, and ColBERT-style multi-vector retrieval behavior."
+    },
+    {
+      "source": "BGE-M3 technical report",
+      "url": "https://arxiv.org/abs/2402.03216",
+      "implication": "The next useful student objective should keep multi-function knowledge distillation rather than dense-only training."
+    },
+    {
+      "source": "FlagEmbedding M3 modeling documentation",
+      "url": "https://bge-model.com/_modules/FlagEmbedding/finetune/embedder/encoder_only/m3/modeling.html",
+      "implication": "The official M3 path can optimize dense, sparse, and ColBERT losses under unified_finetuning."
+    },
+    {
+      "source": "FlagEmbedding M3 training arguments",
+      "url": "https://bge-model.com/_modules/FlagEmbedding/finetune/embedder/encoder_only/m3/arguments.html",
+      "implication": "fix_encoder=False permits a tiny full-encoder smoke, while LoRA still needs explicit integration."
+    },
+    {
+      "source": "PEFT LoRA documentation",
+      "url": "https://github.com/huggingface/peft/blob/main/docs/source/developer_guides/lora.md",
+      "implication": "Adapter training remains a plausible next design factor, but it should be implemented and unit-tested before remote GPU use."
+    }
+  ],
+  "remote_artifacts": {
+    "train_jsonl": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/student-distill-v69-blended-teacher/teacher_train_blended.jsonl",
+    "training_output_dir": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/training-smoke-bge-m3-official-no-ddp-v69a-full-encoder-blended-lr2e-7-t005",
+    "diagnostic_output_dir": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/v69a-full-encoder-blended-lr2e-7-t005-weight-diagnostic",
+    "log": "/home/hhai/arabic-embedding-sota-lab/logs/v69a-full-encoder-blended-lr2e-7-t005.log",
+    "raw_outputs_committed": false,
+    "logs_committed": false,
+    "checkpoints_committed": false
+  },
+  "training": {
+    "launcher": "scripts/run_flagembedding_m3_no_ddp.py",
+    "base_model": "BAAI/bge-m3",
+    "objective": "official FlagEmbedding M3 unified teacher-score distillation",
+    "fix_encoder": false,
+    "unified_finetuning": true,
+    "loss": "m3_kd_loss",
+    "train_rows": 128,
+    "train_group_size": 5,
+    "per_device_train_batch_size": 1,
+    "gradient_accumulation_steps": 8,
+    "learning_rate": 0.0000002,
+    "temperature": 0.05,
+    "query_max_len": 64,
+    "passage_max_len": 128,
+    "gradient_checkpointing": true,
+    "train_runtime_seconds": 22.0936,
+    "train_samples_per_second": 5.794,
+    "train_steps_per_second": 0.724,
+    "train_loss": 0.715387612581253,
+    "epoch": 1.0,
+    "oom": false
+  },
+  "diagnostic": {
+    "candidate_pool": "MIRACL Arabic dev fixed 200-query / top-100 same-candidate pool from v43",
+    "candidate_run_file": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/miracl-official-ar-bge-m3-hybrid-r100-v43/runfiles/ar_dev.txt",
+    "query_count": 200,
+    "candidate_depth": 100,
+    "pair_count_per_model": 20000,
+    "metric": "main_score/ndcg_at_10",
+    "base_best": {
+      "weight_label": "colbert_heavy",
+      "ndcg_at_10": 0.7927487998390927,
+      "map_at_10": 0.7263270502645502,
+      "mrr_at_10": 0.8084702380952382
+    },
+    "student_best": {
+      "weight_label": "colbert_heavy",
+      "ndcg_at_10": 0.7924932380203694,
+      "map_at_10": 0.7259103835978837,
+      "mrr_at_10": 0.8084702380952382
+    },
+    "best_vs_best_delta": -0.0002555618187233266,
+    "model_card_delta": 0.000018103445610262447,
+    "best_same_weight_delta": {
+      "weight_label": "dense_sparse",
+      "base_main_score": 0.7815183455118914,
+      "student_main_score": 0.7825173256826369,
+      "delta": 0.0009989801707455115
+    },
+    "selected_surface_deltas": {
+      "model_card": 0.000018103445610262447,
+      "training_default": 0.00040139605425915104,
+      "dense_heavy": -0.0006546487678572577,
+      "sparse_heavy": -0.0002678103167358392,
+      "colbert_heavy": -0.0002555618187233266,
+      "dense_sparse": 0.0009989801707455115,
+      "dense_colbert": -0.0000021074547302823987,
+      "sparse_colbert": -0.00013435204901657283,
+      "colbert_only": 0.000634030715222389
+    },
+    "required_best_vs_best_delta": 0.005,
+    "required_model_card_delta": 0.005,
+    "gate": "fail"
+  },
+  "interpretation": [
+    "The v69 blended teacher target is healthier than v68d as a distribution, but a tiny full-encoder smoke still did not improve the strongest BGE-M3 hybrid surface.",
+    "The largest same-weight gain is under dense_sparse, a weaker surface, and remains far below the +0.005 gate.",
+    "This rules out immediate scaling of the v69a full-encoder recipe. It does not rule out adapter/LoRA or a stronger validation-aware objective."
+  ],
+  "decision": {
+    "scale_training": false,
+    "full_dev_evaluation": false,
+    "publish_checkpoint": false,
+    "upload_checkpoint": false,
+    "sota_claim": false,
+    "next_action": "Do not launch another nearby full-encoder smoke by only changing LR or temperature. First implement a locally testable adapter/LoRA path or a stronger validation-aware objective with trainable-parameter accounting and the same same-candidate diagnostic gate."
+  }
+}

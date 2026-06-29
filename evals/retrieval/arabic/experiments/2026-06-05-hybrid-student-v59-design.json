@@ -1,0 +1,148 @@
+{
+  "experiment_id": "2026-06-05-hybrid-student-v59-design",
+  "created_utc": "2026-06-05T04:20:00Z",
+  "status": "v59_smoke_completed_rejected_for_scaling",
+  "purpose": "Define the next standalone-student route after dense-only v58 failed: preserve BGE-M3's dense+sparse+multi-vector retrieval surface instead of training another plain dense SentenceTransformer checkpoint.",
+  "current_facts": {
+    "best_completed_retrieval_system": {
+      "experiment": "v56",
+      "method": "BGE-M3 hybrid r100 + BGE-reranker-v2-m3 min-max score blend",
+      "miracl_ar_dev_ndcg_at_10": 0.8286045292115427,
+      "claim_scope": "retrieval system, not standalone embedding model"
+    },
+    "gemma_full_v57": {
+      "miracl_ar_dev_ndcg_at_10": 0.8237583477619825,
+      "delta_vs_v56": -0.004846181449560207,
+      "decision": "teacher-diversity candidate only"
+    },
+    "dense_student_v58": {
+      "diagnostic_base_ndcg_at_10": 0.9747897936644648,
+      "diagnostic_student_ndcg_at_10": 0.831359136258766,
+      "delta": -0.1434306574056988,
+      "decision": "reject dense-only MarginMSE for scaling"
+    },
+    "head_student_v59": {
+      "diagnostic_base_ndcg_at_10": 0.7888288154070898,
+      "diagnostic_student_ndcg_at_10": 0.788879840409129,
+      "delta": 0.000051025002039128964,
+      "required_delta": 0.005,
+      "decision": "reject exact raw-listwise head-only recipe for scaling"
+    }
+  },
+  "research_basis": [
+    {
+      "source": "BGE-M3 paper",
+      "url": "https://arxiv.org/abs/2402.03216",
+      "implication": "The model's published strength is the joint dense, sparse, and multi-vector retrieval surface trained with self-knowledge distillation."
+    },
+    {
+      "source": "BGE fine-tuning tutorial",
+      "url": "https://bge-model.com/tutorial/7_Finetuning/7.1.2.html",
+      "implication": "Official finetuning supports teacher-score knowledge distillation when pos_scores and neg_scores are present."
+    },
+    {
+      "source": "BGE-M3 modeling documentation",
+      "url": "https://bge-model.com/API/finetune/embedder/encoder_only/m3/modeling.html",
+      "implication": "The M3 trainer exposes unified_finetuning, kd_loss_type, use_self_distill, and separate sparse/ColBERT training behavior."
+    },
+    {
+      "source": "FlagEmbedding repository",
+      "url": "https://github.com/FlagOpen/FlagEmbedding",
+      "implication": "Official installation distinguishes inference-only and finetune extras; a stable finetune environment may require a clean finetune install or CUDA-devel container."
+    },
+    {
+      "source": "SentenceTransformers losses documentation",
+      "url": "https://sbert.net/docs/package_reference/sentence_transformer/losses.html",
+      "implication": "MarginMSELoss is valid for teacher-score distillation generally, but the v51/v58 results show it is the wrong standalone dense objective for this hybrid teacher."
+    }
+  ],
+  "v59_design": {
+    "name": "hybrid-aware BGE-M3 student distillation v2",
+    "not_allowed": [
+      "Do not train another dense-only SentenceTransformer BGE-M3 checkpoint from the same teacher rows.",
+      "Do not scale v51, v52, v53, v54, or v58 checkpoints.",
+      "Do not promote Gemma to primary teacher unless a held-out blend or ensemble beats v56."
+    ],
+    "preferred_path": [
+      "Use the existing v58 train/held-out split but preserve raw teacher score distributions rather than saturated tanh margins.",
+      "Train only the BGE-M3 sparse_linear and colbert_linear heads first; keep the encoder and dense representation anchored.",
+      "Replace pointwise margin MSE with a listwise KL or cross-entropy target over each query's positive plus hard negatives.",
+      "Normalize teacher scores per query, preserving ranking shape instead of forcing all target margins near 1.0.",
+      "Add an anchor term against base BGE-M3 hybrid scores so the student cannot destroy the strong frozen base ordering.",
+      "Evaluate every candidate through the existing hybrid evaluator path, not dense-only SentenceTransformer encode."
+    ],
+    "fallback_path": [
+      "If custom head-only remains unstable, create a clean FlagEmbedding[finetune] CUDA-devel environment and retry official m3 teacher-score training with torchrun.",
+      "If training remains negative, shift from model distillation to a publishable system/leaderboard package while collecting broader ArabicMTEB evidence."
+    ]
+  },
+  "validation_gate": {
+    "stage_0": "No GPU training until the v59 objective and evaluator are implemented and unit-tested on synthetic rows. Objective plumbing and the same-candidate diagnostic gate are now implemented locally.",
+    "stage_1": "Run a 128-row smoke on the same candidate-pool diagnostic used by v52-v54. Required improvement: at least +0.005 nDCG@10 over base, not a v53-style +0.00035 noise gain.",
+    "stage_2": "Run the fixed 200-query / 5000-document MIRACL Arabic sample used by v58. Required: no regression versus frozen BGE-M3 and preferably a measurable gain.",
+    "stage_3": "Only after stages 1-2 pass, evaluate full MIRACL Arabic dev with the hybrid scorer and compare against BGE-M3 hybrid r100 0.801110 and v56 system 0.828605.",
+    "publish_checkpoint": false
+  },
+  "next_engineering_steps": [
+    "Do not scale the exact v59 remote GPU smoke; it only produced a noise-level +0.000051 nDCG@10 gain.",
+    "Before the next GPU training attempt, redesign the target construction or trainer surface so the expected gain is meaningfully larger than the +0.005 gate."
+  ],
+  "implemented_local_plumbing": {
+    "script": "scripts/train_bge_m3_head_distill.py",
+    "features": [
+      "listwise_kl objective over positive plus hard negatives",
+      "raw teacher-score distribution extraction from pos_scores and neg_scores",
+      "raw v50 teacher-row compatibility when target_margins are absent",
+      "base BGE-M3 hybrid score extraction from bge_m3_hybrid_* fields",
+      "optional KL anchor against base hybrid score distributions",
+      "fallback teacher distribution from existing target_margins for older rows"
+    ],
+    "tests": {
+      "file": "tests/test_train_bge_m3_head_distill.py",
+      "coverage": [
+        "teacher/base score extraction",
+        "target margin derivation from raw teacher scores",
+        "temperature-sensitive softmax normalization",
+        "margin fallback distribution",
+        "training summary accounting for listwise objective and base anchor"
+      ]
+    },
+    "local_validation": {
+      "python_compile": "passed",
+      "unit_tests": "26 passed",
+      "experiment_json_parse": "passed"
+    }
+  },
+  "implemented_diagnostic_gate": {
+    "script": "scripts/rerank_miracl_candidates_bge_m3_hybrid.py",
+    "features": [
+      "loads baseline metrics from either evaluator summary.json or the v52-v54 experiment record",
+      "computes candidate-vs-baseline delta on a chosen gate metric",
+      "records diagnostic_gate with candidate_score, baseline_score, delta, required delta, and pass/fail",
+      "supports --require-gate-pass for automated smoke blocking"
+    ],
+    "default_gate": {
+      "metric": "main_score",
+      "min_delta": 0.005,
+      "baseline_label": "base_bge_m3_hybrid_same_candidate"
+    },
+    "tests": {
+      "file": "tests/test_rerank_miracl_candidates_bge_m3_hybrid.py",
+      "coverage": [
+        "script summary metric extraction",
+        "v52-v54 experiment-record baseline extraction",
+        "baseline JSON loading",
+        "meaningful +0.005 gate pass",
+        "v53-style noise-gain rejection",
+        "missing metric rejection"
+      ]
+    }
+  },
+  "artifact_policy": {
+    "commit_raw_training_data": false,
+    "commit_generated_embeddings": false,
+    "commit_checkpoints": false,
+    "commit_logs": false,
+    "commit_design_and_small_summaries_only": true
+  }
+}

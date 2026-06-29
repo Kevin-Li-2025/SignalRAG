@@ -1,0 +1,120 @@
+{
+  "date": "2026-06-05",
+  "experiment_id": "2026-06-05-official-m3-no-ddp-student-smokes-v61-v62",
+  "status": "completed_rejected_for_scaling",
+  "goal": "Test whether the recovered official FlagEmbedding BGE-M3 no-DDP unified teacher-score path can produce a standalone hybrid-aware student head checkpoint that clears the fixed same-candidate diagnostic gate.",
+  "source_records": [
+    "experiments/2026-06-05-flagembedding-m3-no-ddp-v60-probe.json",
+    "experiments/2026-06-05-miracl-ar-bge-reranker-teacher-data-v50.json",
+    "experiments/2026-06-05-bge-m3-head-distill-v59-listwise-smoke.json"
+  ],
+  "remote_artifacts": {
+    "v61_train_output_dir": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/training-smoke-bge-m3-official-no-ddp-v61-head512",
+    "v61_eval_output_dir": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/training-smoke-bge-m3-official-no-ddp-v61-head512-head-sample",
+    "v62_train_output_dir": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/training-smoke-bge-m3-official-no-ddp-v62-head2048-g9",
+    "v62_eval_output_dir": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/training-smoke-bge-m3-official-no-ddp-v62-head2048-g9-head-sample",
+    "raw_outputs_committed": false,
+    "checkpoints_committed": false,
+    "logs_committed": false
+  },
+  "shared_setup": {
+    "base_model": "BAAI/bge-m3",
+    "teacher_jsonl_source": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/teacher-miracl-ar-train-bge-reranker-v2-m3-v50/teacher_train_reranker.jsonl",
+    "teacher": "BAAI/bge-reranker-v2-m3 over MIRACL Arabic train rows from BGE-M3 hybrid r100 candidates",
+    "launcher": "scripts/run_flagembedding_m3_no_ddp.py",
+    "objective": "official FlagEmbedding M3 unified teacher-score distillation",
+    "kd_loss_type": "m3_kd_loss",
+    "unified_finetuning": true,
+    "fix_encoder": true,
+    "trainable_modules": [
+      "sparse_linear",
+      "colbert_linear"
+    ],
+    "query_max_len": 64,
+    "passage_max_len": 128,
+    "learning_rate": 0.00001,
+    "fp16": false,
+    "raw_training_data_committed": false
+  },
+  "evaluation_surface": {
+    "candidate_run_file": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/miracl-official-ar-bge-m3-hybrid-r100-v43/runfiles/ar_dev.txt",
+    "baseline_summary_file": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/training-smoke-bge-m3-head-distill-v52-base-sample/summary.json",
+    "query_count": 200,
+    "candidate_depth": 100,
+    "same_candidate_pool": true,
+    "metric": "main_score/ndcg_at_10",
+    "baseline_score": 0.7888288154070898,
+    "min_required_delta": 0.005,
+    "weights_for_different_modes": [
+      0.4,
+      0.2,
+      0.4
+    ]
+  },
+  "runs": [
+    {
+      "name": "v61-official-no-ddp-head512",
+      "train_rows": 512,
+      "train_group_size": 5,
+      "batch_size": 2,
+      "train_steps": 256,
+      "train_runtime_seconds": 18.4154,
+      "train_loss": 0.42224798537790775,
+      "metrics": {
+        "ndcg_at_10": 0.790555018299257,
+        "map_at_10": 0.7244431216931215,
+        "mrr_at_10": 0.8126448412698413,
+        "recall_at_10": 0.8830714285714285,
+        "precision_at_10": 0.18050000000000005,
+        "hit_rate_at_10": 0.94,
+        "main_score": 0.790555018299257
+      },
+      "diagnostic_gate": {
+        "baseline_score": 0.7888288154070898,
+        "candidate_score": 0.790555018299257,
+        "delta": 0.0017262028921671835,
+        "min_required_delta": 0.005,
+        "passed": false
+      },
+      "rerank_elapsed_seconds": 75.02588472608477,
+      "rerank_pairs_per_second": 266.5746638379389
+    },
+    {
+      "name": "v62-official-no-ddp-head2048-g9",
+      "train_rows": 2048,
+      "train_group_size": 9,
+      "batch_size": 4,
+      "train_steps": 512,
+      "train_runtime_seconds": 100.4917,
+      "train_loss": 0.6456893505528569,
+      "metrics": {
+        "ndcg_at_10": 0.7924035999885117,
+        "map_at_10": 0.7261585648148148,
+        "mrr_at_10": 0.8109781746031746,
+        "recall_at_10": 0.8880714285714285,
+        "precision_at_10": 0.18100000000000002,
+        "hit_rate_at_10": 0.94,
+        "main_score": 0.7924035999885117
+      },
+      "diagnostic_gate": {
+        "baseline_score": 0.7888288154070898,
+        "candidate_score": 0.7924035999885117,
+        "delta": 0.003574784581421908,
+        "min_required_delta": 0.005,
+        "passed": false
+      },
+      "rerank_elapsed_seconds": 75.0205302471295,
+      "rerank_pairs_per_second": 266.593690208758
+    }
+  ],
+  "interpretation": [
+    "The official no-DDP M3 path is meaningfully better than the custom v59 head-only smoke on the same diagnostic: v62 improved by +0.003575 nDCG@10 while v59 improved by only +0.000051.",
+    "The score still fails the predeclared +0.005 gate, so neither v61 nor v62 should be scaled to full dev, published, or uploaded as a model checkpoint.",
+    "The positive trend suggests the official M3 teacher-score implementation is the right engineering path, but the objective or training curriculum still needs improvement before a standalone-model claim is defensible."
+  ],
+  "decision": {
+    "scale": false,
+    "publish_checkpoint": false,
+    "next_experiment": "Do not blindly launch a larger version of the same recipe. Next improve the validation-aware training design: tune teacher-score temperature or mode weights on a separate tune split, test a lower learning rate or staged sparse-then-ColBERT curriculum, and keep the same +0.005 diagnostic gate before full-dev evaluation."
+  }
+}

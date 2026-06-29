@@ -1,0 +1,165 @@
+{
+  "experiment_id": "2026-06-05-v76-multisurface-teacher-selector",
+  "status": "completed_selector_ready_no_training",
+  "goal": "Implement and validate a component-aware multi-surface teacher-row selector over the v75 BGE-M3 component-augmented rows before launching any new standalone-student training.",
+  "depends_on": [
+    "experiments/2026-06-05-v75-bge-m3-component-teacher-augmentation.json",
+    "experiments/2026-06-05-v74-v72a-stride4-stability.json",
+    "experiments/2026-06-05-v73-multisplit-stability-gate.json"
+  ],
+  "current_best_system_reference": {
+    "version": "v56",
+    "method": "BGE-M3 hybrid r100 plus BGE-reranker-v2-m3 min-max score blend",
+    "benchmark": "MIRACL Arabic dev",
+    "main_score_ndcg_at_10": 0.8286045292115427,
+    "claim_scope": "retrieval-system teacher/reference, not standalone embedding model SOTA"
+  },
+  "fresh_research_2026_06_05": [
+    {
+      "source": "BAAI/bge-m3 model card",
+      "url": "https://huggingface.co/BAAI/bge-m3",
+      "finding": "BGE-M3 is designed around dense, sparse, and multi-vector retrieval and public hybrid scoring.",
+      "implication": "The student selector should balance hard cases across multiple BGE-M3 fusion surfaces, not one aggregate hybrid score."
+    },
+    {
+      "source": "FlagEmbedding finetune embedder documentation",
+      "url": "https://github.com/FlagOpen/FlagEmbedding/tree/master/examples/finetune/embedder",
+      "finding": "The official M3 fine-tuning path can consume teacher-score rows through pos_scores and neg_scores.",
+      "implication": "The v76 selector emits standard teacher-score JSONL compatible with the existing no-DDP FlagEmbedding training path."
+    },
+    {
+      "source": "BGE-M3 technical report",
+      "url": "https://arxiv.org/abs/2402.03216",
+      "finding": "The report emphasizes multi-function retrieval and self-knowledge distillation.",
+      "implication": "The next student smoke should continue using hybrid-aware labels rather than dense-only MarginMSE."
+    },
+    {
+      "source": "MIRACL official repository",
+      "url": "https://github.com/project-miracl/miracl",
+      "finding": "MIRACL Arabic is large enough for train/dev research but still requires query-disjoint validation to avoid dev-slice overfitting.",
+      "implication": "v76 keeps train/held-out teacher rows query-disjoint and any checkpoint must pass the v73/v74 multi-split diagnostic."
+    }
+  ],
+  "implemented_changes": [
+    {
+      "file": "scripts/prepare_multisurface_teacher_rows.py",
+      "change": "Added a selector over v75 component-augmented rows. It blends row-normalized reranker, existing teacher, and surface-average scores into standard teacher targets, then balances negatives across model_card, colbert_heavy, sparse_colbert, and training_default near-false-positive surfaces."
+    },
+    {
+      "file": "tests/test_prepare_multisurface_teacher_rows.py",
+      "change": "Added unit tests for surface-count parsing, target-score blending, teacher-separation gating, query-disjoint split generation, and persisted summary fields."
+    }
+  ],
+  "remote_runs": {
+    "host": "hhai-zijun",
+    "input_jsonl": "remote_outputs/student-distill-v75-component-teacher/teacher_train_component_augmented.jsonl",
+    "variants": {
+      "v76_strict": {
+        "output_dir": "remote_outputs/student-distill-v76-multisurface-teacher",
+        "surface_hard_margin": 0.0,
+        "teacher_separation_margin": 0.05,
+        "candidate_rows": 298,
+        "train_rows": 250,
+        "heldout_rows": 48,
+        "train_selected_surface_counts": {
+          "model_card": 241,
+          "colbert_heavy": 237,
+          "sparse_colbert": 337,
+          "training_default": 221
+        },
+        "heldout_selected_surface_counts": {
+          "model_card": 39,
+          "colbert_heavy": 40,
+          "sparse_colbert": 76,
+          "training_default": 39
+        },
+        "train_distinct_surface_mean": 2.856,
+        "heldout_distinct_surface_mean": 2.6458333333333335,
+        "train_mix_fraction": 0.092,
+        "heldout_mix_fraction": 0.10416666666666667,
+        "decision": "too narrow for next training smoke"
+      },
+      "v76b_relaxed": {
+        "output_dir": "remote_outputs/student-distill-v76b-multisurface-teacher",
+        "surface_hard_margin": 0.02,
+        "teacher_separation_margin": 0.03,
+        "candidate_rows": 720,
+        "train_rows": 512,
+        "heldout_rows": 96,
+        "train_selected_surface_counts": {
+          "model_card": 800,
+          "colbert_heavy": 785,
+          "sparse_colbert": 961,
+          "training_default": 397
+        },
+        "heldout_selected_surface_counts": {
+          "model_card": 164,
+          "colbert_heavy": 167,
+          "sparse_colbert": 202,
+          "training_default": 79
+        },
+        "train_distinct_surface_mean": 3.279296875,
+        "heldout_distinct_surface_mean": 3.3020833333333335,
+        "train_mix_fraction": 0.125,
+        "heldout_mix_fraction": 0.16666666666666666,
+        "decision": "usable but less balanced than v76c"
+      },
+      "v76c_near_false_positive": {
+        "output_dir": "remote_outputs/student-distill-v76c-multisurface-teacher",
+        "surface_hard_margin": 0.05,
+        "teacher_separation_margin": 0.02,
+        "candidate_rows": 1492,
+        "train_rows": 512,
+        "heldout_rows": 96,
+        "query_overlap": 0,
+        "train_selected_surface_counts": {
+          "model_card": 1685,
+          "colbert_heavy": 1639,
+          "sparse_colbert": 1797,
+          "training_default": 771
+        },
+        "heldout_selected_surface_counts": {
+          "model_card": 302,
+          "colbert_heavy": 291,
+          "sparse_colbert": 332,
+          "training_default": 145
+        },
+        "train_distinct_surface_mean": 3.880859375,
+        "heldout_distinct_surface_mean": 3.84375,
+        "train_mix_fraction": 0.3125,
+        "heldout_mix_fraction": 0.34375,
+        "train_target_best_margin_mean": 0.1472153850338094,
+        "heldout_target_best_margin_mean": 0.12370247402765328,
+        "train_entropy_temperature_0p2": 0.6220756555989103,
+        "heldout_entropy_temperature_0p2": 0.6231575117513464,
+        "decision": "preferred selector output for the next tiny training smoke"
+      }
+    },
+    "artifact_sizes": {
+      "v76c_summary_json": "20K",
+      "v76c_train_jsonl": "7.2M",
+      "v76c_eval_jsonl": "1.4M"
+    },
+    "gpu_state_after_runs": "NVIDIA L20 idle, 692 MiB / 46068 MiB, 0 percent utilization"
+  },
+  "interpretation": {
+    "selector_ready": true,
+    "best_variant": "v76c_near_false_positive",
+    "why_v76c": "Strict false positives were too narrow. A 0.05 near-false-positive margin with 0.02 teacher-separation margin yields 1492 candidate rows, full 512/96 train/held-out splits, and much better multi-surface coverage while preserving positive-above-negative teacher targets.",
+    "remaining_risk": "training_default remains rarer than model_card, colbert_heavy, and sparse_colbert, so the first v77 smoke must still use the v73/v74 multi-split gate before any scaling."
+  },
+  "decision": {
+    "launch_training": false,
+    "scale_training": false,
+    "full_dev_evaluation": false,
+    "publish_checkpoint": false,
+    "upload_checkpoint": false,
+    "sota_claim": false,
+    "reason": "v76 only validates student-data selection. It does not produce a model checkpoint or score.",
+    "next_action": "After state and research checks, run a tiny v77 attention-qkv LoRA or full-encoder smoke over v76c rows, then evaluate with the existing v73/v74 multi-split gate. Reject unless model-card and base-best surfaces improve robustly."
+  },
+  "raw_outputs_committed": false,
+  "model_checkpoints_committed": false,
+  "generated_embeddings_committed": false,
+  "credentials_committed": false
+}

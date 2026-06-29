@@ -1,0 +1,44 @@
+{
+  "model": "Qwen/Qwen3-Reranker-8B",
+  "adapter": null,
+  "strategy_file": "reports/qwen3_reranker_8b_zh_true_logit_blend_strategy_v1.json",
+  "average_map": 0.9978070175438596,
+  "tasks": [
+    {
+      "dataset": "FinanceMTEB/FinEvaRetrieval-reranking",
+      "leaderboard_name": "FinEvaReranking",
+      "split": "test",
+      "num_queries": 53,
+      "num_pairs": 582,
+      "instruction": "Given a finance question, retrieve and rank passages that directly answer it. Prioritize exact entities, numbers, dates, formulas, and financial terminology.",
+      "strategy": {
+        "method": "rrf",
+        "feature": "doc_bigram",
+        "alpha": 1.0
+      },
+      "metrics": {
+        "map": 1.0,
+        "mrr": 1.0,
+        "ndcg@10": 1.0
+      }
+    },
+    {
+      "dataset": "FinanceMTEB/DISCFinLLM-reranking",
+      "leaderboard_name": "DISCFinLLMReranking",
+      "split": "test",
+      "num_queries": 19,
+      "num_pairs": 242,
+      "instruction": "Given a finance question, retrieve and rank passages that directly answer it. Prioritize exact entities, numbers, dates, formulas, and financial terminology.",
+      "strategy": {
+        "method": "rrf",
+        "feature": "title_trigram",
+        "alpha": 1.0
+      },
+      "metrics": {
+        "map": 0.9956140350877193,
+        "mrr": 1.0,
+        "ndcg@10": 0.9982877886046931
+      }
+    }
+  ]
+}

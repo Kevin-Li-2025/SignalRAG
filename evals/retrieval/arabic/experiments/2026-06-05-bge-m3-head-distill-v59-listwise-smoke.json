@@ -1,0 +1,108 @@
+{
+  "date": "2026-06-05",
+  "experiment_id": "2026-06-05-bge-m3-head-distill-v59-listwise-smoke",
+  "status": "completed_rejected_for_scaling",
+  "goal": "Test whether raw reranker teacher-score distributions plus a base BGE-M3 hybrid anchor improve the standalone BGE-M3 sparse/ColBERT head student on the fixed same-candidate diagnostic gate.",
+  "remote_artifacts": {
+    "train_output_dir": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/training-smoke-bge-m3-head-distill-v59-listwise-raw128",
+    "eval_output_dir": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/training-smoke-bge-m3-head-distill-v59-listwise-raw128-head-sample",
+    "raw_outputs_committed": false,
+    "checkpoint_committed": false,
+    "logs_committed": false
+  },
+  "research_basis": [
+    {
+      "source": "https://arxiv.org/abs/2402.03216",
+      "implication": "BGE-M3's intended retrieval surface is dense, sparse, and multi-vector rather than dense-only."
+    },
+    {
+      "source": "https://bge-model.com/tutorial/7_Finetuning/7.1.2.html",
+      "implication": "Teacher-score distillation is the right family of objective, but the score distribution and validation gate must match the target retrieval surface."
+    },
+    {
+      "source": "https://bge-model.com/API/finetune/embedder/encoder_only/m3/modeling.html",
+      "implication": "The official M3 implementation separates dense, sparse, and ColBERT losses; this smoke keeps the dense encoder frozen and trains sparse/ColBERT heads only."
+    }
+  ],
+  "training": {
+    "teacher_jsonl_source": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/teacher-miracl-ar-train-bge-reranker-v2-m3-v50/teacher_train_reranker.jsonl",
+    "teacher": "BAAI/bge-reranker-v2-m3 over MIRACL Arabic train rows from BGE-M3 hybrid r100 candidates",
+    "base_model": "BAAI/bge-m3",
+    "train_rows": 128,
+    "expanded_triples": 512,
+    "objective": "listwise_kl",
+    "teacher_temperature": 6.0,
+    "base_anchor_weight": 0.5,
+    "base_anchor_temperature": 1.0,
+    "head_l2_anchor_weight": 1.0,
+    "learning_rate": 0.00001,
+    "batch_size": 2,
+    "epochs": 1,
+    "max_length": 256,
+    "weights_for_different_modes": [
+      0.4,
+      0.2,
+      0.4
+    ],
+    "rows_with_teacher_scores": 128,
+    "rows_with_base_scores": 128,
+    "target_margin_stats": {
+      "mean": 5.258536368608475,
+      "min": -5.197265625,
+      "max": 14.67578125
+    },
+    "train_loss": {
+      "first": 0.2844591736793518,
+      "last": 0.06594919413328171,
+      "mean": 0.1269096881878795,
+      "steps": 64
+    },
+    "train_elapsed_seconds": 6.386505278758705
+  },
+  "evaluation": {
+    "candidate_run_file": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/miracl-official-ar-bge-m3-hybrid-r100-v43/runfiles/ar_dev.txt",
+    "baseline_summary_file": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/training-smoke-bge-m3-head-distill-v52-base-sample/summary.json",
+    "query_count": 200,
+    "candidate_depth": 100,
+    "top_k": 100,
+    "metric_k": 10,
+    "same_candidate_pool": true,
+    "base_metrics": {
+      "ndcg_at_10": 0.7888288154070898,
+      "map_at_10": 0.7222252645502644,
+      "mrr_at_10": 0.8108115079365079,
+      "recall_at_10": 0.8825158730158731,
+      "precision_at_10": 0.18000000000000005,
+      "hit_rate_at_10": 0.94,
+      "main_score": 0.7888288154070898
+    },
+    "student_metrics": {
+      "ndcg_at_10": 0.788879840409129,
+      "map_at_10": 0.7228948412698412,
+      "mrr_at_10": 0.8116369047619049,
+      "recall_at_10": 0.8808492063492064,
+      "precision_at_10": 0.18000000000000005,
+      "hit_rate_at_10": 0.94,
+      "main_score": 0.788879840409129
+    },
+    "diagnostic_gate": {
+      "metric": "main_score",
+      "baseline_score": 0.7888288154070898,
+      "candidate_score": 0.788879840409129,
+      "delta": 0.000051025002039128964,
+      "min_required_delta": 0.005,
+      "passed": false
+    },
+    "timings": {
+      "rerank_elapsed_seconds": 57.2526733558625,
+      "rerank_pairs": 20000,
+      "rerank_pairs_per_second": 349.32866585437904
+    }
+  },
+  "decision": {
+    "scale": false,
+    "publish_checkpoint": false,
+    "summary": "v59 proves the listwise raw-teacher + base-anchor path is technically stable, but the observed +0.000051 nDCG@10 is noise and far below the +0.005 gate. Do not scale this exact recipe."
+  },
+  "next_decision": "Do not repeat the same 128-row head-only configuration. Next training attempt needs a stronger target design, such as larger but still gated raw teacher rows with query-level holdout, pairwise/listwise curriculum, or official FlagEmbedding unified M3 training in a stable environment. Keep v56 as the best retrieval-system teacher reference."
+}

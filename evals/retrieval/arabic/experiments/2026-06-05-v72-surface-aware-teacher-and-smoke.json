@@ -1,0 +1,173 @@
+{
+  "experiment_id": "2026-06-05-v72-surface-aware-teacher-and-smoke",
+  "status": "completed_failed_strict_gate_promising_heldout_signal",
+  "goal": "Change the student data design after v71a by constructing surface-aware teacher rows that target BGE-M3 hybrid false positives, then run one small validation-aware LoRA smoke.",
+  "depends_on": [
+    "experiments/2026-06-05-v69-blended-teacher-diagnostic.json",
+    "experiments/2026-06-05-v70-lora-adapter-plumbing.json",
+    "experiments/2026-06-05-v71-validation-aware-adapter-gate.json",
+    "experiments/2026-06-05-v71a-validation-aware-lora-smoke.json"
+  ],
+  "current_best_system_reference": {
+    "version": "v56",
+    "method": "BGE-M3 hybrid r100 plus BGE-reranker-v2-m3 min-max score blend",
+    "benchmark": "MIRACL Arabic dev",
+    "main_score_ndcg_at_10": 0.8286045292115427,
+    "claim_scope": "retrieval-system teacher/reference, not standalone embedding model SOTA"
+  },
+  "fresh_research_2026_06_05": [
+    {
+      "source": "BAAI/bge-m3 model card",
+      "url": "https://huggingface.co/BAAI/bge-m3",
+      "finding": "BGE-M3's public interface is dense+sparse+multi-vector, and the model card recommends hybrid retrieval plus reranking for strong retrieval systems.",
+      "implication": "A student that only moves weak sparse-heavy ablations is not enough; teacher rows should target the strong hybrid/model-card surfaces."
+    },
+    {
+      "source": "FlagEmbedding finetune embedder documentation",
+      "url": "https://github.com/FlagOpen/FlagEmbedding/tree/master/examples/finetune/embedder",
+      "finding": "The official BGE-M3 path supports teacher-score distillation through pos_scores/neg_scores with unified_finetuning and m3_kd_loss.",
+      "implication": "Changing pos_scores/neg_scores to a surface-aware target remains compatible with the official no-DDP M3 training path."
+    },
+    {
+      "source": "BGE-M3 technical report",
+      "url": "https://arxiv.org/abs/2402.03216",
+      "finding": "The report emphasizes multiple retrieval functions and self-knowledge distillation.",
+      "implication": "The next student attempt should preserve multi-mode signals and not regress to dense-only or reranker-only training."
+    },
+    {
+      "source": "MIRACL official repository",
+      "url": "https://github.com/project-miracl/miracl",
+      "finding": "MIRACL Arabic is a large retrieval benchmark with 3,495 train queries and 2,896 dev queries.",
+      "implication": "Use query-disjoint train/held-out diagnostics before any full-dev evaluation or public claim."
+    }
+  ],
+  "implemented_changes": [
+    {
+      "file": "scripts/prepare_surface_aware_teacher_rows.py",
+      "change": "Added a query-disjoint teacher-row builder that combines row-normalized reranker and BGE-M3 hybrid scores, selects hybrid false-positive negatives, preserves source scores, and reports target/hybrid margin diagnostics."
+    },
+    {
+      "file": "tests/test_prepare_surface_aware_teacher_rows.py",
+      "change": "Added unit tests for source-weighted target scores, hybrid false-positive classification, query-disjoint split generation, filtering, and CLI defaults."
+    }
+  ],
+  "v72_teacher_data_diagnostic": {
+    "input_jsonl": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/student-distill-v69-blended-teacher/teacher_train_blended.jsonl",
+    "output_dir": "/home/hhai/arabic-embedding-sota-lab/remote_outputs/student-distill-v72b-surface-aware-hybridfp-teacher",
+    "total_rows_seen": 3495,
+    "candidate_rows": 425,
+    "train_rows": 355,
+    "heldout_rows": 70,
+    "query_overlap": 0,
+    "target_weights": {
+      "reranker": 0.55,
+      "bge_m3_hybrid": 0.45,
+      "existing_blend": 0.0
+    },
+    "negative_mix_requested": {
+      "agreement_hard": 1,
+      "hybrid_false_positive": 7,
+      "target_hard": 0,
+      "middle": 0,
+      "easy": 0
+    },
+    "rows_meeting_requested_mix": {
+      "train": 190,
+      "heldout": 35
+    },
+    "negative_strata_counts": {
+      "train": {
+        "agreement_hard": 442,
+        "hybrid_false_positive": 2141,
+        "easy": 257
+      },
+      "heldout": {
+        "agreement_hard": 92,
+        "hybrid_false_positive": 414,
+        "easy": 54
+      }
+    },
+    "interpretation": "The useful train signal is narrow but real: only 425 train queries expose enough BGE-M3 hybrid false positives under the current v69 teacher rows. This is a targeted smoke dataset, not a scale-ready full training corpus."
+  },
+  "v72a_training": {
+    "base_model": "BAAI/bge-m3",
+    "trainer": "FlagEmbedding BGE-M3 no-DDP wrapper",
+    "teacher_rows": "v72b surface-aware hybrid-false-positive rows",
+    "train_rows": 355,
+    "train_group_size": 9,
+    "loss": "m3_kd_loss",
+    "unified_finetuning": true,
+    "fix_encoder": false,
+    "knowledge_distillation": true,
+    "learning_rate": 0.00002,
+    "temperature": 0.05,
+    "gradient_accumulation_steps": 8,
+    "per_device_train_batch_size": 1,
+    "num_train_epochs": 1.0,
+    "train_runtime_seconds": 73.8499,
+    "train_loss": 1.202935901555148,
+    "oom": false
+  },
+  "v72a_lora": {
+    "target_preset": "attention_qkv",
+    "target_modules": [
+      "query",
+      "key",
+      "value"
+    ],
+    "rank": 16,
+    "alpha": 32,
+    "dropout": 0.1,
+    "selected_module_count": 72,
+    "trainable_parameters": 2359296,
+    "estimated_lora_trainable_fraction": 0.004155484373647303
+  },
+  "v72a_gate": {
+    "candidate_pool": "MIRACL Arabic dev BGE-M3 hybrid r100 candidate run from v43",
+    "query_split": {
+      "tune": {
+        "query_offset": 0,
+        "query_stride": 2,
+        "query_count": 100
+      },
+      "heldout": {
+        "query_offset": 1,
+        "query_stride": 2,
+        "query_count": 100
+      }
+    },
+    "required_delta_ndcg_at_10": 0.005,
+    "gate_pass": false,
+    "criteria": {
+      "tune_best_vs_best": false,
+      "tune_model_card": false,
+      "heldout_best_vs_best": true,
+      "heldout_model_card": true,
+      "heldout_tune_selected_same_weight": true
+    },
+    "selected_same_weight_label_from_tune": "sparse_colbert",
+    "tune": {
+      "best_vs_best_delta": -0.0012927352885554466,
+      "model_card_delta": 0.002021299172374147,
+      "best_same_weight_delta": 0.0024325395435883523
+    },
+    "heldout": {
+      "best_vs_best_delta": 0.006477992206972982,
+      "model_card_delta": 0.006228374017926974,
+      "selected_same_weight_delta": 0.009328978181916914
+    }
+  },
+  "decision": {
+    "scale_training": false,
+    "full_dev_evaluation": false,
+    "publish_checkpoint": false,
+    "upload_checkpoint": false,
+    "sota_claim": false,
+    "reason": "v72a is the first student smoke to clear all held-out criteria, but it still fails the predeclared strict gate because tune best-vs-best regressed and tune model-card stayed below +0.005. Treat this as a promising data-design signal, not a publishable standalone checkpoint.",
+    "next_action": "Do not scale v72a directly. The next design should improve stability across tune and held-out, likely by expanding surface-aware teacher rows, adding a second query-disjoint tune split, or directly balancing model-card/colbert-heavy/sparse-colbert targets before another GPU run."
+  },
+  "raw_outputs_committed": false,
+  "model_checkpoints_committed": false,
+  "generated_embeddings_committed": false,
+  "credentials_committed": false
+}

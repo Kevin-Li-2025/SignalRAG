@@ -1,0 +1,200 @@
+{
+  "experiment_id": "2026-06-05-v77-multisurface-lora-smoke",
+  "status": "completed_failed_multisplit_gate",
+  "goal": "Run one tiny attention-qkv LoRA standalone-student smoke over the v76c multi-surface teacher rows, then immediately evaluate with the four-slice MIRACL Arabic multi-split diagnostic gate.",
+  "depends_on": [
+    "experiments/2026-06-05-v76-multisurface-teacher-selector.json",
+    "experiments/2026-06-05-v75-bge-m3-component-teacher-augmentation.json",
+    "experiments/2026-06-05-v73-multisplit-stability-gate.json",
+    "experiments/2026-06-05-v74-v72a-stride4-stability.json"
+  ],
+  "current_best_system_reference": {
+    "version": "v56",
+    "method": "BGE-M3 hybrid r100 plus BGE-reranker-v2-m3 min-max score blend",
+    "benchmark": "MIRACL Arabic dev",
+    "main_score_ndcg_at_10": 0.8286045292115427,
+    "claim_scope": "retrieval-system teacher/reference, not standalone embedding model SOTA"
+  },
+  "fresh_research_2026_06_05": [
+    {
+      "source": "BAAI/bge-m3 model card",
+      "url": "https://huggingface.co/BAAI/bge-m3",
+      "finding": "BGE-M3 is designed around dense, sparse, and multi-vector retrieval, so a student candidate must improve hybrid/model-card surfaces rather than a single weak ablation."
+    },
+    {
+      "source": "FlagEmbedding finetune embedder documentation",
+      "url": "https://github.com/FlagOpen/FlagEmbedding/tree/master/examples/finetune/embedder",
+      "finding": "The official M3 training path supports teacher-score rows through pos_scores and neg_scores, matching the v76c multi-surface teacher format."
+    },
+    {
+      "source": "BGE-M3 technical report",
+      "url": "https://arxiv.org/abs/2402.03216",
+      "finding": "BGE-M3's reported strength comes from unified dense, lexical, and multi-vector retrieval plus distillation."
+    },
+    {
+      "source": "MIRACL official repository",
+      "url": "https://github.com/project-miracl/miracl",
+      "finding": "MIRACL Arabic is high-signal enough for query-disjoint train/dev diagnostics, but claims still require robust same-task same-metric validation."
+    }
+  ],
+  "remote_training": {
+    "host": "hhai-zijun",
+    "repo_path": "/home/hhai/arabic-embedding-sota-lab",
+    "script": "logs/v77-multisurface-lora-qkv-r16-lr1e-5-t005-g9.sh",
+    "log": "logs/v77-multisurface-lora-qkv-r16-lr1e-5-t005-g9.log",
+    "output_dir": "remote_outputs/training-smoke-bge-m3-official-no-ddp-v77-multisurface-lora-qkv-r16-lr1e-5-t005-g9",
+    "teacher_rows": "remote_outputs/student-distill-v76c-multisurface-teacher/teacher_train_multisurface.jsonl",
+    "base_model": "BAAI/bge-m3",
+    "trainer": "FlagEmbedding BGE-M3 no-DDP wrapper",
+    "loss": "m3_kd_loss",
+    "unified_finetuning": true,
+    "fix_encoder": false,
+    "knowledge_distillation": true,
+    "train_rows": 512,
+    "train_group_size": 9,
+    "per_device_train_batch_size": 1,
+    "gradient_accumulation_steps": 8,
+    "learning_rate": 0.00001,
+    "temperature": 0.05,
+    "num_train_epochs": 1.0,
+    "query_max_len": 64,
+    "passage_max_len": 128,
+    "train_runtime_seconds": 105.971,
+    "train_samples_per_second": 4.832,
+    "train_steps_per_second": 0.604,
+    "train_loss": 1.2129266858100891,
+    "oom": false
+  },
+  "lora": {
+    "target_preset": "attention_qkv",
+    "target_modules": [
+      "query",
+      "key",
+      "value"
+    ],
+    "rank": 16,
+    "alpha": 32,
+    "dropout": 0.1,
+    "selected_module_count": 72,
+    "trainable_parameters": 2359296,
+    "estimated_lora_trainable_fraction": 0.004155484373647303,
+    "total_parameters_after_wrapping": 570114048
+  },
+  "remote_evaluation": {
+    "output_root": "remote_outputs/v77-multisurface-lora-qkv-r16-lr1e-5-t005-g9-stride4",
+    "gate_summary": "remote_outputs/v77-multisurface-lora-qkv-r16-lr1e-5-t005-g9-stride4/gate/summary.json",
+    "candidate_run_file": "remote_outputs/miracl-official-ar-bge-m3-hybrid-r100-v43/runfiles/ar_dev.txt",
+    "candidate_depth": 100,
+    "batch_size": 16,
+    "max_passage_length": 256,
+    "offline_mode": true,
+    "query_slices": [
+      {
+        "label": "slice0",
+        "query_count": 50,
+        "query_offset": 0,
+        "query_stride": 4
+      },
+      {
+        "label": "slice1",
+        "query_count": 50,
+        "query_offset": 1,
+        "query_stride": 4
+      },
+      {
+        "label": "slice2",
+        "query_count": 50,
+        "query_offset": 2,
+        "query_stride": 4
+      },
+      {
+        "label": "slice3",
+        "query_count": 50,
+        "query_offset": 3,
+        "query_stride": 4
+      }
+    ]
+  },
+  "gate_result": {
+    "required_delta": 0.005,
+    "min_pass_fraction": 1.0,
+    "selected_same_weight_label": "sparse_colbert",
+    "gate_pass": false,
+    "aggregate": {
+      "best_vs_best": {
+        "mean_delta": 0.000727657885741334,
+        "min_delta": -0.0005349958101932284,
+        "max_delta": 0.0028482554376733082,
+        "pass_count": 0,
+        "pass_fraction": 0.0
+      },
+      "model_card": {
+        "mean_delta": 0.0030814489210519436,
+        "min_delta": 0.0004856112869693341,
+        "max_delta": 0.005713856357532188,
+        "pass_count": 1,
+        "pass_fraction": 0.25
+      },
+      "selected_same_weight": {
+        "mean_delta": 0.004748328351794923,
+        "min_delta": 0.00010445500060696222,
+        "max_delta": 0.014940341358700038,
+        "pass_count": 1,
+        "pass_fraction": 0.25
+      }
+    },
+    "criteria": {
+      "best_vs_best_pass_fraction": false,
+      "model_card_pass_fraction": false,
+      "selected_same_weight_pass_fraction": false,
+      "best_vs_best_mean_delta": false,
+      "model_card_mean_delta": false,
+      "selected_same_weight_mean_delta": false
+    },
+    "split_deltas": [
+      {
+        "label": "slice0",
+        "best_vs_best": 0.00012672577028161047,
+        "model_card": 0.0014468124307104313,
+        "selected_same_weight": 0.0034778709026690446
+      },
+      {
+        "label": "slice1",
+        "best_vs_best": 0.0028482554376733082,
+        "model_card": 0.004679515608995821,
+        "selected_same_weight": 0.014940341358700038
+      },
+      {
+        "label": "slice2",
+        "best_vs_best": -0.0005349958101932284,
+        "model_card": 0.0004856112869693341,
+        "selected_same_weight": 0.00010445500060696222
+      },
+      {
+        "label": "slice3",
+        "best_vs_best": 0.0004706461452036459,
+        "model_card": 0.005713856357532188,
+        "selected_same_weight": 0.0004706461452036459
+      }
+    ]
+  },
+  "interpretation": {
+    "engineering_result": "LoRA training and offline four-slice evaluation completed without OOM or dependency blockers.",
+    "model_result": "The checkpoint fails the strict standalone-student gate. It moves sparse_colbert and model_card on some slices, but not robustly enough and not on base-best surfaces.",
+    "useful_signal": "v76c multi-surface data produces stronger localized sparse_colbert movement than several earlier attempts, but the instability means the next step should be error analysis and data/objective redesign rather than scaling this recipe."
+  },
+  "decision": {
+    "scale_training": false,
+    "full_dev_evaluation": false,
+    "publish_checkpoint": false,
+    "upload_checkpoint": false,
+    "sota_claim": false,
+    "reason": "v77 fails every predeclared multi-split gate criterion. Best-vs-best mean delta is only +0.000728 with 0/4 passing slices; model-card mean delta is +0.003081 with 1/4 passing slices; selected sparse_colbert mean delta is +0.004748 with 1/4 passing slices.",
+    "next_action": "Do not launch a nearby larger v77 LoRA run. First analyze per-query/per-surface failures and redesign the teacher rows or objective to target model-card and base-best stability across all stride slices."
+  },
+  "remote_state_after_run": "NVIDIA L20 idle",
+  "raw_outputs_committed": false,
+  "model_checkpoints_committed": false,
+  "generated_embeddings_committed": false,
+  "credentials_committed": false
+}
