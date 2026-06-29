@@ -12,20 +12,25 @@ isolated subprojects. [SciTrace-RL](https://github.com/Kevin-Li-2025/scitrace-rl
 remains separate because it focuses on scientific agent trace validation and
 reward-data generation rather than retrieval.
 
-## Integrated Evaluation Work
+## Repository Layout
 
-- [`evals/claim_bench/`](evals/claim_bench/) contains the migrated
-  `llm-claim-bench` harness for auditable HumanEval/GSM8K inference runs,
-  checked-in evidence summaries, and single-GPU L20 benchmark reproduction.
-  Keeping it here ties benchmark evidence to SignalRAG's broader retrieval,
-  citation, and claim-verification story while preserving it as an isolated
-  subproject.
-- [`evals/retrieval/`](evals/retrieval/) contains migrated retrieval benchmark
-  snapshots for Chinese finance reranking, CoREB code retrieval, and Arabic
-  retrieval/embedding experiments.
-- [`tools/codegraph/`](tools/codegraph/) contains the migrated `CodeGraph`
-  code-structure GraphRAG prototype for AST, import, call, dependency, and
-  hybrid code retrieval experiments.
+SignalRAG is organized around one runtime application plus isolated research
+subprojects:
+
+- [`fast_rag/`](fast_rag/) is the runnable web-search RAG application.
+- [`tests/`](tests/) contains tests for the main application package.
+- [`benchmark_results/`](benchmark_results/) stores checked-in SignalRAG web
+  search benchmark snapshots.
+- [`evals/`](evals/) contains isolated evaluation subprojects:
+  claim-level inference evidence, Chinese finance reranking, CoREB code
+  retrieval, and Arabic retrieval/embedding experiments.
+- [`tools/`](tools/) contains auxiliary retrieval tools, including the migrated
+  CodeGraph code-structure GraphRAG prototype.
+- [`extensions/`](extensions/) contains Chromium integration assets.
+- [`scripts/`](scripts/) contains top-level helper scripts for extension assets
+  and local browser launch.
+
+See [`docs/repo-map.md`](docs/repo-map.md) for a more detailed map.
 
 A fast web-search RAG workbench inspired by ChatGPT Search:
 
