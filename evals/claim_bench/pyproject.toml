@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llm-claim-bench"
+version = "0.1.0"
+description = "Auditable HumanEval and GSM8K reproduction harness for resume benchmark claims."
+readme = "README.md"
+requires-python = ">=3.10,<3.13"
+dependencies = [
+  "accelerate>=0.33.0",
+  "datasets>=2.20.0",
+  "numpy>=1.26.0",
+  "packaging>=24.0",
+  "protobuf>=4.25.0",
+  "safetensors>=0.4.3",
+  "sentencepiece>=0.2.0",
+  "torch>=2.3.0",
+  "tqdm>=4.66.0",
+  "transformers>=4.45.0",
+]
+
+[project.optional-dependencies]
+quant = ["bitsandbytes>=0.43.0"]
+vllm = ["vllm>=0.8.0"]
+dev = ["pytest>=8.0.0"]
+
+[project.scripts]
+claimbench = "claimbench.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]

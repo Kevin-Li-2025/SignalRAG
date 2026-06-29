@@ -14,6 +14,15 @@ dependency-graph retrieval, while
 agent trace validation and reward-data generation. SignalRAG should not absorb
 those specialized benchmark and provenance scopes.
 
+## Integrated Evaluation Work
+
+- [`evals/claim_bench/`](evals/claim_bench/) contains the migrated
+  `llm-claim-bench` harness for auditable HumanEval/GSM8K inference runs,
+  checked-in evidence summaries, and single-GPU L20 benchmark reproduction.
+  Keeping it here ties benchmark evidence to SignalRAG's broader retrieval,
+  citation, and claim-verification story while preserving it as an isolated
+  subproject.
+
 A fast web-search RAG workbench inspired by ChatGPT Search:
 
 - rewrites the user question into targeted search queries

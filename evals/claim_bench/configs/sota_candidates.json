@@ -1,0 +1,120 @@
+{
+  "validity_rules": [
+    "Use the full public test split unless LIMIT is explicitly documented as a smoke test.",
+    "Generate exactly one completion per sample for Pass@1 and exact match evidence.",
+    "Do not repair HumanEval outputs using benchmark test failures.",
+    "Keep per-sample predictions under reports/ for auditability.",
+    "Treat vendor or leaderboard numbers as candidate selection only until this harness reruns them."
+  ],
+  "single_model_candidates": [
+    {
+      "name": "qwen3_coder_30b_a3b_fp8_humaneval",
+      "modelscope_id": "Qwen/Qwen3-Coder-30B-A3B-Instruct-FP8",
+      "script": "scripts/run_qwen3_coder30b_fp8_humaneval_vllm.sh",
+      "expected_fit": "One NVIDIA L20 with FP8 MoE weights, short context cap, and vLLM auto dtype.",
+      "sota_gate": {
+        "humaneval_pass_at_1": 0.932
+      },
+      "verified_result": {
+        "humaneval_pass_at_1": 0.9329268292682927,
+        "passed": 153,
+        "total": 164,
+        "prompt_template": "complete",
+        "decoding": "temperature=0.7, top_p=0.8, top_k=20, repetition_penalty=1.05",
+        "evidence": "evidence/qwen3-coder-30b-a3b-fp8-vllm-humaneval-complete-recommended-s1-summary.json"
+      },
+      "source_urls": [
+        "https://qwenlm.github.io/blog/qwen3-coder/",
+        "https://modelscope.cn/models/Qwen/Qwen3-Coder-30B-A3B-Instruct-FP8"
+      ]
+    },
+    {
+      "name": "qwen25_32b_instruct_awq",
+      "modelscope_id": "Qwen/Qwen2.5-32B-Instruct-AWQ",
+      "script": "scripts/run_qwen25_32b_awq_vllm.sh",
+      "expected_fit": "One NVIDIA L20 with 4-bit AWQ using vLLM awq_marlin, max_model_len 8192, max_num_seqs 16.",
+      "sota_gate": {
+        "humaneval_pass_at_1": 0.85,
+        "gsm8k_exact_match": 0.93
+      },
+      "source_urls": [
+        "https://qwenlm.github.io/blog/qwen2.5-llm/",
+        "https://modelscope.cn/models/Qwen/Qwen2.5-32B-Instruct-AWQ"
+      ]
+    },
+    {
+      "name": "qwen25_72b_instruct_awq",
+      "modelscope_id": "Qwen/Qwen2.5-72B-Instruct-AWQ",
+      "script": "scripts/run_qwen25_72b_awq_vllm.sh",
+      "expected_fit": "Aggressive one-L20 4-bit AWQ attempt with short context, small batches, and optional CPU offload.",
+      "sota_gate": {
+        "humaneval_pass_at_1": 0.90,
+        "gsm8k_exact_match": 0.95
+      },
+      "source_urls": [
+        "https://qwenlm.github.io/blog/qwen2.5-llm/",
+        "https://modelscope.cn/models/Qwen/Qwen2.5-72B-Instruct-AWQ"
+      ]
+    }
+  ],
+  "routed_system_candidates": [
+    {
+      "name": "qwen25_coder_32b_for_code_plus_qwen25_math_7b_for_math",
+      "humaneval_modelscope_id": "Qwen/Qwen2.5-Coder-32B-Instruct-GPTQ-Int4",
+      "gsm8k_modelscope_id": "Qwen/Qwen2.5-Math-7B-Instruct",
+      "script": "scripts/run_qwen25_32b_routed_vllm.sh",
+      "claim_scope": "Routed system result, not a single-model result.",
+      "verified_result": {
+        "humaneval_pass_at_1": 0.9085365853658537,
+        "gsm8k_exact_match": 0.9332827899924185
+      },
+      "source_urls": [
+        "https://qwenlm.github.io/blog/qwen2.5-coder-family/",
+        "https://modelscope.cn/models/Qwen/Qwen2.5-Coder-32B-Instruct-GPTQ-Int4",
+        "https://modelscope.cn/models/Qwen/Qwen2.5-Math-7B-Instruct"
+      ]
+    },
+    {
+      "name": "qwen25_math_7b_gsm8k_only",
+      "gsm8k_modelscope_id": "Qwen/Qwen2.5-Math-7B-Instruct",
+      "script": "scripts/run_qwen25_math7b_gsm8k_vllm.sh",
+      "claim_scope": "GSM8K-only result, intended for a routed system.",
+      "verified_result": {
+        "gsm8k_exact_match": 0.959059893858984,
+        "correct": 1265,
+        "total": 1319,
+        "prompt_template": "qwen25-math-cot",
+        "n_shot": 0,
+        "samples": 8,
+        "selection": "majority",
+        "evidence": "evidence/qwen25-math-7b-instruct-vllm-gsm8k-qwen25-cot-majority8-summary.json"
+      },
+      "sota_gate": {
+        "gsm8k_exact_match": 0.959
+      },
+      "source_urls": [
+        "https://qwenlm.github.io/blog/qwen2.5-math/",
+        "https://modelscope.cn/models/Qwen/Qwen2.5-Math-7B-Instruct"
+      ]
+    },
+    {
+      "name": "qwen25_math_72b_awq_gsm8k_only",
+      "gsm8k_modelscope_id": "ShelterW/Qwen2.5-Math-72B-Instruct-AWQ",
+      "script": "scripts/run_qwen25_math72b_awq_gsm8k_vllm.sh",
+      "claim_scope": "GSM8K-only 72B math specialist attempt; third-party AWQ packaging of the Qwen2.5-Math model.",
+      "verified_result": {
+        "gsm8k_exact_match": 0.9438968915845337,
+        "correct": 1245,
+        "total": 1319,
+        "evidence": "evidence/qwen25-math-72b-instruct-awq-marlin-vllm-gsm8k-full-u099-l4096-eager-summary.json"
+      },
+      "sota_gate": {
+        "gsm8k_exact_match": 0.95
+      },
+      "source_urls": [
+        "https://arxiv.org/abs/2409.12122",
+        "https://modelscope.cn/models/ShelterW/Qwen2.5-Math-72B-Instruct-AWQ"
+      ]
+    }
+  ]
+}
