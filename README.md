@@ -1,5 +1,19 @@
 # SignalRAG
 
+## Positioning
+
+SignalRAG is the active general-purpose retrieval and citation workbench in this
+repo group. New work on web search, source extraction, provider routing,
+browser integration, citation verification, and extractive fallback should land
+here.
+
+Related repos are intentionally narrower:
+[CodeGraph](https://github.com/Kevin-Li-2025/CodeGraph) is for codebase AST and
+dependency-graph retrieval, while
+[SciTrace-RL](https://github.com/Kevin-Li-2025/scitrace-rl) is for scientific
+agent trace validation and reward-data generation. SignalRAG should not absorb
+those specialized benchmark and provenance scopes.
+
 A fast web-search RAG workbench inspired by ChatGPT Search:
 
 - rewrites the user question into targeted search queries
