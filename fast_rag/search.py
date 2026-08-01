@@ -2,10 +2,11 @@ from __future__ import annotations
 
 import asyncio
 import base64
+import ipaddress
 import re
 from dataclasses import asdict, dataclass, field
 from time import perf_counter
-from urllib.parse import parse_qs, unquote, urlparse
+from urllib.parse import parse_qs, unquote, urljoin, urlparse
 
 import httpx
 from bs4 import BeautifulSoup
@@ -35,6 +36,8 @@ RECENCY_TO_BRAVE = {
 VALID_RECENCY = {"any", *RECENCY_TO_DDG}
 VALID_LENSES = {"web", "official", "academic", "forums", "news", "pdf", "finance"}
 RRF_K = 60
+FETCH_REDIRECT_LIMIT = 5
+FETCH_REDIRECT_STATUSES = {301, 302, 303, 307, 308}
 SEARCH_WORD_RE = re.compile(r"[a-z0-9][a-z0-9_\-.]{1,}", re.IGNORECASE)
 SEARCH_STOPWORDS = {
     "about",
@@ -1217,8 +1220,34 @@ def dedupe_documents(docs: list[Document], filters: SearchFilters | None = None)
     return list(by_url.values())
 
 
+def is_public_fetch_url(url: str) -> bool:
+    """Reject URL forms that can directly target a local or private service."""
+    try:
+        parsed = urlparse(url)
+        host = (parsed.hostname or "").rstrip(".").lower()
+        port = parsed.port
+    except ValueError:
+        return False
+    if parsed.scheme not in {"http", "https"} or not host:
+        return False
+    if parsed.username is not None or parsed.password is not None:
+        return False
+    if port is not None and not 1 <= port <= 65535:
+        return False
+    if host == "localhost" or host.endswith((".localhost", ".local", ".internal", ".lan", ".home")):
+        return False
+    try:
+        return ipaddress.ip_address(host).is_global
+    except ValueError:
+        # Search results are expected to be public DNS names. Dotless hosts are
+        # commonly resolved through local search domains and are not fetched.
+        return "." in host
+
+
 def should_fetch(url: str) -> bool:
-    lower = url.lower()
+    if not is_public_fetch_url(url):
+        return False
+    lower = urlparse(url).path.lower()
     blocked_ext = (
         ".7z",
         ".avi",
@@ -1242,6 +1271,27 @@ def should_fetch(url: str) -> bool:
         ".zip",
     )
     return not lower.endswith(blocked_ext)
+
+
+async def _get_with_safe_redirects(
+    client: httpx.AsyncClient,
+    url: str,
+    timeout: float,
+) -> httpx.Response:
+    current_url = url
+    for redirect_count in range(FETCH_REDIRECT_LIMIT + 1):
+        if not is_public_fetch_url(current_url):
+            raise ValueError(f"unsafe fetch URL: {current_url}")
+        response = await client.get(current_url, timeout=timeout, follow_redirects=False)
+        if response.status_code not in FETCH_REDIRECT_STATUSES:
+            return response
+        location = response.headers.get("location")
+        if not location:
+            return response
+        if redirect_count == FETCH_REDIRECT_LIMIT:
+            raise ValueError("page fetch exceeded redirect limit")
+        current_url = urljoin(str(response.url), location)
+    raise ValueError("page fetch exceeded redirect limit")
 
 
 async def fetch_document(
@@ -1275,7 +1325,7 @@ async def fetch_document(
         )
 
     try:
-        response = await client.get(result.url, timeout=timeout, follow_redirects=True)
+        response = await _get_with_safe_redirects(client, result.url, timeout)
         content_type = response.headers.get("content-type", "").lower()
         body = response.text[:800_000]
         cache.set(str(response.url), response.status_code, content_type, body)

@@ -1,5 +1,7 @@
 # SignalRAG
 
+[![CI](https://github.com/yinli-systems/signal-rag/actions/workflows/ci.yml/badge.svg)](https://github.com/yinli-systems/signal-rag/actions/workflows/ci.yml)
+
 Web-search RAG workbench for provider routing, source extraction, citation
 verification, corrective retrieval, and extractive fallback.
 
@@ -159,6 +161,31 @@ own commands and artifacts.
 - Cache-hit latency must be reported separately from cold retrieval latency.
 - Production deployment needs stronger abuse controls, observability, and a supported
   search provider.
+
+## Page-Fetch Safety Boundary
+
+Search results are untrusted input. Before fetching a page, the runnable app
+now requires an HTTP(S) URL with a public-looking DNS name or globally routable
+IP literal. It rejects credentials in URLs, dotless/local hostnames, and
+loopback, private, link-local, reserved, multicast, or unspecified IP literals.
+Redirects are followed explicitly for at most five hops, and every redirect
+target is checked before the next request. Unsafe or failed fetches degrade to
+the provider snippet rather than aborting the whole retrieval.
+
+This is a meaningful default guard, not a complete production SSRF sandbox:
+DNS rebinding and organization-specific egress policy require a resolver-aware
+transport or outbound proxy at deployment time.
+
+## Improvement Priorities
+
+1. Enforce DNS/IP policy at connection time through a controlled resolver or
+   egress proxy, then add redirect and rebinding integration tests.
+2. Replace HTML search fallbacks with supported provider APIs for stable,
+   observable production operation.
+3. Expand the benchmark beyond hand-curated queries and report cold, warm, and
+   paid-provider runs as separate cohorts.
+4. Calibrate citation-support thresholds against independently labeled claims;
+   the current verifier remains a diagnostic rather than a fact checker.
 
 ## License
 

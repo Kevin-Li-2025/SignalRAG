@@ -15,6 +15,7 @@ from fast_rag.search import (
     dedupe_results,
     filter_results,
     fetch_document,
+    is_public_fetch_url,
     fuse_results,
     normalize_search_filters,
     rewrite_queries,
@@ -203,6 +204,39 @@ def test_fetch_document_uses_snippet_when_official_page_blocks(tmp_path) -> None
         return doc.text
 
     assert asyncio.run(run()).startswith("A records map names")
+
+
+def test_public_fetch_url_rejects_local_and_credentialed_targets() -> None:
+    assert is_public_fetch_url("https://docs.python.org/3/library/json.html")
+    assert not is_public_fetch_url("file:///etc/passwd")
+    assert not is_public_fetch_url("http://localhost:8000/admin")
+    assert not is_public_fetch_url("http://127.0.0.1/admin")
+    assert not is_public_fetch_url("http://[::1]/admin")
+    assert not is_public_fetch_url("http://169.254.169.254/latest/meta-data/")
+    assert not is_public_fetch_url("https://user:pass@example.com/private")
+    assert not is_public_fetch_url("http://intranet/status")
+
+
+def test_fetch_document_does_not_follow_redirect_to_private_address(tmp_path) -> None:
+    requests: list[str] = []
+
+    async def run() -> str:
+        def handler(request: httpx.Request) -> httpx.Response:
+            requests.append(str(request.url))
+            return httpx.Response(302, headers={"location": "http://127.0.0.1/admin"})
+
+        result = SearchResult(
+            title="Public result",
+            url="https://example.com/redirect",
+            snippet="Safe search snippet fallback.",
+            provider="web",
+        )
+        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
+            doc = await fetch_document(client, PageCache(tmp_path / "redirects.db"), result, timeout=1)
+        return doc.text
+
+    assert asyncio.run(run()) == "Safe search snippet fallback."
+    assert requests == ["https://example.com/redirect"]
 
 
 def test_decode_bing_redirect_url() -> None:
