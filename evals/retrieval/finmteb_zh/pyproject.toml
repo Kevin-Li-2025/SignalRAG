@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "finmteb-sota-reranker"
 version = "0.1.0"
-description = "Public snapshot SOTA Chinese finance reranker for FinanceMTEB Reranking_zh."
+description = "Chinese finance reranker research with bias-resistant FinanceMTEB evaluation."
 readme = "README.md"
 requires-python = ">=3.10,<3.13"
 dependencies = [

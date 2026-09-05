@@ -1,0 +1,278 @@
+{
+  "model": "/ssd/scxi253/gpu-evidence-20260905/models/qwen3-reranker-8b",
+  "adapter": null,
+  "split": "train",
+  "average_map": 0.9959016393442623,
+  "tasks": [
+    {
+      "dataset": "FinanceMTEB/FinEvaRetrieval-reranking",
+      "leaderboard_name": "FinEvaReranking",
+      "split": "train",
+      "num_queries": 122,
+      "num_pairs": 1336,
+      "instruction": "Given a finance question, retrieve and rank passages that directly answer it. Prioritize exact entities, numbers, dates, formulas, and financial terminology.",
+      "best": {
+        "method": "zscore_linear",
+        "feature": "title_trigram",
+        "alpha": 0.08,
+        "metrics": {
+          "map": 0.9959016393442623,
+          "mrr": 0.9959016393442623,
+          "ndcg@10": 0.9969748340456677
+        }
+      },
+      "candidates": [
+        {
+          "method": "zscore_linear",
+          "feature": "title_trigram",
+          "alpha": 0.08,
+          "metrics": {
+            "map": 0.9959016393442623,
+            "mrr": 0.9959016393442623,
+            "ndcg@10": 0.9969748340456677
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "title_trigram",
+          "alpha": 0.1,
+          "metrics": {
+            "map": 0.9959016393442623,
+            "mrr": 0.9959016393442623,
+            "ndcg@10": 0.9969748340456677
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "title_trigram",
+          "alpha": 0.15,
+          "metrics": {
+            "map": 0.9959016393442623,
+            "mrr": 0.9959016393442623,
+            "ndcg@10": 0.9969748340456677
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "title_trigram",
+          "alpha": 0.2,
+          "metrics": {
+            "map": 0.9959016393442623,
+            "mrr": 0.9959016393442623,
+            "ndcg@10": 0.9969748340456677
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "title_trigram",
+          "alpha": 0.3,
+          "metrics": {
+            "map": 0.9959016393442623,
+            "mrr": 0.9959016393442623,
+            "ndcg@10": 0.9969748340456677
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "title_trigram",
+          "alpha": 0.5,
+          "metrics": {
+            "map": 0.9959016393442623,
+            "mrr": 0.9959016393442623,
+            "ndcg@10": 0.9969748340456677
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "title_trigram",
+          "alpha": 0.8,
+          "metrics": {
+            "map": 0.9959016393442623,
+            "mrr": 0.9959016393442623,
+            "ndcg@10": 0.9969748340456677
+          }
+        },
+        {
+          "method": "model",
+          "feature": null,
+          "alpha": 0.0,
+          "metrics": {
+            "map": 0.9918032786885246,
+            "mrr": 0.9918032786885246,
+            "ndcg@10": 0.9939496680913353
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "lexical",
+          "alpha": 0.0,
+          "metrics": {
+            "map": 0.9918032786885246,
+            "mrr": 0.9918032786885246,
+            "ndcg@10": 0.9939496680913353
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "lexical",
+          "alpha": 0.005,
+          "metrics": {
+            "map": 0.9918032786885246,
+            "mrr": 0.9918032786885246,
+            "ndcg@10": 0.9939496680913353
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "lexical",
+          "alpha": 0.01,
+          "metrics": {
+            "map": 0.9918032786885246,
+            "mrr": 0.9918032786885246,
+            "ndcg@10": 0.9939496680913353
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "lexical",
+          "alpha": 0.02,
+          "metrics": {
+            "map": 0.9918032786885246,
+            "mrr": 0.9918032786885246,
+            "ndcg@10": 0.9939496680913353
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "lexical",
+          "alpha": 0.05,
+          "metrics": {
+            "map": 0.9918032786885246,
+            "mrr": 0.9918032786885246,
+            "ndcg@10": 0.9939496680913353
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "lexical",
+          "alpha": 0.08,
+          "metrics": {
+            "map": 0.9918032786885246,
+            "mrr": 0.9918032786885246,
+            "ndcg@10": 0.9939496680913353
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "lexical",
+          "alpha": 0.1,
+          "metrics": {
+            "map": 0.9918032786885246,
+            "mrr": 0.9918032786885246,
+            "ndcg@10": 0.9939496680913353
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "lexical",
+          "alpha": 0.2,
+          "metrics": {
+            "map": 0.9918032786885246,
+            "mrr": 0.9918032786885246,
+            "ndcg@10": 0.9939496680913353
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "lexical",
+          "alpha": 0.3,
+          "metrics": {
+            "map": 0.9918032786885246,
+            "mrr": 0.9918032786885246,
+            "ndcg@10": 0.9939496680913353
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "lexical",
+          "alpha": 0.5,
+          "metrics": {
+            "map": 0.9918032786885246,
+            "mrr": 0.9918032786885246,
+            "ndcg@10": 0.9939496680913353
+          }
+        },
+        {
+          "method": "rrf",
+          "feature": "lexical",
+          "alpha": 0.1,
+          "metrics": {
+            "map": 0.9918032786885246,
+            "mrr": 0.9918032786885246,
+            "ndcg@10": 0.9939496680913353
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "head_lexical",
+          "alpha": 0.0,
+          "metrics": {
+            "map": 0.9918032786885246,
+            "mrr": 0.9918032786885246,
+            "ndcg@10": 0.9939496680913353
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "head_lexical",
+          "alpha": 0.005,
+          "metrics": {
+            "map": 0.9918032786885246,
+            "mrr": 0.9918032786885246,
+            "ndcg@10": 0.9939496680913353
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "head_lexical",
+          "alpha": 0.01,
+          "metrics": {
+            "map": 0.9918032786885246,
+            "mrr": 0.9918032786885246,
+            "ndcg@10": 0.9939496680913353
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "head_lexical",
+          "alpha": 0.02,
+          "metrics": {
+            "map": 0.9918032786885246,
+            "mrr": 0.9918032786885246,
+            "ndcg@10": 0.9939496680913353
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "head_lexical",
+          "alpha": 0.05,
+          "metrics": {
+            "map": 0.9918032786885246,
+            "mrr": 0.9918032786885246,
+            "ndcg@10": 0.9939496680913353
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "head_lexical",
+          "alpha": 0.08,
+          "metrics": {
+            "map": 0.9918032786885246,
+            "mrr": 0.9918032786885246,
+            "ndcg@10": 0.9939496680913353
+          }
+        }
+      ]
+    }
+  ]
+}

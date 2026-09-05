@@ -1,13 +1,11 @@
-# FinMTEB ZH Reranker SOTA
+# FinMTEB ZH Reranker Evaluation
 
-[![FinanceMTEB Reranking_zh](https://img.shields.io/badge/FinanceMTEB_Reranking__zh-0.9978_MAP-2ea44f)](reports/public_reranking_zh_snapshot_comparison.md)
-[![Public Snapshot SOTA](https://img.shields.io/badge/Public_snapshot-SOTA-blue)](reports/public_reranking_zh_snapshot_comparison.md)
+[![Corrected GPU rerun](https://img.shields.io/badge/result-corrected_GPU_rerun-green)](RESULTS.md)
 [![CI](https://img.shields.io/github/checks-status/Kevin-Li-2025/finmteb-zh-reranker-sota/main?label=CI)](https://github.com/Kevin-Li-2025/finmteb-zh-reranker-sota/commits/main)
 [![CD](https://img.shields.io/badge/CD-release_workflow_configured-blue)](.github/workflows/release.yml)
 [![Model](https://img.shields.io/badge/Model-Qwen3--Reranker--8B-black)](https://huggingface.co/Qwen/Qwen3-Reranker-8B)
 
-Public snapshot SOTA finance-domain Chinese reranking system for
-FinanceMTEB `Reranking_zh`.
+Finance-domain Chinese reranking evaluation for FinanceMTEB `Reranking_zh`.
 
 ## Result
 
@@ -16,38 +14,47 @@ This project targets the FinanceMTEB Chinese reranking slice:
 - `FinanceMTEB/FinEvaRetrieval-reranking`
 - `FinanceMTEB/DISCFinLLM-reranking`
 
-On the L20 box, `Qwen/Qwen3-Reranker-8B` with `true_logit` scoring and per-query
-RRF lexical fusion reached `0.997807` MAP average on `Reranking_zh`, above the
-official `benchmark.xlsx` snapshot top average of `0.993100`.
+The historical `0.997807` MAP result is **invalidated**. The old
+pipeline placed positives first, broke RRF/metric ties by stable input order,
+and did not consistently reject truncated score vectors.
 
-| Benchmark | Public snapshot best | This repo | Delta |
-| --- | ---: | ---: | ---: |
-| `Reranking_zh` Avg. MAP | 0.993100 | 0.997807 | +0.004707 |
-| `FinEvaReranking` MAP | 0.990600 | 1.000000 | +0.009400 |
-| `DISCFinLLMReranking` MAP | 0.995600 | 0.995614 | +0.000014 |
+The corrected RTX 4090 rerun selected each strategy on train only, froze test,
+and evaluated both BF16 and bitsandbytes NF4. Every arm passed four candidate-
+order seeds with identical metrics.
 
-Supported claim: new SOTA on the public FinanceMTEB `Reranking_zh` benchmark
-snapshot. Official leaderboard inclusion is pending maintainer review.
+| Precision | FinEva MAP | DISC MAP | Macro MAP | Macro nDCG@10 |
+| --- | ---: | ---: | ---: | ---: |
+| BF16 | 0.990566 | 1.000000 | 0.995283 | 0.996518 |
+| NF4 | 1.000000 | 1.000000 | 1.000000 | 1.000000 |
+
+NF4-minus-BF16 macro MAP is +0.004717 on these frozen splits. No general NF4
+superiority or SOTA claim is supported: FinEva has 53 test queries and DISC has
+19. The evaluator now uses deterministic
+label-independent candidate ordering, equal midranks for tied RRF inputs,
+tie-aware expected MAP/MRR/nDCG, and strict vector-length checks.
 
 See `RESULTS.md` for exact scores, commands, and environment details. The
-public snapshot comparison is recorded in
+auditable GPU bundle is in
+[`reports/corrected_gpu_matrix_v1/`](reports/corrected_gpu_matrix_v1/EVIDENCE.md).
+The public snapshot comparison is recorded in
 `reports/public_reranking_zh_snapshot_comparison.md`.
 
 ## Method
 
-The achieved SOTA path is:
+The historical evaluation path was:
 
 1. Reproduce the official leaderboard snapshot.
 2. Run a zero-shot Qwen3 reranker with train-only score-mode and rank-fusion selection.
 3. Freeze the selected strategy, then evaluate on untouched test splits.
 
-Final frozen setup:
+Corrected frozen setup:
 
 - Base model: `Qwen/Qwen3-Reranker-8B`
-- Inference: 4-bit on NVIDIA L20 46 GB
+- Inference: BF16 and bitsandbytes NF4 on NVIDIA RTX 4090
 - Score mode: raw `true` token logit
-- Fusion: per-query RRF with lexical features
+- Fusion: per-query z-score linear blend with lexical features
 - Selection policy: train-only search/CV, frozen test evaluation
+- Protocol: `protocols/finmteb_zh_corrected_gpu_v1.json`
 
 ## Repository Map
 
@@ -108,8 +115,8 @@ Current target from the official `benchmark.xlsx` snapshot:
 - `FinEvaReranking` is saturated at `1.0000`.
 - `DISCFinLLMReranking` top visible score is about `0.9956`.
 
-The current result beats the official visible Chinese reranking average, with
-`DISCFinLLMReranking` test MAP `0.995614`.
+The public snapshot is retained as context only. The corrected tie-aware protocol
+is not claimed as a like-for-like leaderboard submission.
 
 ## Current Best Zero-Shot Run
 

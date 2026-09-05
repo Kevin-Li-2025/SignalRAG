@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import random
 from collections.abc import Iterable
 from dataclasses import dataclass
@@ -22,7 +23,7 @@ def _as_text_list(value: Any) -> tuple[str, ...]:
     if isinstance(value, dict):
         texts = []
         for key in ("text", "contents", "content", "passage", "document", "doc"):
-            if key in value and value[key]:
+            if value.get(key):
                 texts.append(str(value[key]))
         if texts:
             return tuple(texts)
@@ -90,21 +91,54 @@ def iter_pair_examples(
     rng: random.Random,
 ) -> Iterable[dict[str, str | int]]:
     for record in records:
-        for positive in record.positives:
-            yield {
+        candidates = [
+            {
                 "query_id": record.query_id,
                 "query": record.query,
                 "document": positive,
                 "label": 1,
             }
+            for positive in record.positives
+        ]
 
         negatives = list(record.negatives)
         rng.shuffle(negatives)
-        for negative in negatives[:negatives_per_query]:
-            yield {
+        candidates.extend(
+            {
                 "query_id": record.query_id,
                 "query": record.query,
                 "document": negative,
                 "label": 0,
             }
+            for negative in negatives[:negatives_per_query]
+        )
+        rng.shuffle(candidates)
+        yield from candidates
 
+
+def flatten_records(
+    records: list[RerankRecord], seed: int = 20260905
+) -> tuple[list[str], list[str], list[int], list[str]]:
+    """Flatten candidates in a deterministic order unrelated to their labels."""
+    queries: list[str] = []
+    docs: list[str] = []
+    labels: list[int] = []
+    qids: list[str] = []
+    for record in records:
+        candidates = [*(record.positives), *(record.negatives)]
+        digest = hashlib.sha256(
+            f"{seed}\0{record.query_id}\0{record.query}".encode()
+        ).digest()
+        random.Random(int.from_bytes(digest[:8], "big")).shuffle(candidates)
+        positive_counts: dict[str, int] = {}
+        for text in record.positives:
+            positive_counts[text] = positive_counts.get(text, 0) + 1
+        for document in candidates:
+            label = int(positive_counts.get(document, 0) > 0)
+            if label:
+                positive_counts[document] -= 1
+            queries.append(record.query)
+            docs.append(document)
+            labels.append(label)
+            qids.append(record.query_id)
+    return queries, docs, labels, qids

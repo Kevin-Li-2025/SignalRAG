@@ -5,36 +5,22 @@ import argparse
 import json
 from pathlib import Path
 
-from finmteb_sota.data import RerankRecord, load_reranking_records
+from finmteb_sota.data import RerankRecord, flatten_records, load_reranking_records
 from finmteb_sota.lexical import blend_scores_by_group, lexical_score
 from finmteb_sota.metrics import RankedQuery, reranking_metrics
-from finmteb_sota.score_cache import load_score_cache, model_cache_tag, write_score_cache
+from finmteb_sota.score_cache import (
+    build_candidate_ids,
+    load_score_cache,
+    model_cache_tag,
+    write_score_cache,
+)
 from finmteb_sota.sequence_scoring import SequenceClassificationRerankerScorer
 from finmteb_sota.tasks import RerankingTask, resolve_tasks
 
 
-def flatten_records(records: list[RerankRecord]) -> tuple[list[str], list[str], list[int], list[str]]:
-    queries: list[str] = []
-    docs: list[str] = []
-    labels: list[int] = []
-    qids: list[str] = []
-    for record in records:
-        for positive in record.positives:
-            queries.append(record.query)
-            docs.append(positive)
-            labels.append(1)
-            qids.append(record.query_id)
-        for negative in record.negatives:
-            queries.append(record.query)
-            docs.append(negative)
-            labels.append(0)
-            qids.append(record.query_id)
-    return queries, docs, labels, qids
-
-
 def group_scores(qids: list[str], labels: list[int], scores: list[float]) -> list[RankedQuery]:
     grouped: dict[str, tuple[list[int], list[float]]] = {}
-    for qid, label, score in zip(qids, labels, scores):
+    for qid, label, score in zip(qids, labels, scores, strict=True):
         labels_for_qid, scores_for_qid = grouped.setdefault(qid, ([], []))
         labels_for_qid.append(label)
         scores_for_qid.append(score)
@@ -80,6 +66,7 @@ def load_or_score(
     scorer: SequenceClassificationRerankerScorer,
     task: RerankingTask,
     split: str,
+    qids: list[str],
     queries: list[str],
     docs: list[str],
     batch_size: int,
@@ -87,8 +74,11 @@ def load_or_score(
     cache_dir: Path,
     cache_tag: str,
 ) -> list[float]:
+    candidate_ids = build_candidate_ids(qids, queries, docs)
     try:
-        scores, _ = load_score_cache(cache_dir, task, split, "", cache_tag)
+        scores, _ = load_score_cache(
+            cache_dir, task, split, "", cache_tag, candidate_ids
+        )
         return scores
     except FileNotFoundError:
         pass
@@ -99,7 +89,7 @@ def load_or_score(
         batch_size=batch_size,
         max_length=max_length,
     )
-    write_score_cache(cache_dir, task, split, "", cache_tag, scores)
+    write_score_cache(cache_dir, task, split, "", cache_tag, scores, candidate_ids)
     return scores
 
 
@@ -116,11 +106,12 @@ def evaluate_task(
 ) -> dict[str, object]:
     records = load_reranking_records(task.dataset_id, split=split)
     queries, docs, labels, qids = flatten_records(records)
-    del labels, qids
+    del labels
     scores = load_or_score(
         scorer=scorer,
         task=task,
         split=split,
+        qids=qids,
         queries=queries,
         docs=docs,
         batch_size=batch_size,

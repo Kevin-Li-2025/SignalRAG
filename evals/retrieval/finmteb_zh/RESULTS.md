@@ -1,20 +1,39 @@
 # Results
 
-Date: 2026-05-26
+Corrected rerun date: 2026-09-05
 
-Hardware: NVIDIA L20 46 GB
+Corrected rerun hardware: NVIDIA RTX 4090 24 GB
 
 Runtime:
 
-- Python 3.12.3
+- Python 3.11.16
 - PyTorch 2.6.0+cu124
-- Transformers 5.9.0
-- PEFT 0.19.1
+- Transformers 4.51.3
 - bitsandbytes 0.49.2
 
 Model: `Qwen/Qwen3-Reranker-8B`
 
-Current best method:
+Corrected GPU result:
+
+| Precision | Task | Queries / pairs | MAP | MRR | nDCG@10 | Train-selected blend |
+| --- | --- | ---: | ---: | ---: | ---: | --- |
+| BF16 | FinEvaReranking | 53 / 582 | 0.990566 | 0.990566 | 0.993036 | `title_trigram`, alpha 0.08 |
+| BF16 | DISCFinLLMReranking | 19 / 242 | 1.000000 | 1.000000 | 1.000000 | `doc_bigram`, alpha 0.30 |
+| NF4 | FinEvaReranking | 53 / 582 | 1.000000 | 1.000000 | 1.000000 | `title_trigram`, alpha 0.08 |
+| NF4 | DISCFinLLMReranking | 19 / 242 | 1.000000 | 1.000000 | 1.000000 | `doc_bigram`, alpha 0.15 |
+
+Macro BF16 MAP/MRR/nDCG@10 is `0.995283/0.995283/0.996518`; macro NF4 is
+`1.0/1.0/1.0`. All four arms passed candidate-order invariance across seeds
+20260905, 2234, 314159, and 8675309. Strategy selection used train only and the
+test splits remained frozen. The small 53-query and 19-query tests do not support
+a general NF4-superiority or SOTA claim.
+
+The exact frozen-test outputs, train-selected strategies, nested-CV reports,
+candidate-order audits, GPU inventories, aggregate summary, and SHA-256 ledger
+are committed under
+[`reports/corrected_gpu_matrix_v1/`](reports/corrected_gpu_matrix_v1/EVIDENCE.md).
+
+Historical method, retained for audit:
 
 - Load the reranker in 4-bit.
 - Use the raw `true` token logit from `Qwen/Qwen3-Reranker-8B` instead of the
@@ -30,7 +49,7 @@ Official visible target from the FinanceMTEB Space `benchmark.xlsx` snapshot:
 - `FinEvaReranking`: `0.9906` for the top-average row
 - `DISCFinLLMReranking`: `0.9956` for the top-average row
 
-Current best test result:
+Historical test result (invalidated and replaced by the corrected rerun above):
 
 | Task | MAP | MRR | nDCG@10 | Frozen strategy |
 | --- | ---: | ---: | ---: | --- |
@@ -38,12 +57,14 @@ Current best test result:
 | DISCFinLLMReranking | 0.995614 | 1.000000 | 0.998288 | `true_logit + rrf/title_trigram alpha=1.0` |
 | Average | 0.997807 | - | - | - |
 
-This is the current verified local SOTA against the official visible
-`Reranking_zh` average in the published FinanceMTEB leaderboard snapshot:
-`0.997807` vs `0.993100`. The DISC single-task result is `0.995614`, which is
-slightly above the visible rounded snapshot value `0.9956`.
+These values are retained only as historical artifacts. The evaluator now
+removes positive-first ordering, assigns equal RRF ranks to ties, computes
+tie-aware metrics, and rejects incomplete score coverage. Score-cache v3
+fingerprints every query/document candidate, reconstructs the requested order
+by ID, and rejects missing, extra, duplicate, or legacy positional entries. The
+corrected full matrix above is the replacement result.
 
-Current best JSON outputs:
+Historical JSON outputs retained for audit:
 
 - `reports/qwen3_reranker_8b_zh_true_logit_blend_strategy_v1.json`
 - `reports/qwen3_reranker_8b_zh_true_logit_blend_strategy_nested_cv_v1.json`
@@ -51,7 +72,7 @@ Current best JSON outputs:
 - `reports/public_reranking_zh_snapshot_comparison.md`
 - `reports/public_reranking_zh_snapshot_comparison.json`
 
-Previous verified baseline:
+Historical baseline (also pending corrected rerun):
 
 Train selection:
 

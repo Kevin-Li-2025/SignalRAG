@@ -1,0 +1,278 @@
+{
+  "model": "/ssd/scxi253/gpu-evidence-20260905/models/qwen3-reranker-8b",
+  "adapter": null,
+  "split": "train",
+  "average_map": 0.9909611992945326,
+  "tasks": [
+    {
+      "dataset": "FinanceMTEB/DISCFinLLM-reranking",
+      "leaderboard_name": "DISCFinLLMReranking",
+      "split": "train",
+      "num_queries": 42,
+      "num_pairs": 536,
+      "instruction": "Given a finance question, retrieve and rank passages that directly answer it. Prioritize exact entities, numbers, dates, formulas, and financial terminology.",
+      "best": {
+        "method": "zscore_linear",
+        "feature": "doc_bigram",
+        "alpha": 0.3,
+        "metrics": {
+          "map": 0.9909611992945326,
+          "mrr": 0.996031746031746,
+          "ndcg@10": 0.9949641619598906
+        }
+      },
+      "candidates": [
+        {
+          "method": "zscore_linear",
+          "feature": "doc_bigram",
+          "alpha": 0.3,
+          "metrics": {
+            "map": 0.9909611992945326,
+            "mrr": 0.996031746031746,
+            "ndcg@10": 0.9949641619598906
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "doc_bigram",
+          "alpha": 0.5,
+          "metrics": {
+            "map": 0.9909611992945326,
+            "mrr": 0.996031746031746,
+            "ndcg@10": 0.9949641619598906
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "doc_bigram",
+          "alpha": 0.8,
+          "metrics": {
+            "map": 0.9909611992945326,
+            "mrr": 0.996031746031746,
+            "ndcg@10": 0.9949641619598906
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "title_bigram",
+          "alpha": 0.08,
+          "metrics": {
+            "map": 0.990652557319224,
+            "mrr": 1.0,
+            "ndcg@10": 0.9954327629811756
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "title_trigram",
+          "alpha": 0.05,
+          "metrics": {
+            "map": 0.9896604938271605,
+            "mrr": 1.0,
+            "ndcg@10": 0.9950454770703323
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "title_trigram",
+          "alpha": 0.08,
+          "metrics": {
+            "map": 0.9896604938271605,
+            "mrr": 1.0,
+            "ndcg@10": 0.9950454770703323
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "title_trigram",
+          "alpha": 0.1,
+          "metrics": {
+            "map": 0.9896604938271605,
+            "mrr": 1.0,
+            "ndcg@10": 0.9950454770703323
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "title_trigram",
+          "alpha": 0.15,
+          "metrics": {
+            "map": 0.9896604938271605,
+            "mrr": 1.0,
+            "ndcg@10": 0.9950454770703323
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "title_trigram",
+          "alpha": 0.2,
+          "metrics": {
+            "map": 0.9896604938271605,
+            "mrr": 1.0,
+            "ndcg@10": 0.9950454770703323
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "lexical",
+          "alpha": 0.005,
+          "metrics": {
+            "map": 0.9895502645502645,
+            "mrr": 1.0,
+            "ndcg@10": 0.9949307527392067
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "lexical",
+          "alpha": 0.01,
+          "metrics": {
+            "map": 0.9895502645502645,
+            "mrr": 1.0,
+            "ndcg@10": 0.9949307527392067
+          }
+        },
+        {
+          "method": "rrf",
+          "feature": "lexical",
+          "alpha": 0.1,
+          "metrics": {
+            "map": 0.9895502645502645,
+            "mrr": 1.0,
+            "ndcg@10": 0.9949307527392067
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "lexical",
+          "alpha": 0.15,
+          "metrics": {
+            "map": 0.9890873015873016,
+            "mrr": 0.9880952380952381,
+            "ndcg@10": 0.9923133427467108
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "lexical",
+          "alpha": 0.2,
+          "metrics": {
+            "map": 0.9890873015873016,
+            "mrr": 0.9880952380952381,
+            "ndcg@10": 0.9923133427467108
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "lexical",
+          "alpha": 0.3,
+          "metrics": {
+            "map": 0.9890873015873016,
+            "mrr": 0.9880952380952381,
+            "ndcg@10": 0.9923133427467108
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "doc_bigram",
+          "alpha": 0.005,
+          "metrics": {
+            "map": 0.9877865961199295,
+            "mrr": 0.996031746031746,
+            "ndcg@10": 0.9933123552071897
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "doc_bigram",
+          "alpha": 0.01,
+          "metrics": {
+            "map": 0.9877865961199295,
+            "mrr": 0.996031746031746,
+            "ndcg@10": 0.9933123552071897
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "doc_bigram",
+          "alpha": 0.02,
+          "metrics": {
+            "map": 0.9877865961199295,
+            "mrr": 0.996031746031746,
+            "ndcg@10": 0.9933123552071897
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "doc_bigram",
+          "alpha": 0.05,
+          "metrics": {
+            "map": 0.9877865961199295,
+            "mrr": 0.996031746031746,
+            "ndcg@10": 0.9933123552071897
+          }
+        },
+        {
+          "method": "rrf",
+          "feature": "doc_bigram",
+          "alpha": 0.1,
+          "metrics": {
+            "map": 0.9877865961199295,
+            "mrr": 0.996031746031746,
+            "ndcg@10": 0.9933123552071897
+          }
+        },
+        {
+          "method": "rrf",
+          "feature": "doc_bigram",
+          "alpha": 0.2,
+          "metrics": {
+            "map": 0.9877865961199295,
+            "mrr": 0.996031746031746,
+            "ndcg@10": 0.9933123552071897
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "title_bigram",
+          "alpha": 0.005,
+          "metrics": {
+            "map": 0.9877865961199295,
+            "mrr": 0.996031746031746,
+            "ndcg@10": 0.9933123552071897
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "title_bigram",
+          "alpha": 0.01,
+          "metrics": {
+            "map": 0.9877865961199295,
+            "mrr": 0.996031746031746,
+            "ndcg@10": 0.9933123552071897
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "title_bigram",
+          "alpha": 0.02,
+          "metrics": {
+            "map": 0.9877865961199295,
+            "mrr": 0.996031746031746,
+            "ndcg@10": 0.9933123552071897
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "title_bigram",
+          "alpha": 0.05,
+          "metrics": {
+            "map": 0.9877865961199295,
+            "mrr": 0.996031746031746,
+            "ndcg@10": 0.9933123552071897
+          }
+        }
+      ]
+    }
+  ]
+}

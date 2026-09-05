@@ -43,7 +43,7 @@ def qwen3_batch_tokenize(
     pair_max_length = max(8, max_length - len(prefix_tokens) - len(suffix_tokens))
     pairs = [
         format_reranker_pair(query=query, document=document, instruction=instruction)
-        for query, document in zip(queries, documents)
+        for query, document in zip(queries, documents, strict=True)
     ]
     inputs = tokenizer(
         pairs,

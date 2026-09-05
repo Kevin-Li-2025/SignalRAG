@@ -189,7 +189,7 @@ def evaluate(model, dataloader, false_id: int, true_id: int) -> dict[str, float]
             qids = list(batch["query_ids"])
             loss, scores = forward_loss(model, batch, false_id, true_id)
             del loss
-            for qid, label, score in zip(qids, labels, scores):
+            for qid, label, score in zip(qids, labels, scores, strict=True):
                 q_labels, q_scores = by_qid.setdefault(qid, ([], []))
                 q_labels.append(int(label))
                 q_scores.append(float(score))

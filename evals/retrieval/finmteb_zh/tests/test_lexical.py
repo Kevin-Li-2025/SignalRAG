@@ -1,9 +1,12 @@
+import pytest
+
 from finmteb_sota.lexical import (
     blend_scores,
     blend_scores_by_group,
     cjk_ngram_recall,
     lexical_feature_values,
     lexical_score,
+    reciprocal_rank_feature,
     title_text,
     zscore,
 )
@@ -45,3 +48,12 @@ def test_title_and_ngram_features_focus_on_document_head() -> None:
     features = lexical_feature_values(query, doc)
     assert features["title_bigram"] > 0.0
     assert set(features) >= {"lexical", "head_lexical", "title_lexical", "title_trigram"}
+
+
+def test_rrf_ties_get_identical_features() -> None:
+    assert reciprocal_rank_feature([0.0, 0.0]) == [1 / 61.5, 1 / 61.5]
+
+
+def test_blend_rejects_truncated_inputs() -> None:
+    with pytest.raises(ValueError, match="identical length"):
+        blend_scores([1.0, 2.0], [1.0], alpha=0.1)

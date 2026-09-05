@@ -1,0 +1,44 @@
+{
+  "protocol_version": "finmteb-zh-corrected-v1",
+  "model": "Qwen/Qwen3-Reranker-8B",
+  "tasks": [
+    "FinanceMTEB/FinEvaRetrieval-reranking",
+    "FinanceMTEB/DISCFinLLM-reranking"
+  ],
+  "precision_arms": [
+    {
+      "name": "bf16",
+      "weights": "BF16",
+      "compute": "BF16",
+      "batch_size": 1
+    },
+    {
+      "name": "bnb_nf4",
+      "weights": "bitsandbytes NF4 with double quantization",
+      "compute": "BF16",
+      "batch_size": 4
+    }
+  ],
+  "max_length": 4096,
+  "score_mode": "true_logit",
+  "selection": "per-task train-only strategy search followed by frozen test evaluation",
+  "train_validation": {
+    "folds": 7,
+    "seed": 20260526,
+    "test_used_for_selection": false
+  },
+  "candidate_order": {
+    "primary_seed": 20260905,
+    "audit_seeds": [20260905, 2234, 314159, 8675309],
+    "label_independent": true
+  },
+  "metrics": ["tie-aware expected MAP", "tie-aware expected MRR", "tie-aware nDCG@10"],
+  "parallelization": "four independent 1-GPU arms: two tasks by two precisions",
+  "validity_gates": [
+    "score cache v3 has exact candidate-ID coverage",
+    "train search completes before frozen test evaluation",
+    "all four candidate-order audits are numerically invariant",
+    "model and dataset cache are local on compute nodes",
+    "no SOTA claim until corrected outputs complete"
+  ]
+}
