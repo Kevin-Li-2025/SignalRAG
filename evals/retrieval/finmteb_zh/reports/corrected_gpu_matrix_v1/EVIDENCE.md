@@ -23,3 +23,15 @@ matching the sealed remote artifact. `SHA256SUMS` covers every committed result.
 Raw score caches are deliberately excluded because they reproduce dataset
 candidate content; strict cache-coverage and order-invariance evidence is
 retained in the committed audits and frozen outputs.
+
+Publication validation adds no new GPU inference. The CPU test suite rebuilds
+the sealed summary exactly and verifies all 26 payload hashes, train/test split
+roles, train-selected versus evaluated strategies, per-seed audit coverage,
+and shared candidate identities across precisions. Run from the subproject:
+
+```bash
+PYTHONPATH=src python -m pytest -q
+```
+
+The DISC blending coefficient differs across precisions, so these are two
+train-tuned pipelines, not a fixed-strategy isolation of quantization error.

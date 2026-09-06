@@ -34,6 +34,15 @@ should not be described as anonymized user traffic.
 
 ## Quick Start
 
+The isolated [FinanceMTEB reranking subproject](evals/retrieval/finmteb_zh/RESULTS.md)
+also contains a corrected four-arm BF16/NF4 GPU matrix: two tasks, **72 distinct
+test queries**, macro MAP 0.995283 versus 1.000000. This tiny, saturated result
+checks the repaired candidate-order/cache pipeline; it is not a broad quality
+or SOTA result. Each precision selected its blend on train separately (DISC
+alpha 0.30 versus 0.15), so it does not isolate quantization error at one fixed
+strategy. CI checks the frozen strategy, candidate hashes, four order seeds,
+and all 26 archived payload digests. This is separate from the RAG suites above.
+
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate

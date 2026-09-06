@@ -28,6 +28,12 @@ Macro BF16 MAP/MRR/nDCG@10 is `0.995283/0.995283/0.996518`; macro NF4 is
 test splits remained frozen. The small 53-query and 19-query tests do not support
 a general NF4-superiority or SOTA claim.
 
+The 72 queries are reused across precision arms; they are not 144 independent
+examples. DISC uses different train-selected alphas (0.30 BF16 versus 0.15
+NF4), so this compares two tuned pipelines, not quantization error under a
+single fixed blend. A fixed-strategy comparison and a larger independent
+query set are still missing.
+
 The exact frozen-test outputs, train-selected strategies, nested-CV reports,
 candidate-order audits, GPU inventories, aggregate summary, and SHA-256 ledger
 are committed under

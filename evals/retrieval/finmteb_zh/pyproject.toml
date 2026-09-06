@@ -40,9 +40,9 @@ dev = [
 where = ["src"]
 
 [project.urls]
-Repository = "https://github.com/Kevin-Li-2025/finmteb-zh-reranker-sota"
-Results = "https://github.com/Kevin-Li-2025/finmteb-zh-reranker-sota/blob/main/RESULTS.md"
-Comparison = "https://github.com/Kevin-Li-2025/finmteb-zh-reranker-sota/blob/main/reports/public_reranking_zh_snapshot_comparison.md"
+Repository = "https://github.com/yinli-systems/signal-rag"
+Results = "https://github.com/yinli-systems/signal-rag/blob/main/evals/retrieval/finmteb_zh/RESULTS.md"
+Comparison = "https://github.com/yinli-systems/signal-rag/blob/main/evals/retrieval/finmteb_zh/reports/public_reranking_zh_snapshot_comparison.md"
 
 [tool.ruff]
 line-length = 100
