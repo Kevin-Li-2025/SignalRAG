@@ -1,3 +1,5 @@
+import pytest
+
 from finmteb_sota.metrics import (
     RankedQuery,
     average_precision,
@@ -33,3 +35,16 @@ def test_reranking_metrics() -> None:
     )
     assert metrics["map"] == 0.75
     assert metrics["mrr"] == 0.75
+
+
+def test_tied_scores_are_independent_of_positive_position() -> None:
+    assert average_precision([1, 0], [0.0, 0.0]) == 0.75
+    assert average_precision([0, 1], [0.0, 0.0]) == 0.75
+    assert reciprocal_rank([1, 0], [0.0, 0.0]) == 0.75
+    assert reciprocal_rank([0, 1], [0.0, 0.0]) == 0.75
+    assert ndcg_at_k([1, 0], [0.0, 0.0]) == ndcg_at_k([0, 1], [0.0, 0.0])
+
+
+def test_incomplete_score_vectors_fail_closed() -> None:
+    with pytest.raises(ValueError, match="identical length"):
+        average_precision([1, 0], [0.5])

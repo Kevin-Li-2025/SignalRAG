@@ -1,0 +1,81 @@
+{
+  "status": "complete",
+  "cache_format": "v3 candidate-ID keyed",
+  "cache_tag": "qwen3_reranker_8b_bnb_nf4_true_logit_len4096_v3",
+  "candidate_order_seeds": [
+    20260905,
+    2234,
+    314159,
+    8675309
+  ],
+  "tolerance": 1e-12,
+  "all_tasks_order_invariant": true,
+  "tasks": [
+    {
+      "dataset": "FinanceMTEB/DISCFinLLM-reranking",
+      "leaderboard_name": "DISCFinLLMReranking",
+      "split": "test",
+      "num_queries": 19,
+      "strategy": {
+        "method": "zscore_linear",
+        "feature": "doc_bigram",
+        "alpha": 0.15
+      },
+      "order_invariant": true,
+      "seeds": [
+        {
+          "seed": 20260905,
+          "metrics": {
+            "map": 1.0,
+            "mrr": 1.0,
+            "ndcg@10": 1.0
+          },
+          "metric_invariant": true,
+          "same_candidate_coverage": true,
+          "candidate_count": 242,
+          "candidate_set_sha256": "af444e749e4f459b242d76d1c99b67981353b287c70439b939901dedc2e64253",
+          "cache_path": "/ssd/scxi253/gpu-evidence-20260905/runs/finmteb/bnb_nf4/DISCFinLLMReranking/score_cache/DISCFinLLMReranking_test_qwen3_reranker_8b_bnb_nf4_true_logit_len4096_v3_8777e31acd63_v3.json"
+        },
+        {
+          "seed": 2234,
+          "metrics": {
+            "map": 1.0,
+            "mrr": 1.0,
+            "ndcg@10": 1.0
+          },
+          "metric_invariant": true,
+          "same_candidate_coverage": true,
+          "candidate_count": 242,
+          "candidate_set_sha256": "af444e749e4f459b242d76d1c99b67981353b287c70439b939901dedc2e64253",
+          "cache_path": "/ssd/scxi253/gpu-evidence-20260905/runs/finmteb/bnb_nf4/DISCFinLLMReranking/score_cache/DISCFinLLMReranking_test_qwen3_reranker_8b_bnb_nf4_true_logit_len4096_v3_8777e31acd63_v3.json"
+        },
+        {
+          "seed": 314159,
+          "metrics": {
+            "map": 1.0,
+            "mrr": 1.0,
+            "ndcg@10": 1.0
+          },
+          "metric_invariant": true,
+          "same_candidate_coverage": true,
+          "candidate_count": 242,
+          "candidate_set_sha256": "af444e749e4f459b242d76d1c99b67981353b287c70439b939901dedc2e64253",
+          "cache_path": "/ssd/scxi253/gpu-evidence-20260905/runs/finmteb/bnb_nf4/DISCFinLLMReranking/score_cache/DISCFinLLMReranking_test_qwen3_reranker_8b_bnb_nf4_true_logit_len4096_v3_8777e31acd63_v3.json"
+        },
+        {
+          "seed": 8675309,
+          "metrics": {
+            "map": 1.0,
+            "mrr": 1.0,
+            "ndcg@10": 1.0
+          },
+          "metric_invariant": true,
+          "same_candidate_coverage": true,
+          "candidate_count": 242,
+          "candidate_set_sha256": "af444e749e4f459b242d76d1c99b67981353b287c70439b939901dedc2e64253",
+          "cache_path": "/ssd/scxi253/gpu-evidence-20260905/runs/finmteb/bnb_nf4/DISCFinLLMReranking/score_cache/DISCFinLLMReranking_test_qwen3_reranker_8b_bnb_nf4_true_logit_len4096_v3_8777e31acd63_v3.json"
+        }
+      ]
+    }
+  ]
+}

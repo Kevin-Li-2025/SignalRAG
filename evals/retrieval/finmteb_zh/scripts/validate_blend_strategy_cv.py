@@ -8,31 +8,12 @@ from pathlib import Path
 from statistics import mean, pstdev
 from typing import Any
 
-from finmteb_sota.data import RerankRecord, load_reranking_records
+from finmteb_sota.data import RerankRecord, flatten_records, load_reranking_records
 from finmteb_sota.lexical import blend_feature_by_group, lexical_feature_values, rrf_blend_by_group
 from finmteb_sota.metrics import RankedQuery, reranking_metrics
 from finmteb_sota.qwen3 import DEFAULT_INSTRUCTION
-from finmteb_sota.score_cache import load_score_cache
+from finmteb_sota.score_cache import build_candidate_ids, load_score_cache
 from finmteb_sota.tasks import RerankingTask, resolve_tasks
-
-
-def flatten_records(records: list[RerankRecord]) -> tuple[list[str], list[str], list[int], list[str]]:
-    queries: list[str] = []
-    docs: list[str] = []
-    labels: list[int] = []
-    qids: list[str] = []
-    for record in records:
-        for positive in record.positives:
-            queries.append(record.query)
-            docs.append(positive)
-            labels.append(1)
-            qids.append(record.query_id)
-        for negative in record.negatives:
-            queries.append(record.query)
-            docs.append(negative)
-            labels.append(0)
-            qids.append(record.query_id)
-    return queries, docs, labels, qids
 
 
 def load_scores(
@@ -41,9 +22,12 @@ def load_scores(
     instruction: str,
     cache_dir: Path,
     cache_tag: str,
+    candidate_ids: list[str],
 ) -> list[float]:
     try:
-        scores, _ = load_score_cache(cache_dir, task, split, instruction, cache_tag)
+        scores, _ = load_score_cache(
+            cache_dir, task, split, instruction, cache_tag, candidate_ids
+        )
     except FileNotFoundError as exc:
         raise FileNotFoundError(
             f"{exc}. Run search_blend_strategy.py once first with --cache-tag {cache_tag}."
@@ -61,7 +45,7 @@ def feature_matrix(queries: list[str], docs: list[str]) -> dict[str, list[float]
 
 def group_scores(qids: list[str], labels: list[int], scores: list[float]) -> list[RankedQuery]:
     grouped: dict[str, tuple[list[int], list[float]]] = {}
-    for qid, label, score in zip(qids, labels, scores):
+    for qid, label, score in zip(qids, labels, scores, strict=True):
         q_labels, q_scores = grouped.setdefault(qid, ([], []))
         q_labels.append(label)
         q_scores.append(score)
@@ -80,7 +64,7 @@ def subset_metrics(
     filtered_qids: list[str] = []
     filtered_labels: list[int] = []
     filtered_scores: list[float] = []
-    for qid, label, score in zip(qids, labels, scores):
+    for qid, label, score in zip(qids, labels, scores, strict=True):
         if qid in keep_qids:
             filtered_qids.append(qid)
             filtered_labels.append(label)
@@ -132,12 +116,14 @@ def folds_for_records(records: list[RerankRecord], n_folds: int, seed: int) -> l
 def evaluate_task(task: RerankingTask, args: argparse.Namespace) -> dict[str, Any]:
     records = load_reranking_records(task.dataset_id, split=args.split)
     queries, docs, labels, qids = flatten_records(records)
+    candidate_ids = build_candidate_ids(qids, queries, docs)
     model_scores = load_scores(
         task,
         args.split,
         args.instruction,
         args.cache_dir,
         args.cache_tag,
+        candidate_ids,
     )
     features = feature_matrix(queries, docs)
     folds = folds_for_records(records, args.folds, args.seed)
@@ -151,7 +137,7 @@ def evaluate_task(task: RerankingTask, args: argparse.Namespace) -> dict[str, An
                 qids,
                 labels,
                 scores,
-                set(record.query_id for record in records) - fold,
+                {record.query_id for record in records} - fold,
             )
             for fold in folds
         ]

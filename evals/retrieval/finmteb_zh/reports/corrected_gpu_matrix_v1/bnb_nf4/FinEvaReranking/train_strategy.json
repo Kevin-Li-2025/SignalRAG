@@ -1,0 +1,278 @@
+{
+  "model": "/ssd/scxi253/gpu-evidence-20260905/models/qwen3-reranker-8b",
+  "adapter": null,
+  "split": "train",
+  "average_map": 0.9979508196721312,
+  "tasks": [
+    {
+      "dataset": "FinanceMTEB/FinEvaRetrieval-reranking",
+      "leaderboard_name": "FinEvaReranking",
+      "split": "train",
+      "num_queries": 122,
+      "num_pairs": 1336,
+      "instruction": "Given a finance question, retrieve and rank passages that directly answer it. Prioritize exact entities, numbers, dates, formulas, and financial terminology.",
+      "best": {
+        "method": "zscore_linear",
+        "feature": "title_trigram",
+        "alpha": 0.08,
+        "metrics": {
+          "map": 0.9979508196721312,
+          "mrr": 0.9979508196721312,
+          "ndcg@10": 0.9984874170228338
+        }
+      },
+      "candidates": [
+        {
+          "method": "zscore_linear",
+          "feature": "title_trigram",
+          "alpha": 0.08,
+          "metrics": {
+            "map": 0.9979508196721312,
+            "mrr": 0.9979508196721312,
+            "ndcg@10": 0.9984874170228338
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "title_trigram",
+          "alpha": 0.1,
+          "metrics": {
+            "map": 0.9979508196721312,
+            "mrr": 0.9979508196721312,
+            "ndcg@10": 0.9984874170228338
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "title_trigram",
+          "alpha": 0.15,
+          "metrics": {
+            "map": 0.9979508196721312,
+            "mrr": 0.9979508196721312,
+            "ndcg@10": 0.9984874170228338
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "title_trigram",
+          "alpha": 0.2,
+          "metrics": {
+            "map": 0.9979508196721312,
+            "mrr": 0.9979508196721312,
+            "ndcg@10": 0.9984874170228338
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "title_trigram",
+          "alpha": 0.3,
+          "metrics": {
+            "map": 0.9979508196721312,
+            "mrr": 0.9979508196721312,
+            "ndcg@10": 0.9984874170228338
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "title_trigram",
+          "alpha": 0.5,
+          "metrics": {
+            "map": 0.9979508196721312,
+            "mrr": 0.9979508196721312,
+            "ndcg@10": 0.9984874170228338
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "title_trigram",
+          "alpha": 0.8,
+          "metrics": {
+            "map": 0.9979508196721312,
+            "mrr": 0.9979508196721312,
+            "ndcg@10": 0.9984874170228338
+          }
+        },
+        {
+          "method": "model",
+          "feature": null,
+          "alpha": 0.0,
+          "metrics": {
+            "map": 0.9938524590163934,
+            "mrr": 0.9938524590163934,
+            "ndcg@10": 0.9954622510685015
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "lexical",
+          "alpha": 0.0,
+          "metrics": {
+            "map": 0.9938524590163934,
+            "mrr": 0.9938524590163934,
+            "ndcg@10": 0.9954622510685015
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "head_lexical",
+          "alpha": 0.0,
+          "metrics": {
+            "map": 0.9938524590163934,
+            "mrr": 0.9938524590163934,
+            "ndcg@10": 0.9954622510685015
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "title_lexical",
+          "alpha": 0.0,
+          "metrics": {
+            "map": 0.9938524590163934,
+            "mrr": 0.9938524590163934,
+            "ndcg@10": 0.9954622510685015
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "doc_bigram",
+          "alpha": 0.0,
+          "metrics": {
+            "map": 0.9938524590163934,
+            "mrr": 0.9938524590163934,
+            "ndcg@10": 0.9954622510685015
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "doc_bigram",
+          "alpha": 0.005,
+          "metrics": {
+            "map": 0.9938524590163934,
+            "mrr": 0.9938524590163934,
+            "ndcg@10": 0.9954622510685015
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "doc_bigram",
+          "alpha": 0.01,
+          "metrics": {
+            "map": 0.9938524590163934,
+            "mrr": 0.9938524590163934,
+            "ndcg@10": 0.9954622510685015
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "doc_bigram",
+          "alpha": 0.02,
+          "metrics": {
+            "map": 0.9938524590163934,
+            "mrr": 0.9938524590163934,
+            "ndcg@10": 0.9954622510685015
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "doc_bigram",
+          "alpha": 0.08,
+          "metrics": {
+            "map": 0.9938524590163934,
+            "mrr": 0.9938524590163934,
+            "ndcg@10": 0.9954622510685015
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "doc_bigram",
+          "alpha": 0.1,
+          "metrics": {
+            "map": 0.9938524590163934,
+            "mrr": 0.9938524590163934,
+            "ndcg@10": 0.9954622510685015
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "doc_bigram",
+          "alpha": 0.15,
+          "metrics": {
+            "map": 0.9938524590163934,
+            "mrr": 0.9938524590163934,
+            "ndcg@10": 0.9954622510685015
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "doc_bigram",
+          "alpha": 0.2,
+          "metrics": {
+            "map": 0.9938524590163934,
+            "mrr": 0.9938524590163934,
+            "ndcg@10": 0.9954622510685015
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "doc_bigram",
+          "alpha": 0.3,
+          "metrics": {
+            "map": 0.9938524590163934,
+            "mrr": 0.9938524590163934,
+            "ndcg@10": 0.9954622510685015
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "doc_bigram",
+          "alpha": 0.5,
+          "metrics": {
+            "map": 0.9938524590163934,
+            "mrr": 0.9938524590163934,
+            "ndcg@10": 0.9954622510685015
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "doc_bigram",
+          "alpha": 0.8,
+          "metrics": {
+            "map": 0.9938524590163934,
+            "mrr": 0.9938524590163934,
+            "ndcg@10": 0.9954622510685015
+          }
+        },
+        {
+          "method": "rrf",
+          "feature": "doc_bigram",
+          "alpha": 0.1,
+          "metrics": {
+            "map": 0.9938524590163934,
+            "mrr": 0.9938524590163934,
+            "ndcg@10": 0.9954622510685015
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "head_bigram",
+          "alpha": 0.0,
+          "metrics": {
+            "map": 0.9938524590163934,
+            "mrr": 0.9938524590163934,
+            "ndcg@10": 0.9954622510685015
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "head_bigram",
+          "alpha": 0.005,
+          "metrics": {
+            "map": 0.9938524590163934,
+            "mrr": 0.9938524590163934,
+            "ndcg@10": 0.9954622510685015
+          }
+        }
+      ]
+    }
+  ]
+}

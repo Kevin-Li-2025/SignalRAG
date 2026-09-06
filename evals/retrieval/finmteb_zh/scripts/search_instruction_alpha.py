@@ -7,30 +7,11 @@ from pathlib import Path
 
 from tqdm import tqdm
 
-from finmteb_sota.data import RerankRecord, load_reranking_records
+from finmteb_sota.data import flatten_records, load_reranking_records
 from finmteb_sota.lexical import blend_scores_by_group, lexical_score
 from finmteb_sota.metrics import RankedQuery, reranking_metrics
 from finmteb_sota.scoring import Qwen3RerankerScorer
 from finmteb_sota.tasks import resolve_tasks
-
-
-def flatten_records(records: list[RerankRecord]) -> tuple[list[str], list[str], list[int], list[str]]:
-    queries: list[str] = []
-    docs: list[str] = []
-    labels: list[int] = []
-    qids: list[str] = []
-    for record in records:
-        for positive in record.positives:
-            queries.append(record.query)
-            docs.append(positive)
-            labels.append(1)
-            qids.append(record.query_id)
-        for negative in record.negatives:
-            queries.append(record.query)
-            docs.append(negative)
-            labels.append(0)
-            qids.append(record.query_id)
-    return queries, docs, labels, qids
 
 
 def metrics_for_scores(
@@ -39,7 +20,7 @@ def metrics_for_scores(
     scores: list[float],
 ) -> dict[str, float]:
     grouped: dict[str, tuple[list[int], list[float]]] = {}
-    for qid, label, score in zip(qids, labels, scores):
+    for qid, label, score in zip(qids, labels, scores, strict=True):
         q_labels, q_scores = grouped.setdefault(qid, ([], []))
         q_labels.append(label)
         q_scores.append(score)

@@ -7,6 +7,11 @@ from tqdm import tqdm
 from finmteb_sota.qwen3 import qwen3_batch_tokenize, yes_no_token_ids
 
 
+def _deepspeed_disabled() -> bool:
+    """The reranker scorer is inference-only and does not use DeepSpeed."""
+    return False
+
+
 class Qwen3RerankerScorer:
     def __init__(
         self,
@@ -17,6 +22,11 @@ class Qwen3RerankerScorer:
         device_map: str = "auto",
     ):
         import torch
+        import transformers.integrations.deepspeed as transformers_deepspeed
+
+        # The shared ParaCloud base environment advertises an optional
+        # DeepSpeed install that cannot initialize without its build toolkit.
+        transformers_deepspeed.is_deepspeed_available = _deepspeed_disabled
         from transformers import AutoModelForCausalLM, AutoTokenizer
 
         kwargs = {

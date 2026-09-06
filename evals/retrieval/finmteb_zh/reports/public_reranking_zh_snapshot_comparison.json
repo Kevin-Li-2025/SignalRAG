@@ -1,4 +1,6 @@
 {
+  "status": "invalidated_pending_rerun",
+  "invalidation_reason": "Historical positive-first ordering, order-dependent tie handling, and incomplete score-vector checks",
   "date_checked": "2026-05-26",
   "official_space": "https://huggingface.co/spaces/FinanceMTEB/FinMTEB",
   "leaderboard_implementation": "https://huggingface.co/spaces/FinanceMTEB/FinMTEB/blob/main/app.py",
@@ -32,5 +34,5 @@
     "FinEvaReranking_map": 0.009400000000000075,
     "DISCFinLLMReranking_map": 0.00001403508771924411
   },
-  "claim": "New SOTA on the public FinanceMTEB Reranking_zh benchmark snapshot; official leaderboard inclusion pending maintainer submission."
+  "claim": "No current SOTA claim; historical result retained for audit only."
 }

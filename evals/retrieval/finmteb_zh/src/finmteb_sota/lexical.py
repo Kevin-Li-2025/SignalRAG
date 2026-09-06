@@ -86,11 +86,13 @@ def zscore(values: list[float]) -> list[float]:
 
 
 def blend_scores(model_scores: list[float], lexical_scores: list[float], alpha: float) -> list[float]:
+    if len(model_scores) != len(lexical_scores):
+        raise ValueError("model_scores and lexical_scores must have identical length")
     normalized_lexical = zscore(lexical_scores)
     normalized_model = zscore(model_scores)
     return [
         model_score + alpha * lexical_score
-        for model_score, lexical_score in zip(normalized_model, normalized_lexical)
+        for model_score, lexical_score in zip(normalized_model, normalized_lexical, strict=True)
     ]
 
 
@@ -100,6 +102,8 @@ def blend_scores_by_group(
     lexical_scores: list[float],
     alpha: float,
 ) -> list[float]:
+    if len(group_ids) != len(model_scores) or len(group_ids) != len(lexical_scores):
+        raise ValueError("group_ids, model_scores, and lexical_scores must have identical length")
     grouped: dict[str, list[int]] = {}
     for idx, group_id in enumerate(group_ids):
         grouped.setdefault(group_id, []).append(idx)
@@ -123,10 +127,18 @@ def blend_feature_by_group(
 
 
 def reciprocal_rank_feature(values: list[float], k: float = 60.0) -> list[float]:
+    """Return reciprocal-rank features with equal scores assigned equal midranks."""
     ranked = sorted(enumerate(values), key=lambda item: item[1], reverse=True)
     scores = [0.0 for _ in values]
-    for rank, (idx, _) in enumerate(ranked, start=1):
-        scores[idx] = 1.0 / (k + rank)
+    start = 0
+    while start < len(ranked):
+        end = start + 1
+        while end < len(ranked) and ranked[end][1] == ranked[start][1]:
+            end += 1
+        midrank = ((start + 1) + end) / 2.0
+        for idx, _ in ranked[start:end]:
+            scores[idx] = 1.0 / (k + midrank)
+        start = end
     return scores
 
 

@@ -1,0 +1,278 @@
+{
+  "model": "/ssd/scxi253/gpu-evidence-20260905/models/qwen3-reranker-8b",
+  "adapter": null,
+  "split": "train",
+  "average_map": 0.9927248677248677,
+  "tasks": [
+    {
+      "dataset": "FinanceMTEB/DISCFinLLM-reranking",
+      "leaderboard_name": "DISCFinLLMReranking",
+      "split": "train",
+      "num_queries": 42,
+      "num_pairs": 536,
+      "instruction": "Given a finance question, retrieve and rank passages that directly answer it. Prioritize exact entities, numbers, dates, formulas, and financial terminology.",
+      "best": {
+        "method": "zscore_linear",
+        "feature": "doc_bigram",
+        "alpha": 0.15,
+        "metrics": {
+          "map": 0.9927248677248677,
+          "mrr": 1.0,
+          "ndcg@10": 0.9965825594919074
+        }
+      },
+      "candidates": [
+        {
+          "method": "zscore_linear",
+          "feature": "doc_bigram",
+          "alpha": 0.15,
+          "metrics": {
+            "map": 0.9927248677248677,
+            "mrr": 1.0,
+            "ndcg@10": 0.9965825594919074
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "doc_bigram",
+          "alpha": 0.2,
+          "metrics": {
+            "map": 0.9927248677248677,
+            "mrr": 1.0,
+            "ndcg@10": 0.9965825594919074
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "doc_bigram",
+          "alpha": 0.3,
+          "metrics": {
+            "map": 0.9927248677248677,
+            "mrr": 1.0,
+            "ndcg@10": 0.9965825594919074
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "doc_bigram",
+          "alpha": 0.5,
+          "metrics": {
+            "map": 0.9927248677248677,
+            "mrr": 1.0,
+            "ndcg@10": 0.9965825594919074
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "doc_bigram",
+          "alpha": 0.8,
+          "metrics": {
+            "map": 0.9927248677248677,
+            "mrr": 1.0,
+            "ndcg@10": 0.9965825594919074
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "title_bigram",
+          "alpha": 0.05,
+          "metrics": {
+            "map": 0.9918650793650794,
+            "mrr": 1.0,
+            "ndcg@10": 0.99604949755427
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "title_bigram",
+          "alpha": 0.08,
+          "metrics": {
+            "map": 0.9918650793650794,
+            "mrr": 1.0,
+            "ndcg@10": 0.99604949755427
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "title_bigram",
+          "alpha": 0.1,
+          "metrics": {
+            "map": 0.9918650793650794,
+            "mrr": 1.0,
+            "ndcg@10": 0.99604949755427
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "title_trigram",
+          "alpha": 0.05,
+          "metrics": {
+            "map": 0.9908730158730159,
+            "mrr": 1.0,
+            "ndcg@10": 0.9956622116434267
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "title_trigram",
+          "alpha": 0.08,
+          "metrics": {
+            "map": 0.9908730158730159,
+            "mrr": 1.0,
+            "ndcg@10": 0.9956622116434267
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "title_trigram",
+          "alpha": 0.1,
+          "metrics": {
+            "map": 0.9908730158730159,
+            "mrr": 1.0,
+            "ndcg@10": 0.9956622116434267
+          }
+        },
+        {
+          "method": "rrf",
+          "feature": "head_lexical",
+          "alpha": 1.0,
+          "metrics": {
+            "map": 0.9907407407407407,
+            "mrr": 1.0,
+            "ndcg@10": 0.995807987670221
+          }
+        },
+        {
+          "method": "rrf",
+          "feature": "doc_bigram",
+          "alpha": 0.5,
+          "metrics": {
+            "map": 0.9907407407407407,
+            "mrr": 1.0,
+            "ndcg@10": 0.9955705244011899
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "lexical",
+          "alpha": 0.005,
+          "metrics": {
+            "map": 0.9895502645502645,
+            "mrr": 1.0,
+            "ndcg@10": 0.9949307527392067
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "lexical",
+          "alpha": 0.01,
+          "metrics": {
+            "map": 0.9895502645502645,
+            "mrr": 1.0,
+            "ndcg@10": 0.9949307527392067
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "lexical",
+          "alpha": 0.02,
+          "metrics": {
+            "map": 0.9895502645502645,
+            "mrr": 1.0,
+            "ndcg@10": 0.9949307527392067
+          }
+        },
+        {
+          "method": "rrf",
+          "feature": "lexical",
+          "alpha": 0.1,
+          "metrics": {
+            "map": 0.9895502645502645,
+            "mrr": 1.0,
+            "ndcg@10": 0.9949307527392067
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "head_lexical",
+          "alpha": 0.005,
+          "metrics": {
+            "map": 0.9895502645502645,
+            "mrr": 1.0,
+            "ndcg@10": 0.9949307527392067
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "head_lexical",
+          "alpha": 0.01,
+          "metrics": {
+            "map": 0.9895502645502645,
+            "mrr": 1.0,
+            "ndcg@10": 0.9949307527392067
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "head_lexical",
+          "alpha": 0.02,
+          "metrics": {
+            "map": 0.9895502645502645,
+            "mrr": 1.0,
+            "ndcg@10": 0.9949307527392067
+          }
+        },
+        {
+          "method": "rrf",
+          "feature": "head_lexical",
+          "alpha": 0.1,
+          "metrics": {
+            "map": 0.9895502645502645,
+            "mrr": 1.0,
+            "ndcg@10": 0.9949307527392067
+          }
+        },
+        {
+          "method": "rrf",
+          "feature": "head_lexical",
+          "alpha": 0.2,
+          "metrics": {
+            "map": 0.9895502645502645,
+            "mrr": 1.0,
+            "ndcg@10": 0.9949307527392067
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "doc_bigram",
+          "alpha": 0.005,
+          "metrics": {
+            "map": 0.9895502645502645,
+            "mrr": 1.0,
+            "ndcg@10": 0.9949307527392067
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "doc_bigram",
+          "alpha": 0.01,
+          "metrics": {
+            "map": 0.9895502645502645,
+            "mrr": 1.0,
+            "ndcg@10": 0.9949307527392067
+          }
+        },
+        {
+          "method": "zscore_linear",
+          "feature": "doc_bigram",
+          "alpha": 0.02,
+          "metrics": {
+            "map": 0.9895502645502645,
+            "mrr": 1.0,
+            "ndcg@10": 0.9949307527392067
+          }
+        }
+      ]
+    }
+  ]
+}

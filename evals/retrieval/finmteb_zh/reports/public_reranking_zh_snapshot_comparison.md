@@ -1,4 +1,7 @@
-# Public Reranking_zh Snapshot Comparison
+# Public Reranking_zh Snapshot Comparison (Historical, Invalidated)
+
+> **Status:** invalidated pending a full rerun with label-independent candidate
+> ordering, tie-aware metrics/RRF, and complete score coverage.
 
 Date checked: 2026-05-26
 
@@ -60,8 +63,7 @@ Frozen method:
 
 Supported claim:
 
-> New SOTA on the public FinanceMTEB `Reranking_zh` benchmark snapshot, with
-> 0.997807 average MAP versus the published visible best 0.993100.
+> Historical comparison only; no current SOTA claim.
 
 Do not overclaim:
 
@@ -70,4 +72,3 @@ Do not overclaim:
 - The strongest claim is the `Reranking_zh` average. The DISC-only margin is
   very small and should be described as matching/slightly exceeding the rounded
   public snapshot value.
-
