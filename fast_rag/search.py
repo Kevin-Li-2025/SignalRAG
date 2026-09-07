@@ -32,6 +32,12 @@ RECENCY_TO_BRAVE = {
     "month": "pm",
     "year": "py",
 }
+RECENCY_TO_TAVILY = {
+    "day": "day",
+    "week": "week",
+    "month": "month",
+    "year": "year",
+}
 VALID_RECENCY = {"any", *RECENCY_TO_DDG}
 VALID_LENSES = {"web", "official", "academic", "forums", "news", "pdf", "finance"}
 RRF_K = 60
@@ -963,6 +969,10 @@ def _rank_search_results(query: str, results: list[SearchResult]) -> list[Search
 class SearchProviders:
     def __init__(self, client: httpx.AsyncClient) -> None:
         self.client = client
+        self._tavily_client = None
+        if settings.tavily_api_key:
+            from tavily import AsyncTavilyClient
+            self._tavily_client = AsyncTavilyClient(api_key=settings.tavily_api_key)
 
     async def search(
         self,
@@ -975,6 +985,8 @@ class SearchProviders:
         tasks = []
         if settings.brave_api_key:
             tasks.append(self._brave(query, limit, timeout, filters))
+        if settings.tavily_api_key:
+            tasks.append(self._tavily(query, limit, timeout, filters))
         tasks.append(self._duckduckgo(query, limit, timeout, filters))
         tasks.append(self._bing(query, limit, timeout, filters))
         tasks.append(self._yahoo(query, limit, timeout, filters))
@@ -1017,6 +1029,39 @@ class SearchProviders:
                     url=item.get("url", ""),
                     snippet=clean_text(item.get("description", "")),
                     provider="brave",
+                    rank=rank,
+                )
+            )
+        return results
+
+    async def _tavily(
+        self,
+        query: str,
+        limit: int,
+        timeout: float,
+        filters: SearchFilters,
+    ) -> list[SearchResult]:
+        kwargs: dict = {
+            "query": query,
+            "max_results": min(limit, 20),
+            "search_depth": "basic",
+            "timeout": timeout,
+        }
+        if filters.include_domains:
+            kwargs["include_domains"] = list(filters.include_domains)
+        if filters.exclude_domains:
+            kwargs["exclude_domains"] = list(filters.exclude_domains)
+        if filters.recency in RECENCY_TO_TAVILY:
+            kwargs["time_range"] = RECENCY_TO_TAVILY[filters.recency]
+        response = await self._tavily_client.search(**kwargs)
+        results = []
+        for rank, item in enumerate(response.get("results", []), start=1):
+            results.append(
+                SearchResult(
+                    title=clean_text(item.get("title", "")),
+                    url=item.get("url", ""),
+                    snippet=clean_text(item.get("content", "")),
+                    provider="tavily",
                     rank=rank,
                 )
             )

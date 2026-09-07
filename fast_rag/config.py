@@ -16,6 +16,7 @@ class Settings:
     deepseek_base_url: str = os.getenv("DEEPSEEK_BASE_URL", "https://api.deepseek.com")
     deepseek_model: str = os.getenv("DEEPSEEK_MODEL", "deepseek-v4-flash")
     brave_api_key: str | None = os.getenv("BRAVE_API_KEY")
+    tavily_api_key: str | None = os.getenv("TAVILY_API_KEY")
     user_agent: str = os.getenv(
         "FAST_RAG_USER_AGENT",
         "FastSearchRAG/0.1 (+https://localhost)",
